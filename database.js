@@ -1,9 +1,10 @@
 const Database = require("@replit/database")
 const db = new Database()
+const crypto = require("crypto")
+
 
 module.exports.reset = async() => {
   await db.set("orders", []).then(() => {});
-  await db.set("lastid", 0);
 }
 
 
@@ -11,7 +12,7 @@ module.exports.append = async(order) => {
   orders = await db.get("orders").then((value) => {return value})
   orders.push(order)
   await db.set("orders", orders)
-  return true
+  return true 
 }
 
 module.exports.get = async(key) => {
@@ -29,10 +30,7 @@ module.exports.overwrite = async(newData) => {
 }
 
 module.exports.getID = async() => {
-  lastid = await db.get("lastid").then((value) => {return value})
-  newid = lastid+1
-  await db.set("lastid", newid)
-  return newid
+  return module.exports.createHash();
 }
 
 module.exports.list = async(search) => {
@@ -74,4 +72,14 @@ module.exports.convertUrlEscapeCharacters = (string) => {
     }
   })
   return string
+}
+
+module.exports.createHash = function() {
+  let result           = '';
+  let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let charactersLength = characters.length;
+  for ( var i = 0; i < 32; i++ ) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+   }
+   return result;
 }

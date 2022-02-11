@@ -23,7 +23,7 @@ app.get('/add/*', async(req, res) => {
     "id": await db.getID(),
   }
   db.append(order)
-  res.end("Added")
+  res.end(`{"status": "success"}`)
 })
 
 app.get("/get/*", async(req, res) => {
