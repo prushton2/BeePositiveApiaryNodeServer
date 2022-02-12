@@ -1,6 +1,7 @@
 const http = require('http');
 const db = require('./database.js');
 const enc = require('./encryption.js');
+const rsp = require('./response.js');
 
 const cors = require("cors")
 const express = require("express");
@@ -13,40 +14,51 @@ app.use(cors({
 
 app.get('/add/*', async(req, res) => {
   url = req.url.split("/").slice(2)
-
+  id = await db.getID()
   order = {
     "items": db.convertUrlEscapeCharacters(url[0]),
     "date" : db.convertUrlEscapeCharacters(url[1]),
     "email": db.convertUrlEscapeCharacters(url[2]),
     "name" : db.convertUrlEscapeCharacters(url[3]),
     "isComplete": false,
-    "id": await db.getID(),
+    "id": id,
   }
   db.append(order)
-  res.end("Added")
+  res.end(rsp.respond("200", {"ID": id}))
 })
 
 app.get("/get/*", async(req, res) => {
   url = req.url.split("/").slice(2)
   if(enc.verifypassword(url[0])) {
-    res.end(JSON.stringify(await db.get(url[1])))
+    res.end(rsp.respond("200", await db.get(url[1])))
   } else {
-    res.end("Error")
+    res.end(rsp.respond("400", {}))
   }
 })
 
 app.get("/complete/*", async(req, res) => {
+
+  haschanged = false
+
   url = req.url.split("/").slice(2)
   if(enc.verifypassword(url[0])) {
     orders = await db.get("orders")
     for(var order in orders) {
       if(orders[order]["id"] == url[1]) {
         orders[order]["isComplete"] = url[2] == 'true'
+        haschanged = true
       }
     }
+
+    if(!haschanged) {
+      res.end(rsp.respond("400", {}))
+    }
+
     await db.overwrite(orders)
+    res.end(rsp.respond("200", {}))
+
   }
-  res.end("Updated")
+  res.end(rsp.respond("400", {}))
 })
 
 app.get("/delete/*", async(req, res) => {
@@ -54,22 +66,26 @@ app.get("/delete/*", async(req, res) => {
   if(enc.verifypassword(url[0])) {
     orders = await db.get("orders")
     for(var order in orders) {
-      if(orders[order]["id"] == parseInt(url[1])) {
+      if(orders[order]["id"] == url[1]) {
         orders.splice(order, 1)
         db.overwrite(orders)
-        res.end("Deleted Item")
+        res.end(rsp.respond("200"), {})
         return
       }
     }
   } 
 
-  res.end("Nah")
+  res.end(rsp.respond("400", {}))
 })
 
-// app.get("/reset/*", async(req, res) => {
-//   await db.reset()
-//   res.end("Reset")
-// })
+app.get("/reset/*", async(req, res) => {
+  url = req.url.split("/").slice(2)
+  if(enc.verifypassword(url[0])) {
+    await db.reset()
+    res.end(rsp.respond("200", {}))
+  }
+  res.end(rsp.respond("404", {}))
+})
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
