@@ -66,7 +66,7 @@ app.get("/delete/*", async(req, res) => {
   if(enc.verifypassword(url[0])) {
     orders = await db.get("orders")
     for(var order in orders) {
-      if(orders[order]["id"] == parseInt(url[1])) {
+      if(orders[order]["id"] == url[1]) {
         orders.splice(order, 1)
         db.overwrite(orders)
         res.end(rsp.respond("200"), {})
@@ -78,7 +78,8 @@ app.get("/delete/*", async(req, res) => {
   res.end(rsp.respond("400", {}))
 })
 
-app.get("/reset", async(req, res) => {
+app.get("/reset/*", async(req, res) => {
+  url = req.url.split("/").slice(2)
   if(enc.verifypassword(url[0])) {
     await db.reset()
     res.end(rsp.respond("200", {}))
