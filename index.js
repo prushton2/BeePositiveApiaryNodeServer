@@ -25,6 +25,7 @@ app.get('/add/*', async(req, res) => {
     "id": id,
     "password": enc.hash(password)
   }
+  console.log(password)
   db.append(order)
   res.end(rsp.respond("200", {"ID": id, "password": password}))
 })
@@ -77,6 +78,25 @@ app.get("/delete/*", async(req, res) => {
     }
   } 
 
+  res.end(rsp.respond("400", {}))
+})
+
+app.get("/getorder/*", async(req, res) => {
+  url = req.url.split("/").slice(2)
+  order = await db.getOrderByID(url[0])
+  if(enc.hash(url[1]) == order["password"]) {
+    res.end(rsp.respond("200", order))
+  }
+  res.end(rsp.respond("400", {}))
+})
+
+app.get("/setorder/*", async(req, res) => {
+  url = req.url.split("/").slice(2)
+  order = await db.getOrderByID(url[0])
+  if(enc.hash(url[1]) == order["password"]) {
+    db.editOrderItems(url[0], db.convertUrlEscapeCharacters(url[2]))
+    res.end(rsp.respond("200", {}))
+  }
   res.end(rsp.respond("400", {}))
 })
 

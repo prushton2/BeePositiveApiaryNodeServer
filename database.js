@@ -37,6 +37,27 @@ module.exports.list = async(search) => {
   return await db.list(search).then((keys) => {return keys})
 }
 
+module.exports.getOrderByID = async(id) => {
+  orders = await db.get("orders").then(value => {return value})
+  for(var order in orders) {
+    if(orders[order]["id"] == id) {
+      return orders[order]
+    }
+  }
+}
+
+module.exports.editOrderItems = async(id, data) => {
+  orders = await db.get("orders").then(value => {return value})
+
+  for(let order in orders) {
+    if(orders[order]["id"] == id) {
+      orders[order]["items"] = data
+    }
+  }
+
+  await db.set("orders", orders)
+}
+
 module.exports.convertUrlEscapeCharacters = (string) => {
   charmap = 
   [[" ","%20"],
