@@ -15,6 +15,7 @@ app.use(cors({
 app.get('/add/*', async(req, res) => {
   url = req.url.split("/").slice(2)
   id = await db.getID()
+  password = await db.getID()
   order = {
     "items": db.convertUrlEscapeCharacters(url[0]),
     "date" : db.convertUrlEscapeCharacters(url[1]),
@@ -22,9 +23,10 @@ app.get('/add/*', async(req, res) => {
     "name" : db.convertUrlEscapeCharacters(url[3]),
     "isComplete": false,
     "id": id,
+    "password": enc.hash(password)
   }
   db.append(order)
-  res.end(rsp.respond("200", {"ID": id}))
+  res.end(rsp.respond("200", {"ID": id, "password": password}))
 })
 
 app.get("/get/*", async(req, res) => {
@@ -78,6 +80,25 @@ app.get("/delete/*", async(req, res) => {
   res.end(rsp.respond("400", {}))
 })
 
+app.get("/getorder/*", async(req, res) => {
+  url = req.url.split("/").slice(2)
+  order = await db.getOrderByID(url[0])
+  if(enc.hash(url[1]) == order["password"]) {
+    res.end(rsp.respond("200", order))
+  }
+  res.end(rsp.respond("400", {}))
+})
+
+app.get("/setorder/*", async(req, res) => {
+  url = req.url.split("/").slice(2)
+  order = await db.getOrderByID(url[0])
+  if(enc.hash(url[1]) == order["password"]) {
+    db.editOrderItems(url[0], db.convertUrlEscapeCharacters(url[2]))
+    res.end(rsp.respond("200", {}))
+  }
+  res.end(rsp.respond("400", {}))
+})
+
 app.get("/reset/*", async(req, res) => {
   url = req.url.split("/").slice(2)
   if(enc.verifypassword(url[0])) {
@@ -88,5 +109,5 @@ app.get("/reset/*", async(req, res) => {
 })
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log(`App listening on port ${port}`)
 })
