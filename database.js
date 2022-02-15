@@ -88,9 +88,11 @@ module.exports.convertUrlEscapeCharacters = (string) => {
   [",", "%2C"]]
 
   charmap.forEach((element) => {
-    while(string != string.replace(element[1], element[0])) {
-      string = string.replace(element[1], element[0])
-    }
+    try {
+      while(string != string.replace(element[1], element[0])) {
+        string = string.replace(element[1], element[0])
+      }
+    } catch {}
   })
   return string
 }
