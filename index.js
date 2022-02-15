@@ -15,6 +15,7 @@ app.use(cors({
 app.get('/add/*', async(req, res) => {
   url = req.url.split("/").slice(2)
   id = await db.getID()
+  password = await db.getID()
   order = {
     "items": db.convertUrlEscapeCharacters(url[0]),
     "date" : db.convertUrlEscapeCharacters(url[1]),
@@ -22,9 +23,10 @@ app.get('/add/*', async(req, res) => {
     "name" : db.convertUrlEscapeCharacters(url[3]),
     "isComplete": false,
     "id": id,
+    "password": enc.hash(password)
   }
   db.append(order)
-  res.end(rsp.respond("200", {"ID": id}))
+  res.end(rsp.respond("200", {"ID": id, "password": password}))
 })
 
 app.get("/get/*", async(req, res) => {
