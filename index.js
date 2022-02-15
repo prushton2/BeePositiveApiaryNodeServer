@@ -25,7 +25,6 @@ app.get('/add/*', async(req, res) => {
     "id": id,
     "password": enc.hash(password)
   }
-  console.log(password)
   db.append(order)
   res.end(rsp.respond("200", {"ID": id, "password": password}))
 })
