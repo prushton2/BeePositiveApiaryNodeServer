@@ -46,12 +46,12 @@ module.exports.getOrderByID = async(id) => {
   }
 }
 
-module.exports.editOrderItems = async(id, data) => {
+module.exports.editOrder = async(id, key, data) => {
   orders = await db.get("orders").then(value => {return value})
 
   for(let order in orders) {
     if(orders[order]["id"] == id) {
-      orders[order]["items"] = data
+      orders[order][key] = data
     }
   }
 

@@ -93,7 +93,9 @@ app.get("/setorder/*", async(req, res) => {
   url = req.url.split("/").slice(2)
   order = await db.getOrderByID(url[0])
   if(enc.hash(url[1]) == order["password"]) {
-    db.editOrderItems(url[0], db.convertUrlEscapeCharacters(url[2]))
+    await db.editOrder(url[0], "items", db.convertUrlEscapeCharacters(url[2]))
+    await db.editOrder(url[0], "isComplete", false)
+    order = await db.getOrderByID(url[0])
     res.end(rsp.respond("200", {}))
   }
   res.end(rsp.respond("400", {}))
