@@ -1,18 +1,22 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('./database.js')
 
-class Orders extends Model {}
+class Purchases extends Model {}
 
-Orders.init({
-  name: {
+Purchases.init({
+  orderID: {
     type: DataTypes.STRING
   },
-  email: {
+  productID: {
     type: DataTypes.STRING
+  },
+  amount: {
+    type: DataTypes.INTEGER
   }
 }, {
   sequelize,
-  modelName: "orders"
+  modelName: "purchases",
+  timestamps: false
 })
 
-module.exports = Orders;
+module.exports = Purchases;

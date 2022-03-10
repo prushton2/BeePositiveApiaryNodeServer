@@ -27,42 +27,33 @@ onStart = async() => {
 
 onStart()
 
-app.post('/newadd', async(req, res) => {
-  console.log(req.body);
-  console.log(req.body["name"])
-  await Orders.create(req.body)
-  res.end("User inserted")
-})
+// Example code
 
 app.get('/list', async(req, res) => {
-  console.log(await Orders.findOne({where: {}}))
-  res.end("")
+  response = await Orders.findOne({where: {}})
+  res.send(response)
 })
 
 app.get('/all', async(req, res) => {
   let response = await Orders.findAll()
+  console.log(response)
   res.send(response)
+  // res.send(response)
 })
 
-app.get('/add/*', async(req, res) => {
-  url = req.url.split("/").slice(2)
-
-  id = await sequelize.getID()
-  password = await sequelize.getID()
-  
-  order = {
-    "items": sequelize.convertUrlEscapeCharacters(url[0]),
-    "date" : sequelize.convertUrlEscapeCharacters(url[1]),
-    "email": sequelize.convertUrlEscapeCharacters(url[2]),
-    "name" : sequelize.convertUrlEscapeCharacters(url[3]),
-    "isComplete": false,
-    "id": id,
-    "password": enc.hash(password)
+app.post('/add', async(req, res) => {
+  //validate input
+  for(key in req.body["Order"]) {
+    if(!req.body["Order"][key]) {
+      res.status(400)
+      res.send({"response": "Invalid input"})
+      return;
+    }
   }
-
-  sequelize.append(order)
-  res.end(rsp.respond("200", {"ID": id, "password": password}))
-
+  
+  req.body["Order"]["isComplete"] = false
+  await Orders.create(req.body["Order"]) 
+  res.send({"response": "User Added"})
 })
 
 app.get("/get/*", async(req, res) => {
