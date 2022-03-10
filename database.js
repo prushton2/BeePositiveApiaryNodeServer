@@ -1,8 +1,17 @@
 const Database = require("@replit/database")
 const db = new Database()
 const crypto = require("crypto")
+const { Sequelize } = require('sequelize');
 
 
+const sequelize = new Sequelize("bpa-db", "user", "pass", {
+  dialect: "sqlite",
+  host: "./bpa.sqlite",
+})
+
+module.exports = sequelize
+
+/*
 module.exports.reset = async() => {
   await db.set("orders", []).then(() => {});
 }
@@ -105,4 +114,4 @@ module.exports.createHash = function() {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
    }
    return result;
-}
+}*/
