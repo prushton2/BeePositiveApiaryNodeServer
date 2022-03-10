@@ -2,6 +2,7 @@ const sequelize = require('./database.js');
 const enc = require('./encryption.js');
 const rsp = require('./response.js');
 const Orders = require('./Orders.js')
+const Purchases = require('./Purchases.js')
 
 const bodyParser = require('body-parser');
 const http = require('http');
@@ -29,16 +30,41 @@ onStart()
 
 // Example code
 
-app.get('/list', async(req, res) => {
-  response = await Orders.findOne({where: {}})
-  res.send(response)
-})
+// app.get('/list', async(req, res) => {
+//   response = await Orders.findOne({where: {}})
+//   res.send(response)
+// })
 
-app.get('/all', async(req, res) => {
-  let response = await Orders.findAll()
-  console.log(response)
-  res.send(response)
-  // res.send(response)
+// app.get('/all', async(req, res) => {
+//   let response = await Orders.findAll()
+//   console.log(response)
+//   res.send(response)
+//   // res.send(response)
+// })
+
+//Debug function
+app.get("/setDefaultPurchases", async(req, res) => {
+  await Purchases.create({
+    orderID: 1,
+    productID: 21,
+    amount: 7,
+  })
+  await Purchases.create({
+    orderID: 1,
+    productID: 12,
+    amount: 2,
+  })
+  await Purchases.create({
+    orderID: 2,
+    productID: 76,
+    amount: 3,
+  })
+  await Purchases.create({
+    orderID: 2,
+    productID: 34,
+    amount: 1,
+  })
+  res.send("Created")
 })
 
 app.post('/add', async(req, res) => {
@@ -50,50 +76,89 @@ app.post('/add', async(req, res) => {
       return;
     }
   }
-  
+  //Add to db
   req.body["Order"]["isComplete"] = false
   await Orders.create(req.body["Order"]) 
   res.send({"response": "User Added"})
 })
 
-app.get("/get/*", async(req, res) => {
+app.post("/getPurchases", async(req, res) => {
   url = req.url.split("/").slice(2)
-
-  if(enc.verifypassword(url[0])) {
-    res.end(rsp.respond("200", await sequelize.get(url[1])))
-  } else {
-    res.end(rsp.respond("400", {}))
-  }
-
-})
-
-app.get("/complete/*", async(req, res) => {
-  url = req.url.split("/").slice(2)
-
-  haschanged = false
-
-  if(!enc.verifypassword(url[0])) { //cancel if password is fake
-    res.end(rsp.respond("400", {}))
+  
+  if(!enc.verifypassword(req.body["password"])) {
+    res.status(400)
+    res.send({"response": "Invalid Credentials"})
     return
   }
 
-  orders = await sequelize.get("orders")
-  for(var order in orders) {
-    if(orders[order]["id"] == url[1]) {
-      orders[order]["isComplete"] = url[2] == 'true'
-      haschanged = true
-    }
+  allpurchases = await Purchases.findAll({where: {orderID: req.body["orderID"]}})
+  res.status(200)
+  res.send({"response": allpurchases})
+  return
+})
+
+app.post("/getOrders", async(req, res) => {
+  url = req.url.split("/").slice(2)
+
+  if(!enc.verifypassword(req.body["password"])) {
+    res.status(400)
+    res.send({"response": "Invalid Credentials"})
+    return
   }
 
-  if(!haschanged) {
-    res.end(rsp.respond("400", {}))
+  allOrders = await Orders.findAll()
+
+  res.send(allOrders)
+  return  
+})
+
+app.post("/complete", async(req, res) => {
+  url = req.url.split("/").slice(2)
+  
+  if(!enc.verifypassword(req.body["password"])) { // exit if password is invalid
+    res.status(400)
+    res.send({"response": "Invalid Credentials"})
+    return
   }
 
-  await sequelize.overwrite(orders)
-  res.end(rsp.respond("200", {}))
+  order = await Orders.findOne({where: {id: req.body["orderID"]}})
+  order.isComplete = req.body["completeStatus"]  
+  await order.save()
+
+  res.status(200)
+  res.send({"response": "Updated completion status"})
 
   
 })
+
+// app.post("/complete", async(req, res) => {
+//   url = req.url.split("/").slice(2)
+
+//   haschanged = false
+
+//   if(!enc.verifypassword(req.body["password"])) { // exit if password is invalid
+//     res.status(400)
+//     res.send({"response": "Invalid Credentials"})
+//     return
+//   }
+
+//   orders = await sequelize.get("orders")
+//   for(var order in orders) {
+//     if(orders[order]["id"] == url[1]) {
+//       orders[order]["isComplete"] = url[2] == 'true'
+//       haschanged = true
+//     }
+//   }
+
+//   if(!haschanged) {
+//     res.end(rsp.respond("400", {}))
+//   }
+
+//   await sequelize.overwrite(orders)
+//   res.end(rsp.respond("200", {}))
+
+  
+// })
 
 app.get("/delete/*", async(req, res) => {
   url = req.url.split("/").slice(2)
@@ -164,6 +229,6 @@ app.get("/reset/*", async(req, res) => {
   res.end(rsp.respond("404", {}))
 })
 
-app.listen(port, () => {
+app.listen(port,() => {
   console.log(`App listening on port ${port}`)
 })

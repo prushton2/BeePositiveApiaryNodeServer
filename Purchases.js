@@ -5,10 +5,10 @@ class Purchases extends Model {}
 
 Purchases.init({
   orderID: {
-    type: DataTypes.STRING
+    type: DataTypes.INTEGER
   },
   productID: {
-    type: DataTypes.STRING
+    type: DataTypes.INTEGER
   },
   amount: {
     type: DataTypes.INTEGER
