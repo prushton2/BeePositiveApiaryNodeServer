@@ -18,3 +18,56 @@ module.exports.hash = (str) => {
 module.exports.verifypassword = (pswd) => {
   return passwords.indexOf(module.exports.hash(pswd)) >= 0
 }
+
+module.exports.getID = async() => {
+  return module.exports.createHash();
+}
+
+module.exports.convertUrlEscapeCharacters = (string) => {
+  charmap = 
+  [[" ","%20"],
+  ["$", "%24"],
+  ["&", "%26"],
+  ["`", "%60"],
+  [":", "%3A"],
+  ["<", "%3C"],
+  [">", "%3E"],
+  ["[", "%5B"],
+  ["]", "%5D"],
+  ["{", "%7B"],
+  ["}", "%7D"],
+  ['"', "%22"],
+  ["+", "%2B"],
+  ["#", "%23"],
+  ["%", "%25"],
+  ["@", "%40"],
+  ["/", "%2F"],
+  [";", "%3B"],
+  ["=", "%3D"],
+  ["?", "%3F"],
+  ["\\","%5C"],
+  ["^", "%5E"],
+  ["|", "%7C"],
+  ["~", "%7E"],
+  ["‘", "%27"],
+  [",", "%2C"]]
+
+  charmap.forEach((element) => {
+    try {
+      while(string != string.replace(element[1], element[0])) {
+        string = string.replace(element[1], element[0])
+      }
+    } catch {}
+  })
+  return string
+}
+
+module.exports.createHash = function() {
+  let result           = '';
+  let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let charactersLength = characters.length;
+  for ( var i = 0; i < 32; i++ ) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+   }
+   return result;
+}
