@@ -28,45 +28,6 @@ onStart = async() => {
 
 onStart()
 
-// Example code
-
-// app.get('/list', async(req, res) => {
-//   response = await Orders.findOne({where: {}})
-//   res.send(response)
-// })
-
-// app.get('/all', async(req, res) => {
-//   let response = await Orders.findAll()
-//   console.log(response)
-//   res.send(response)
-//   // res.send(response)
-// })
-
-//Debug function
-app.get("/setDefaultPurchases", async(req, res) => {
-  await Purchases.create({
-    orderID: 1,
-    productID: 21,
-    amount: 7,
-  })
-  await Purchases.create({
-    orderID: 1,
-    productID: 12,
-    amount: 2,
-  })
-  await Purchases.create({
-    orderID: 2,
-    productID: 76,
-    amount: 3,
-  })
-  await Purchases.create({
-    orderID: 2,
-    productID: 34,
-    amount: 1,
-  })
-  res.send("Created")
-})
-
 app.post('/add', async(req, res) => {
   //validate input
   for(key in req.body["Order"]) {
@@ -76,10 +37,26 @@ app.post('/add', async(req, res) => {
       return;
     }
   }
-  //Add to db
+  //Add Order to db
   req.body["Order"]["isComplete"] = false
-  await Orders.create(req.body["Order"]) 
-  res.send({"response": "User Added"})
+  output = await Orders.create(req.body["Order"])
+  orderid = output["dataValues"]["id"] // Get order ID to be used in the Purchases database to create relations
+  
+  //Add purchases to db
+  for (purchase in req.body["Items"]) {
+    
+    if (req.body["Items"][purchase] == 0) { // prevent orders of 0 items from getting stored.
+      continue;
+    }
+    
+    await Purchases.create({
+      orderID: orderid,
+      productID: purchase,
+      amount: req.body["Items"][purchase]
+    })
+  }
+  
+  res.send({"response": "Order Created"})
 })
 
 app.post("/getPurchases", async(req, res) => {
@@ -108,7 +85,7 @@ app.post("/getOrders", async(req, res) => {
 
   allOrders = await Orders.findAll()
 
-  res.send(allOrders)
+  res.send({ "response": allOrders})
   return  
 })
 
@@ -131,35 +108,8 @@ app.post("/complete", async(req, res) => {
   
 })
 
-// app.post("/complete", async(req, res) => {
-//   url = req.url.split("/").slice(2)
 
-//   haschanged = false
-
-//   if(!enc.verifypassword(req.body["password"])) { // exit if password is invalid
-//     res.status(400)
-//     res.send({"response": "Invalid Credentials"})
-//     return
-//   }
-
-//   orders = await sequelize.get("orders")
-//   for(var order in orders) {
-//     if(orders[order]["id"] == url[1]) {
-//       orders[order]["isComplete"] = url[2] == 'true'
-//       haschanged = true
-//     }
-//   }
-
-//   if(!haschanged) {
-//     res.end(rsp.respond("400", {}))
-//   }
-
-//   await sequelize.overwrite(orders)
-//   res.end(rsp.respond("200", {}))
-
-  
-// })
-
+// Replace with archive
 app.get("/delete/*", async(req, res) => {
   url = req.url.split("/").slice(2)
 
@@ -189,44 +139,20 @@ app.get("/delete/*", async(req, res) => {
   res.end(rsp.respond("400", {}))
 })
 
-app.get("/getorder/*", async(req, res) => {
-  url = req.url.split("/").slice(2)
-  
-  order = await sequelize.getOrderByID(url[0])
 
-  if(enc.hash(url[1]) != order["password"]) { //respond if password is valid
-    res.end(rsp.respond("400", {}))
+
+app.post("/reset", async(req, res) => {
+  if(true) {
+    res.status(404)
+    res.end("Cannot GET /reset")
     return
   }
-
-  res.end(rsp.respond("200", order))
-})
-
-app.get("/setorder/*", async(req, res) => {
   url = req.url.split("/").slice(2)
-  
-  order = await sequelize.getOrderByID(url[0])
-  
-  if(enc.hash(url[1]) != order["password"]) { //Continue if password verified
-    res.end(rsp.respond("400", {}))
-    return
-  }
-
-  await sequelize.editOrder(url[0], "items", sequelize.convertUrlEscapeCharacters(url[2]))
-  await sequelize.editOrder(url[0], "isComplete", false)
-  order = await sequelize.getOrderByID(url[0])
-  res.end(rsp.respond("200", {}))
- 
-})
-
-app.get("/reset/*", async(req, res) => {
-  url = req.url.split("/").slice(2)
-  if(enc.verifypassword(url[0])) {
+  if(enc.verifypassword(req.body["password"])) {
     await sequelize.reset()
     res.end(rsp.respond("200", {}))
     return
   }
-  res.end(rsp.respond("404", {}))
 })
 
 app.listen(port,() => {
