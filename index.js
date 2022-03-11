@@ -134,38 +134,6 @@ app.post("/archive", async(req, res) => {
   res.send()
 })
 
-
-// Replace with archive
-app.get("/delete/*", async(req, res) => {
-  url = req.url.split("/").slice(2)
-
-
-  order = await sequelize.getOrderByID(url[1])
-
-
-  if(!(enc.verifypassword(url[0]) || order["password"] == enc.hash(url[0]))) { //If either the master password is given or the order specific password is given, delete order. Else respond with 400.
-    res.end(rsp.respond("400", {}))
-    return
-  }
-
-  orders = await sequelize.get("orders")
-
-  for(var order in orders) {
-
-    if(orders[order]["id"] == url[1]) {
-      orders.splice(order, 1)
-      sequelize.overwrite(orders)
-
-      res.end(rsp.respond("200"), {})
-      return
-    }
-  }
-
-
-  res.end(rsp.respond("400", {}))
-})
-
-
 //doesnt even work
 app.post("/reset", async(req, res) => {
   if(true) {
