@@ -13,6 +13,7 @@ const express           = require("express");
 const app               = express();
 const port              = 3000
 
+
 app.use(bodyParser.urlencoded({
     extended: true
 }))
@@ -151,7 +152,7 @@ app.post("/archive", async(req, res) => {
 app.post("/reset", async(req, res) => {
   if(false || !enc.verifypassword(req.body["password"])) {
     res.status(404)
-    res.end("Cannot GET /reset")
+    res.send({"response": "Endpoint does not exist"})
     return
   }
 
@@ -163,6 +164,11 @@ app.post("/reset", async(req, res) => {
     });
   });
   res.send({"response": "Database Erased"})
+})
+
+app.all("*", async(req, res) => {
+  res.status(404)
+  res.send({"response": "Endpoint does not exist"})
 })
 
 app.listen(port,() => {
