@@ -1,18 +1,17 @@
-const sequelize = require('./database.js');
-const enc       = require('./encryption.js');
-const rsp       = require('./response.js');
+const sequelize         = require('./database.js');
+const enc               = require('./encryption.js');
 
 const Orders            = require('./Orders.js')
 const Purchases         = require('./Purchases.js')
 const ArchivedOrders    = require('./ArchivedOrders.js')
 const ArchivedPurchases = require('./ArchivedPurchases.js')
 
-const fs         = require("fs");
-const bodyParser = require('body-parser');
-const cors       = require("cors");
-const express    = require("express");
-const app        = express();
-const port       = 3000
+const fs                = require("fs");
+const bodyParser        = require('body-parser');
+const cors              = require("cors");
+const express           = require("express");
+const app               = express();
+const port              = 3000
 
 app.use(bodyParser.urlencoded({
     extended: true

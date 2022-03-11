@@ -1,6 +1,5 @@
 const Database = require("@replit/database")
 const db = new Database()
-const crypto = require("crypto")
 const { Sequelize } = require('sequelize');
 
 

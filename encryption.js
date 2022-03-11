@@ -19,10 +19,6 @@ module.exports.verifypassword = (pswd) => {
   return passwords.indexOf(module.exports.hash(pswd)) >= 0
 }
 
-module.exports.getID = async() => {
-  return module.exports.createHash();
-}
-
 module.exports.convertUrlEscapeCharacters = (string) => {
   charmap = 
   [[" ","%20"],
