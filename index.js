@@ -7,6 +7,7 @@ const Purchases = require('./Purchases.js')
 const ArchivedOrders = require('./ArchivedOrders.js')
 const ArchivedPurchases = require('./ArchivedPurchases.js')
 
+const fs = require("fs");
 const bodyParser = require('body-parser');
 const cors = require("cors");
 const express = require("express");
@@ -134,19 +135,22 @@ app.post("/archive", async(req, res) => {
   res.send()
 })
 
-//doesnt even work
+
 app.post("/reset", async(req, res) => {
-  if(true) {
+  if(true || !enc.verifypassword(req.body["password"])) {
     res.status(404)
     res.end("Cannot GET /reset")
     return
   }
-  url = req.url.split("/").slice(2)
-  if(enc.verifypassword(req.body["password"])) {
-    await sequelize.reset()
-    res.end(rsp.respond("200", {}))
-    return
-  }
+
+  fs.truncate("bpa.sqlite", 0, function() {
+    fs.writeFile("bpa.sqlite", "", function (err) {
+      if (err) {
+        return console.log("Error writing file: " + err);
+      }
+    });
+  });
+  res.send({"response": "Database Erased"})
 })
 
 app.listen(port,() => {
