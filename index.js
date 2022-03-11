@@ -1,11 +1,13 @@
 const sequelize = require('./database.js');
 const enc = require('./encryption.js');
 const rsp = require('./response.js');
+
 const Orders = require('./Orders.js')
 const Purchases = require('./Purchases.js')
+const ArchivedOrders = require('./ArchivedOrders.js')
+const ArchivedPurchases = require('./ArchivedPurchases.js')
 
 const bodyParser = require('body-parser');
-const http = require('http');
 const cors = require("cors");
 const express = require("express");
 const app = express();
@@ -104,8 +106,32 @@ app.post("/complete", async(req, res) => {
 
   res.status(200)
   res.send({"response": "Updated completion status"})
+})
 
+
+app.post("/archive", async(req, res) => {
+
+  if(!enc.verifypassword(req.body["password"])) { // exit if password is invalid
+    res.status(400)
+    res.send({"response": "Invalid Credentials"})
+    return
+  }
+
+  order = await Orders.findOne({where: {id: req.body["orderID"]}})
+  order = order["dataValues"]
+  order["id"] = req.body["orderID"] //Persist the order ID so the purchases table refers to the right Orders instance
+    
+  purchases = await Purchases.findAll({where: {orderID: req.body["orderID"]}})  
   
+  ArchivedOrders.create(order)
+  Orders.destroy({where: {id: req.body["orderID"]}})
+  
+  purchases.forEach(element => {
+    ArchivedPurchases.create(element["dataValues"])
+    Purchases.destroy({where: {id: element["dataValues"]["id"]}})
+  });
+  
+  res.send()
 })
 
 
@@ -140,7 +166,7 @@ app.get("/delete/*", async(req, res) => {
 })
 
 
-
+//doesnt even work
 app.post("/reset", async(req, res) => {
   if(true) {
     res.status(404)
