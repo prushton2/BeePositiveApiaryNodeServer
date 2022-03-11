@@ -1,25 +1,27 @@
 const sequelize = require('./database.js');
-const enc = require('./encryption.js');
-const rsp = require('./response.js');
+const enc       = require('./encryption.js');
+const rsp       = require('./response.js');
 
-const Orders = require('./Orders.js')
-const Purchases = require('./Purchases.js')
-const ArchivedOrders = require('./ArchivedOrders.js')
+const Orders            = require('./Orders.js')
+const Purchases         = require('./Purchases.js')
+const ArchivedOrders    = require('./ArchivedOrders.js')
 const ArchivedPurchases = require('./ArchivedPurchases.js')
 
-const fs = require("fs");
+const fs         = require("fs");
 const bodyParser = require('body-parser');
-const cors = require("cors");
-const express = require("express");
-const app = express();
-const port = 3000
+const cors       = require("cors");
+const express    = require("express");
+const app        = express();
+const port       = 3000
 
 app.use(bodyParser.urlencoded({
     extended: true
 }))
+
 app.use(
   bodyParser.json()
 );
+
 app.use(cors({
   origin: "*"
 }));
@@ -102,8 +104,13 @@ app.post("/complete", async(req, res) => {
   }
 
   order = await Orders.findOne({where: {id: req.body["orderID"]}})
-  order.isComplete = req.body["completeStatus"]  
-  await order.save()
+  try {
+    order.isComplete = req.body["completeStatus"]  
+    await order.save()
+  } catch {
+    res.status(400)
+    res.send({"response": "Invalid Order"})
+  }
 
   res.status(200)
   res.send({"response": "Updated completion status"})
@@ -119,9 +126,15 @@ app.post("/archive", async(req, res) => {
   }
 
   order = await Orders.findOne({where: {id: req.body["orderID"]}})
-  order = order["dataValues"]
-  order["id"] = req.body["orderID"] //Persist the order ID so the purchases table refers to the right Orders instance
-    
+  
+  try {
+    order = order["dataValues"]
+    order["id"] = req.body["orderID"] //Persist the order ID so the purchases table refers to the right Orders instance
+  } catch {
+    res.status(400)
+    res.send({"response": "Invalid Order"})
+  }  
+  
   purchases = await Purchases.findAll({where: {orderID: req.body["orderID"]}})  
   
   ArchivedOrders.create(order)
@@ -137,7 +150,7 @@ app.post("/archive", async(req, res) => {
 
 
 app.post("/reset", async(req, res) => {
-  if(true || !enc.verifypassword(req.body["password"])) {
+  if(false || !enc.verifypassword(req.body["password"])) {
     res.status(404)
     res.end("Cannot GET /reset")
     return
