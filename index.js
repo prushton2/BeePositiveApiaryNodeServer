@@ -37,6 +37,9 @@ onStart()
 
 app.post('/add', async(req, res) => {
   //validate input
+  const date = new Date()
+  console.log(date)
+  return
   for(key in req.body["Order"]) {
     if(!req.body["Order"][key]) {
       res.status(400)
