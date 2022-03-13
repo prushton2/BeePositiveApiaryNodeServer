@@ -36,10 +36,9 @@ onStart = async() => {
 onStart()
 
 app.post('/add', async(req, res) => {
-  //validate input
+  //date
   const date = new Date()
-  console.log(date)
-  return
+  //validate input
   for(key in req.body["Order"]) {
     if(!req.body["Order"][key]) {
       res.status(400)
@@ -49,6 +48,9 @@ app.post('/add', async(req, res) => {
   }
   //Add Order to db
   req.body["Order"]["isComplete"] = false
+  console.log(date.getTime())
+  req.body["Order"]["date"] = date.getTime()
+  console.log(req.body)
   output = await Orders.create(req.body["Order"])
   orderid = output["dataValues"]["id"] // Get order ID to be used in the Purchases database to create relations
   
@@ -155,7 +157,7 @@ app.post("/archive", async(req, res) => {
 
 
 app.post("/reset", async(req, res) => {
-  if(true || !enc.verifypassword(req.body["password"])) {
+  if(false || !enc.verifypassword(req.body["password"])) {
     res.status(404)
     res.send({"response": "Endpoint does not exist"})
     return

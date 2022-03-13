@@ -18,6 +18,9 @@ ArchivedOrders.init({
   },
   isComplete: {
     type: DataTypes.BOOLEAN
+  },
+  date: {
+    type: DataTypes.INTEGER
   }
 }, {
   sequelize,
