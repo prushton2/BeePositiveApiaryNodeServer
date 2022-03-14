@@ -1,5 +1,3 @@
-const Database = require("@replit/database")
-const db = new Database()
 const { Sequelize } = require('sequelize');
 
 
