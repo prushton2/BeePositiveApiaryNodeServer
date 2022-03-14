@@ -34,9 +34,20 @@ onStart = async() => {
 }
 
 onStart()
-
+/* Add request:
+{
+  "Order": {
+    "name": Name <String>,
+    "address": Address <String>,
+    "email": Email <String>,
+    "phoneNumber": Phone Number <String>
+  },
+  "Items": { //repeatable
+    ItemID <String>: Amount <Int>
+  }
+}
+*/
 app.post('/add', async(req, res) => {
-  //date
   const date = new Date()
   //validate input
   for(key in req.body["Order"]) {
@@ -68,7 +79,12 @@ app.post('/add', async(req, res) => {
   
   res.send({"response": "Order Created"})
 })
-
+/*
+{
+  "password": password <String>
+  "orderID": Order ID to get purchases from <Int>
+}
+*/
 app.post("/getPurchases", async(req, res) => {
   url = req.url.split("/").slice(2)
   
@@ -83,7 +99,11 @@ app.post("/getPurchases", async(req, res) => {
   res.send({"response": allpurchases})
   return
 })
-
+/*
+{
+  "password": password <String>
+}
+*/
 app.post("/getOrders", async(req, res) => {
   url = req.url.split("/").slice(2)
 
@@ -99,6 +119,13 @@ app.post("/getOrders", async(req, res) => {
   return  
 })
 
+/*
+{
+  "password": password <String>,
+  "orderID": OrderID to edit <Int>,
+  "completeStatus": new complete status <Bool>
+}
+*/
 app.post("/complete", async(req, res) => {
   url = req.url.split("/").slice(2)
   
@@ -122,6 +149,12 @@ app.post("/complete", async(req, res) => {
 })
 
 
+/*
+{
+  "password": password <String>,
+  "orderID": orderID of order to archive <Int>
+}
+*/
 app.post("/archive", async(req, res) => {
 
   if(!enc.verifypassword(req.body["password"])) { // exit if password is invalid
@@ -155,7 +188,7 @@ app.post("/archive", async(req, res) => {
 
 
 app.post("/reset", async(req, res) => {
-  if(false || !enc.verifypassword(req.body["password"])) {
+  if(true || !enc.verifypassword(req.body["password"])) {
     res.status(404)
     res.send({"response": "Endpoint does not exist"})
     return
