@@ -66,14 +66,14 @@ app.post('/add', async(req, res) => {
   //Add purchases to db
   for (purchase in req.body["Items"]) {
     
-    if (req.body["Items"][purchase] == 0) { // prevent orders of 0 items from getting stored.
+    if (req.body["Items"][purchase]["amount"] == 0) { // prevent orders of 0 items from getting stored.
       continue;
     }
     
     await Purchases.create({
       orderID: orderid,
-      productID: purchase,
-      amount: req.body["Items"][purchase]
+      productID: req.body["Items"][purchase]["productID"],
+      amount: req.body["Items"][purchase]["amount"]
     })
   }
   
