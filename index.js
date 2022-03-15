@@ -42,9 +42,12 @@ onStart()
     "email": Email <String>,
     "phoneNumber": Phone Number <String>
   },
-  "Items": { //repeatable
-    ItemID <String>: Amount <Int>
-  }
+  "Items": [ //the entry in this list is repeatable
+    {
+      "productID": Product ID <Integer>,
+      "amount": Amount <Integer>
+    }
+  ]
 }
 */
 app.post('/add', async(req, res) => {
