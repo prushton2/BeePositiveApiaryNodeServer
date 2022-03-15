@@ -1,146 +1,220 @@
-const http = require('http');
-const db = require('./database.js');
-const enc = require('./encryption.js');
-const rsp = require('./response.js');
+const sequelize         = require('./database.js');
+const enc               = require('./encryption.js');
 
-const cors = require("cors")
-const express = require("express");
-const app = express();
-const port = 3000
+const Orders            = require('./Orders.js')
+const Purchases         = require('./Purchases.js')
+const ArchivedOrders    = require('./ArchivedOrders.js')
+const ArchivedPurchases = require('./ArchivedPurchases.js')
+
+const fs                = require("fs");
+const cors              = require("cors");
+const express           = require("express");
+const bodyParser        = require('body-parser');
+const app               = express();
+const port              = 3000
+
+
+app.use(bodyParser.urlencoded({
+    extended: true
+}))
+app.use(bodyParser.json());
 
 app.use(cors({
   origin: "*"
 }));
 
-app.get('/add/*', async(req, res) => {
-  url = req.url.split("/").slice(2)
-
-  id = await db.getID()
-  password = await db.getID()
-  
-  order = {
-    "items": db.convertUrlEscapeCharacters(url[0]),
-    "date" : db.convertUrlEscapeCharacters(url[1]),
-    "email": db.convertUrlEscapeCharacters(url[2]),
-    "name" : db.convertUrlEscapeCharacters(url[3]),
-    "isComplete": false,
-    "id": id,
-    "password": enc.hash(password)
-  }
-
-  db.append(order)
-  res.end(rsp.respond("200", {"ID": id, "password": password}))
-
+//Handles all errors without exiting. Doesnt send back a response, but that is less important than a crashing database
+process.on('uncaughtException', (err) => {
+  console.log(err)
 })
 
-app.get("/get/*", async(req, res) => {
-  url = req.url.split("/").slice(2)
+onStart = async() => {
+  await sequelize.sync()
+  console.log("Database is ready")
+}
 
-  if(enc.verifypassword(url[0])) {
-    res.end(rsp.respond("200", await db.get(url[1])))
-  } else {
-    res.end(rsp.respond("400", {}))
-  }
-
-})
-
-app.get("/complete/*", async(req, res) => {
-  url = req.url.split("/").slice(2)
-
-  haschanged = false
-
-  if(!enc.verifypassword(url[0])) { //cancel if password is fake
-    res.end(rsp.respond("400", {}))
-    return
-  }
-
-  orders = await db.get("orders")
-  for(var order in orders) {
-    if(orders[order]["id"] == url[1]) {
-      orders[order]["isComplete"] = url[2] == 'true'
-      haschanged = true
+onStart()
+/* Add request:
+{
+  "Order": {
+    "name": Name <String>,
+    "address": Address <String>,
+    "email": Email <String>,
+    "phoneNumber": Phone Number <String>
+  },
+  "Items": [ //the entry in this list is repeatable
+    {
+      "productID": Product ID <Integer>,
+      "amount": Amount <Integer>
+    }
+  ]
+}
+*/
+app.post('/add', async(req, res) => {
+  const date = new Date()
+  //validate input
+  for(key in req.body["Order"]) {
+    if(!req.body["Order"][key]) {
+      res.status(400)
+      res.send({"response": "Invalid input"})
+      return;
     }
   }
-
-  if(!haschanged) {
-    res.end(rsp.respond("400", {}))
-  }
-
-  await db.overwrite(orders)
-  res.end(rsp.respond("200", {}))
-
+  //Add Order to db
+  req.body["Order"]["isComplete"] = false
+  req.body["Order"]["date"] = date.getTime()
+  output = await Orders.create(req.body["Order"])
+  orderid = output["dataValues"]["id"] // Get order ID to be used in the Purchases database to create relations
   
-})
-
-app.get("/delete/*", async(req, res) => {
-  url = req.url.split("/").slice(2)
-
-
-  order = await db.getOrderByID(url[1])
-
-
-  if(!(enc.verifypassword(url[0]) || order["password"] == enc.hash(url[0]))) { //If either the master password is given or the order specific password is given, delete order. Else respond with 400.
-    res.end(rsp.respond("400", {}))
-    return
-  }
-
-  orders = await db.get("orders")
-
-  for(var order in orders) {
-
-    if(orders[order]["id"] == url[1]) {
-      orders.splice(order, 1)
-      db.overwrite(orders)
-
-      res.end(rsp.respond("200"), {})
-      return
+  //Add purchases to db
+  for (purchase in req.body["Items"]) {
+    
+    if (req.body["Items"][purchase]["amount"] == 0) { // prevent orders of 0 items from getting stored.
+      continue;
     }
+    
+    await Purchases.create({
+      orderID: orderid,
+      productID: req.body["Items"][purchase]["productID"],
+      amount: req.body["Items"][purchase]["amount"]
+    })
   }
-
-
-  res.end(rsp.respond("400", {}))
+  
+  res.send({"response": "Order Created"})
 })
-
-app.get("/getorder/*", async(req, res) => {
+/*
+{
+  "password": password <String>
+  "orderID": Order ID to get purchases from <Int>
+}
+*/
+app.post("/getPurchases", async(req, res) => {
   url = req.url.split("/").slice(2)
   
-  order = await db.getOrderByID(url[0])
-
-  if(enc.hash(url[1]) != order["password"]) { //respond if password is valid
-    res.end(rsp.respond("400", {}))
+  if(!enc.verifypassword(req.body["password"])) {
+    res.status(400)
+    res.send({"response": "Invalid Credentials"})
     return
   }
 
-  res.end(rsp.respond("200", order))
+  allpurchases = await Purchases.findAll({where: {orderID: req.body["orderID"]}})
+  res.status(200)
+  res.send({"response": allpurchases})
+  return
 })
-
-app.get("/setorder/*", async(req, res) => {
+/*
+{
+  "password": password <String>
+}
+*/
+app.post("/getOrders", async(req, res) => {
   url = req.url.split("/").slice(2)
-  
-  order = await db.getOrderByID(url[0])
-  
-  if(enc.hash(url[1]) != order["password"]) { //Continue if password verified
-    res.end(rsp.respond("400", {}))
+
+  if(!enc.verifypassword(req.body["password"])) {
+    res.status(400)
+    res.send({"response": "Invalid Credentials"})
     return
   }
 
-  await db.editOrder(url[0], "items", db.convertUrlEscapeCharacters(url[2]))
-  await db.editOrder(url[0], "isComplete", false)
-  order = await db.getOrderByID(url[0])
-  res.end(rsp.respond("200", {}))
- 
+  allOrders = await Orders.findAll()
+
+  res.send({ "response": allOrders})
+  return  
 })
 
-app.get("/reset/*", async(req, res) => {
+/*
+{
+  "password": password <String>,
+  "orderID": OrderID to edit <Int>,
+  "completeStatus": new complete status <Bool>
+}
+*/
+app.post("/complete", async(req, res) => {
   url = req.url.split("/").slice(2)
-  if(enc.verifypassword(url[0])) {
-    await db.reset()
-    res.end(rsp.respond("200", {}))
+  
+  if(!enc.verifypassword(req.body["password"])) { // exit if password is invalid
+    res.status(400)
+    res.send({"response": "Invalid Credentials"})
     return
   }
-  res.end(rsp.respond("404", {}))
+
+  order = await Orders.findOne({where: {id: req.body["orderID"]}})
+  try {
+    order.isComplete = req.body["completeStatus"]  
+    await order.save()
+  } catch {
+    res.status(400)
+    res.send({"response": "Invalid Order"})
+  }
+
+  res.status(200)
+  res.send({"response": "Updated completion status"})
 })
 
-app.listen(port, () => {
+
+/*
+{
+  "password": password <String>,
+  "orderID": orderID of order to archive <Int>
+}
+*/
+app.post("/archive", async(req, res) => {
+
+  if(!enc.verifypassword(req.body["password"])) { // exit if password is invalid
+    res.status(400)
+    res.send({"response": "Invalid Credentials"})
+    return
+  }
+
+  order = await Orders.findOne({where: {id: req.body["orderID"]}})
+  
+  try {
+    order = order["dataValues"]
+    order["id"] = req.body["orderID"] //Persist the order ID so the purchases table refers to the right Orders instance
+  } catch {
+    res.status(400)
+    res.send({"response": "Invalid Order"})
+  }  
+  
+  purchases = await Purchases.findAll({where: {orderID: req.body["orderID"]}})  
+  
+  ArchivedOrders.create(order)
+  Orders.destroy({where: {id: req.body["orderID"]}})
+  
+  purchases.forEach(element => {
+    ArchivedPurchases.create(element["dataValues"])
+    Purchases.destroy({where: {id: element["dataValues"]["id"]}})
+  });
+  
+  res.send({"response":"Order Archived"})
+})
+
+
+app.post("/reset", async(req, res) => {
+  if(true || !enc.verifypassword(req.body["password"])) {
+    res.status(404)
+    res.send({"response": "Endpoint does not exist"})
+    return
+  }
+
+  fs.truncate("bpa.sqlite", 0, function() {
+    fs.writeFile("bpa.sqlite", "", function (err) {
+      if (err) {
+        return console.log("Error writing file: " + err);
+      }
+    });
+  });
+  res.send({"response": "Database Erased"})
+})
+
+app.all("*", async(req, res) => {
+  res.status(404)
+  res.send({"response": "Endpoint does not exist"})
+})
+
+
+
+
+app.listen(port,() => {
   console.log(`App listening on port ${port}`)
 })
