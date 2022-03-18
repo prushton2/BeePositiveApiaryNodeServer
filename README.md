@@ -1,6 +1,6 @@
 # BeePositiveApiaryNodeServer
 
-This is a node.js server for [prushton2/beepositiveapiary](https://github.com/prushton2/beepositiveapiary) This is built to store and manage orders made from the site.<br>
+This is a node.js server for [prushton2/beepositiveapiary](https://github.com/prushton2/beepositiveapiary) This is built to store, manage, and archive orders made from the site.<br>
 ## Endpoints
 
 ### /add (POST)
@@ -31,6 +31,7 @@ Body:
 {
   "password": //password (String)
   "orderID": //id of order to grab from (Integer)
+  "getArchived": //Get the archived purchases (boolean) Not including this assumes it is false
 }
 
 ```
@@ -41,6 +42,7 @@ Body:
 ```javascript
 {
   "password": //password (String)
+  "getArchived": //Get the archived orders (boolean) Not including this assumes it is false
 }
 
 ```

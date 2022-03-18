@@ -34,22 +34,9 @@ onStart = async() => {
 }
 
 onStart()
-/* Add request:
-{
-  "Order": {
-    "name": Name <String>,
-    "address": Address <String>,
-    "email": Email <String>,
-    "phoneNumber": Phone Number <String>
-  },
-  "Items": [ //the entry in this list is repeatable
-    {
-      "productID": Product ID <Integer>,
-      "amount": Amount <Integer>
-    }
-  ]
-}
-*/
+
+
+
 app.post('/add', async(req, res) => {
   const date = new Date()
   //validate input
@@ -82,12 +69,8 @@ app.post('/add', async(req, res) => {
   
   res.send({"response": "Order Created"})
 })
-/*
-{
-  "password": password <String>
-  "orderID": Order ID to get purchases from <Int>
-}
-*/
+
+
 app.post("/getPurchases", async(req, res) => {
   url = req.url.split("/").slice(2)
   
@@ -97,16 +80,19 @@ app.post("/getPurchases", async(req, res) => {
     return
   }
 
-  allpurchases = await Purchases.findAll({where: {orderID: req.body["orderID"]}})
+  let allpurchases;
+  if(req.body["getArchived"]) {
+    allpurchases = await ArchivedPurchases.findAll({where: {orderID: req.body["orderID"]}})
+  } else {
+    allpurchases = await Purchases.findAll({where: {orderID: req.body["orderID"]}})
+  }
+
   res.status(200)
   res.send({"response": allpurchases})
   return
 })
-/*
-{
-  "password": password <String>
-}
-*/
+
+
 app.post("/getOrders", async(req, res) => {
   url = req.url.split("/").slice(2)
 
@@ -116,19 +102,18 @@ app.post("/getOrders", async(req, res) => {
     return
   }
 
-  allOrders = await Orders.findAll()
+  let allOrders;
+  if(req.body["getArchived"]) {
+    allOrders = await ArchivedOrders.findAll()
+  } else {
+    allOrders = await Orders.findAll()
+  }
 
   res.send({ "response": allOrders})
   return  
 })
 
-/*
-{
-  "password": password <String>,
-  "orderID": OrderID to edit <Int>,
-  "completeStatus": new complete status <Bool>
-}
-*/
+
 app.post("/complete", async(req, res) => {
   url = req.url.split("/").slice(2)
   
@@ -152,12 +137,6 @@ app.post("/complete", async(req, res) => {
 })
 
 
-/*
-{
-  "password": password <String>,
-  "orderID": orderID of order to archive <Int>
-}
-*/
 app.post("/archive", async(req, res) => {
 
   if(!enc.verifypassword(req.body["password"])) { // exit if password is invalid
@@ -187,24 +166,6 @@ app.post("/archive", async(req, res) => {
   });
   
   res.send({"response":"Order Archived"})
-})
-
-
-app.post("/reset", async(req, res) => {
-  if(true || !enc.verifypassword(req.body["password"])) {
-    res.status(404)
-    res.send({"response": "Endpoint does not exist"})
-    return
-  }
-
-  fs.truncate("bpa.sqlite", 0, function() {
-    fs.writeFile("bpa.sqlite", "", function (err) {
-      if (err) {
-        return console.log("Error writing file: " + err);
-      }
-    });
-  });
-  res.send({"response": "Database Erased"})
 })
 
 app.all("*", async(req, res) => {
