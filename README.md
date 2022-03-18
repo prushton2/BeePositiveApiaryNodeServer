@@ -1,12 +1,14 @@
 # BeePositiveApiaryNodeServer
 
-This is a node.js server for [prushton2/beepositiveapiary](https://github.com/prushton2/beepositiveapiary) This is built to store, manage, and archive orders made from the site.<br>
+This is a node.js server for [prushton2/beepositiveapiary](https://github.com/prushton2/beepositiveapiary). This is built to store, view, and archive orders made from the site.<br>
 
 ## Setup
 
 * Install all dependencies listen in ```package.json```
 * Run the program to create ```config.json```
-* Create a post request to ```/testHash``` following the endpoint guide below with a desired password to create a hashed password. The default password is password.
+* Create a post request to ```/testHash``` following the endpoint guide below 
+  * The default password is password
+  * Put the password you want to hash in the string key
 * Add the hashed string to the list in ```config.json["auth"]["passwords"]``` to put the password in use
 * delete the default password
 
@@ -34,6 +36,16 @@ Body:
 }
 
 ```
+### /getOrders (POST)
+Gets all orders<br>
+Body:
+```javascript
+{
+  "password": //password (String)
+  "getArchived": //Get the archived orders (boolean) Not including this assumes it is false
+}
+
+```
 ### /getPurchases (POST)
 Gets purchases by orderID<br>
 Body:
@@ -46,16 +58,6 @@ Body:
 
 ```
 
-### /getOrders (POST)
-Gets all orders<br>
-Body:
-```javascript
-{
-  "password": //password (String)
-  "getArchived": //Get the archived orders (boolean) Not including this assumes it is false
-}
-
-```
 
 ### /complete (POST)
 Changes the complete status of an order<br>
@@ -81,7 +83,7 @@ Body:
 ```
 
 ### /testHash (POST)
-hashes a given string<br>
+hashes a given string with the same hash used for the passwords<br>
 Body:
 ```javascript
 {
