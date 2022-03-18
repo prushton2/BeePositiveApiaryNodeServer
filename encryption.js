@@ -1,8 +1,6 @@
 const crypto = require("crypto")
-passwords = [
-  "15ac60994616bb996ca08cdc4042927f032af8245485d5893388be83a16abf79",
-  "ad78260290f15b98b5a1e0eb9587545c2653f7ff2bc9dd5ceb432775fea9296c",
-]
+const config = require("./config.js")
+
 module.exports.hash = (str) => {
   // I love hashing, and I am paranoid
   
@@ -15,8 +13,9 @@ module.exports.hash = (str) => {
   return currenthash
 }
 
-module.exports.verifypassword = (pswd) => {
-  return passwords.indexOf(module.exports.hash(pswd)) >= 0
+module.exports.verifypassword = async(pswd) => { 
+  contents = await config.read()  
+  return contents["auth"]["passwords"].indexOf(module.exports.hash(pswd)) >= 0
 }
 
 module.exports.convertUrlEscapeCharacters = (string) => {

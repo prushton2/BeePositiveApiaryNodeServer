@@ -1,12 +1,12 @@
 const sequelize         = require('./database.js');
 const enc               = require('./encryption.js');
+const config            = require('./config.js');
 
 const Orders            = require('./Orders.js')
 const Purchases         = require('./Purchases.js')
 const ArchivedOrders    = require('./ArchivedOrders.js')
 const ArchivedPurchases = require('./ArchivedPurchases.js')
 
-const fs                = require("fs");
 const cors              = require("cors");
 const express           = require("express");
 const bodyParser        = require('body-parser');
@@ -31,6 +31,9 @@ process.on('uncaughtException', (err) => {
 onStart = async() => {
   await sequelize.sync()
   console.log("Database is ready")
+
+  await config.createConfigIfNotExists()
+
 }
 
 onStart()
@@ -74,7 +77,7 @@ app.post('/add', async(req, res) => {
 app.post("/getPurchases", async(req, res) => {
   url = req.url.split("/").slice(2)
   
-  if(!enc.verifypassword(req.body["password"])) {
+  if(!await enc.verifypassword(req.body["password"])) {
     res.status(400)
     res.send({"response": "Invalid Credentials"})
     return
@@ -96,7 +99,7 @@ app.post("/getPurchases", async(req, res) => {
 app.post("/getOrders", async(req, res) => {
   url = req.url.split("/").slice(2)
 
-  if(!enc.verifypassword(req.body["password"])) {
+  if(!await enc.verifypassword(req.body["password"])) {
     res.status(400)
     res.send({"response": "Invalid Credentials"})
     return
@@ -117,7 +120,7 @@ app.post("/getOrders", async(req, res) => {
 app.post("/complete", async(req, res) => {
   url = req.url.split("/").slice(2)
   
-  if(!enc.verifypassword(req.body["password"])) { // exit if password is invalid
+  if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
     res.status(400)
     res.send({"response": "Invalid Credentials"})
     return
@@ -139,7 +142,7 @@ app.post("/complete", async(req, res) => {
 
 app.post("/archive", async(req, res) => {
 
-  if(!enc.verifypassword(req.body["password"])) { // exit if password is invalid
+  if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
     res.status(400)
     res.send({"response": "Invalid Credentials"})
     return
@@ -167,6 +170,19 @@ app.post("/archive", async(req, res) => {
   
   res.send({"response":"Order Archived"})
 })
+
+app.post("/testHash", async(req, res) => {
+
+  if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
+    res.status(400)
+    res.send({"response": "Invalid Credentials"})
+    return
+  }
+
+  res.status(200)
+  res.send({"response": enc.hash(req.body["string"])})
+})
+
 
 app.all("*", async(req, res) => {
   res.status(404)

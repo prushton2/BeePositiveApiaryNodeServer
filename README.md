@@ -1,6 +1,16 @@
 # BeePositiveApiaryNodeServer
 
 This is a node.js server for [prushton2/beepositiveapiary](https://github.com/prushton2/beepositiveapiary) This is built to store, manage, and archive orders made from the site.<br>
+
+## Setup
+
+* Install all dependencies listen in ```package.json```
+* Run the program to create ```config.json```
+* Create a post request to ```/testHash``` following the endpoint guide below with a desired password to create a hashed password. The default password is password.
+* Add the hashed string to the list in ```config.json["auth"]["passwords"]``` to put the password in use
+* delete the default password
+
+Config.json is read on request, so you dont need to restart the program when you update it.
 ## Endpoints
 
 ### /add (POST)
@@ -66,6 +76,17 @@ Body:
 {
   "password": //password (String)
   "orderID": //id of order to archive (Integer)
+}
+
+```
+
+### /testHash (POST)
+hashes a given string<br>
+Body:
+```javascript
+{
+  "password": //password (String)
+  "string": //string to hash (String)
 }
 
 ```
