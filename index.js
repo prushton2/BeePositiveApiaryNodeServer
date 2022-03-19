@@ -1,6 +1,7 @@
 const sequelize         = require('./database.js');
 const enc               = require('./encryption.js');
 const config            = require('./config.js');
+const archive           = require('./archive.js');
 
 const Orders            = require('./Orders.js')
 const Purchases         = require('./Purchases.js')
@@ -23,9 +24,9 @@ app.use(cors({
   origin: "*"
 }));
 
-// cron.schedule('*/1 * * * *', () => {
-//   config.archiveDB()
-// });
+cron.schedule('*/1 * * * *', () => {
+  archive.archiveDB()
+});
 
 //Handles all errors without exiting. Doesnt send back a response, but that is less important than a crashing database
 process.on('uncaughtException', (err) => {

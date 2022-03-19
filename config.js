@@ -35,15 +35,3 @@ module.exports.read = async() => {
         })
     })
 }
-
-module.exports.archiveDB = async() => {
-    const date = new Date()
-    time = date.getTime()
-    fileName = time + ".sqlite"
-  
-    currentDB = fs.readFileSync('./bpa.sqlite',{encoding:'utf8', flag:'r'});
-    // console.log(currentDB);
-
-    fs.writeFileSync(`./backups/${fileName}`, currentDB)
-  
-}
