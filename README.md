@@ -4,7 +4,7 @@ This is a node.js server for [prushton2/beepositiveapiary](https://github.com/pr
 
 ## Setup
 
-* Install all dependencies listen in ```package.json```
+* Install all dependencies listed in ```package.json```
 * Run the program to create ```config.json```
 * Create a post request to ```/testHash``` following the endpoint guide below 
   * The default password is password
