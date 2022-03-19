@@ -1,3 +1,5 @@
 bpa.sqlite
 /node_modules
 config.json
+/backups/*
+!/backups/placeholder.txt

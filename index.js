@@ -7,21 +7,25 @@ const Purchases         = require('./Purchases.js')
 const ArchivedOrders    = require('./ArchivedOrders.js')
 const ArchivedPurchases = require('./ArchivedPurchases.js')
 
+const cron              = require('node-cron');
 const cors              = require("cors");
 const express           = require("express");
 const bodyParser        = require('body-parser');
 const app               = express();
 const port              = 3000
 
-
 app.use(bodyParser.urlencoded({
-    extended: true
+  extended: true
 }))
 app.use(bodyParser.json());
 
 app.use(cors({
   origin: "*"
 }));
+
+// cron.schedule('*/1 * * * *', () => {
+//   config.archiveDB()
+// });
 
 //Handles all errors without exiting. Doesnt send back a response, but that is less important than a crashing database
 process.on('uncaughtException', (err) => {
@@ -97,7 +101,6 @@ app.post("/getPurchases", async(req, res) => {
 
 
 app.post("/getOrders", async(req, res) => {
-  url = req.url.split("/").slice(2)
 
   if(!await enc.verifypassword(req.body["password"])) {
     res.status(400)
@@ -112,7 +115,8 @@ app.post("/getOrders", async(req, res) => {
     allOrders = await Orders.findAll()
   }
 
-  res.send({ "response": allOrders})
+  res.status(200)
+  res.send({"response": allOrders})
   return  
 })
 
