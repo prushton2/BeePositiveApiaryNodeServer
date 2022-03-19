@@ -24,7 +24,9 @@ app.use(cors({
   origin: "*"
 }));
 
-cron.schedule('*/1 * * * *', () => {
+
+//Archive every tuesday at 11pm
+cron.schedule("* * 23 * Tuesday", () => {
   archive.archiveDB()
 });
 
@@ -34,16 +36,18 @@ process.on('uncaughtException', (err) => {
 })
 
 onStart = async() => {
+  if(false) { //set to true to load the latest save on start
+    await archive.loadLatestSave();
+  }
+
   await sequelize.sync()
   console.log("Database is ready")
-
   await config.createConfigIfNotExists()
-
+  console.log("Config is ready")  
+  
 }
 
 onStart()
-
-
 
 app.post('/add', async(req, res) => {
   const date = new Date()
