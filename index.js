@@ -1,21 +1,22 @@
 const sequelize         = require('./database.js');
 const enc               = require('./encryption.js');
 const config            = require('./config.js');
+const archive           = require('./archive.js');
 
 const Orders            = require('./Orders.js')
 const Purchases         = require('./Purchases.js')
 const ArchivedOrders    = require('./ArchivedOrders.js')
 const ArchivedPurchases = require('./ArchivedPurchases.js')
 
+const cron              = require('node-cron');
 const cors              = require("cors");
 const express           = require("express");
 const bodyParser        = require('body-parser');
 const app               = express();
 const port              = 3000
 
-
 app.use(bodyParser.urlencoded({
-    extended: true
+  extended: true
 }))
 app.use(bodyParser.json());
 
@@ -23,22 +24,30 @@ app.use(cors({
   origin: "*"
 }));
 
+
+//Archive every tuesday at 11pm
+cron.schedule("* * 23 * Tuesday", () => {
+  archive.archiveDB()
+});
+
 //Handles all errors without exiting. Doesnt send back a response, but that is less important than a crashing database
 process.on('uncaughtException', (err) => {
   console.log(err)
 })
 
 onStart = async() => {
+  if(false) { //set to true to load the latest save on start
+    await archive.loadLatestSave();
+  }
+
   await sequelize.sync()
   console.log("Database is ready")
-
   await config.createConfigIfNotExists()
-
+  console.log("Config is ready")  
+  
 }
 
 onStart()
-
-
 
 app.post('/add', async(req, res) => {
   const date = new Date()
@@ -97,7 +106,6 @@ app.post("/getPurchases", async(req, res) => {
 
 
 app.post("/getOrders", async(req, res) => {
-  url = req.url.split("/").slice(2)
 
   if(!await enc.verifypassword(req.body["password"])) {
     res.status(400)
@@ -112,7 +120,8 @@ app.post("/getOrders", async(req, res) => {
     allOrders = await Orders.findAll()
   }
 
-  res.send({ "response": allOrders})
+  res.status(200)
+  res.send({"response": allOrders})
   return  
 })
 

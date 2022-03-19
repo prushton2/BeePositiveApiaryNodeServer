@@ -11,6 +11,7 @@ defaultConfig = {
 filepath = "config.json"
 
 
+
 module.exports.createConfigIfNotExists = async() => {
     fs.exists(filepath, (e) => {
         if(!e) {
