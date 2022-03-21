@@ -17,8 +17,11 @@ module.exports.createConfigIfNotExists = async() => {
         if(!e) {
             fs.open(filepath,'w',function(fileExists, file) {
                 fs.writeFile( filepath, JSON.stringify(defaultConfig), (err) => {
-                if (err) console.error(err)
-                console.log('Data written')
+                    if (err) {
+                        console.error(err);
+                        return
+                    }
+                    console.log('Data written')
                 });
             });
         }
