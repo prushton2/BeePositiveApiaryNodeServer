@@ -19,21 +19,18 @@ app.use(bodyParser.urlencoded({
   extended: true
 }))
 app.use(bodyParser.json());
-
 app.use(cors({
   origin: "*"
 }));
-
+app.use(function(err, req, res) {
+  res.status(500);
+  res.end('{"response": "There was an internal error processing your request. Check your request and try again"}');
+});
 
 //Archive every tuesday at 11pm
 cron.schedule("* * 23 * Tuesday", () => {
   archive.archiveDB()
 });
-
-//Handles all errors without exiting. Doesnt send back a response, but that is less important than a crashing database
-process.on('uncaughtException', (err) => {
-  console.log(err)
-})
 
 onStart = async() => {
   if(false) { //set to true to load the latest save on start
@@ -197,9 +194,6 @@ app.all("*", async(req, res) => {
   res.status(404)
   res.send({"response": "Endpoint does not exist"})
 })
-
-
-
 
 app.listen(port,() => {
   console.log(`App listening on port ${port}`)
