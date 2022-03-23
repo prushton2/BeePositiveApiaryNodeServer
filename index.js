@@ -18,17 +18,19 @@ const port              = 3000
 app.use(bodyParser.urlencoded({
   extended: true
 }))
+
 app.use(bodyParser.json());
+
 app.use(cors({
   origin: "*"
 }));
-app.use(function(err, req, res) {
-  res.status(500);
-  res.end('{"response": "There was an internal error processing your request. Check your request and try again"}');
-});
+
+process.on('uncaughtException', (err) => {
+  console.log(err)
+})
 
 //Archive every tuesday at 11pm
-cron.schedule("* * 23 * Tuesday", () => {
+cron.schedule("0 23 * * 2", () => {
   archive.archiveDB()
 });
 
@@ -118,7 +120,7 @@ app.post("/getOrders", async(req, res) => {
   }
 
   res.status(200)
-  res.send({"response": allOrders})
+  res.send({"archived":!!req.body["getArchived"], "response": allOrders})
   return  
 })
 
@@ -177,7 +179,7 @@ app.post("/archive", async(req, res) => {
   res.send({"response":"Order Archived"})
 })
 
-app.post("/testHash", async(req, res) => {
+app.post("/hash", async(req, res) => {
 
   if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
     res.status(400)

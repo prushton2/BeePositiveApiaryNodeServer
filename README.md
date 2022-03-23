@@ -82,7 +82,7 @@ Body:
 
 ```
 
-### /testHash (POST)
+### /hash (POST)
 hashes a given string with the same hash used for the passwords<br>
 Body:
 ```javascript
