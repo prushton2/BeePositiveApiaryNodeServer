@@ -74,6 +74,7 @@ app.post('/add', async(req, res) => {
     await Purchases.create({
       orderID: orderid,
       productID: req.body["Items"][purchase]["productID"],
+      subProductID: req.body["Items"][purchase]["subProductID"],
       amount: req.body["Items"][purchase]["amount"]
     })
   }

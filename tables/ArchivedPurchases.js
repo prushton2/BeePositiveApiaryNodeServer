@@ -1,5 +1,5 @@
 const { Model, DataTypes } = require('sequelize');
-const sequelize = require('./database.js')
+const sequelize = require('../database.js')
 
 class ArchivedPurchases extends Model {}
 
@@ -8,6 +8,9 @@ ArchivedPurchases.init({
     type: DataTypes.INTEGER
   },
   productID: {
+    type: DataTypes.INTEGER
+  },
+  subProductID: {
     type: DataTypes.INTEGER
   },
   amount: {
