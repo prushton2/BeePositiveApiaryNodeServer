@@ -48,7 +48,7 @@ productList = {
         "name"         :"Cuticle Salve",
         "price"        :4.99,
         "unit"         :"&nbsp&nbsp&nbsp",
-        "description"  :"",
+        "description"  :"Cuticle Salve",
         "increment"    :1
     },
     2: {
@@ -112,7 +112,7 @@ productList = {
 
 module.exports.setProducts = async() => {
     for(i=0; i<Object.keys(productList).length; i++) {
-        await Products.findOrCreate({
+        output = await Products.findOrCreate({
             where: {
                 id: productList[i].id
             }, 
@@ -126,5 +126,6 @@ module.exports.setProducts = async() => {
                 isInStock: true
             }
         });
+        console.log(output[0])
     }
 }

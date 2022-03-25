@@ -95,3 +95,7 @@ Body:
 
 ### /getProducts (GET)
 returns all the products in inventory
+
+
+## TODO:
+* Add integration with sendgrid to send emails to people
