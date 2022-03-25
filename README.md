@@ -92,3 +92,6 @@ Body:
 }
 
 ```
+
+### /getProducts (GET)
+returns all the products in inventory

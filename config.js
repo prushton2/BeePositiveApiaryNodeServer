@@ -37,4 +37,4 @@ module.exports.read = async() => {
             resolve(JSON.parse(file))
         })
     })
-}
+}   

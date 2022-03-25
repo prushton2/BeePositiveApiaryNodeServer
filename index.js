@@ -3,6 +3,7 @@ const enc               = require('./encryption.js');
 const config            = require('./config.js');
 const archive           = require('./archive.js');
 
+const Products           = require('./tables/Products.js');
 const ArchivedOrders     = require('./tables/ArchivedOrders.js');
 const ArchivedPurchases  = require('./tables/ArchivedPurchases.js');
 const Orders             = require('./tables/Orders.js');
@@ -42,11 +43,14 @@ onStart = async() => {
   await sequelize.sync()
   console.log("Database is ready")
   await config.createConfigIfNotExists()
-  console.log("Config is ready")  
-  
+  console.log("Config is ready")
+  await Products.setProducts();
+  console.log("Set up default table values")
 }
 
 onStart()
+
+
 
 app.post('/add', async(req, res) => {
   const date = new Date()
@@ -190,6 +194,11 @@ app.post("/hash", async(req, res) => {
 
   res.status(200)
   res.send({"response": enc.hash(req.body["string"])})
+})
+
+app.get("/getProducts", async(req, res) => {
+  res.status(200)
+  res.send({"response": await Products.findAll()})
 })
 
 
