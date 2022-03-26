@@ -54,7 +54,7 @@
         "isInStock"    :true
     },
     "6": {
-        "id"           :302,
+        "id"           :301,
         "name"         :"10oz Jar",
         "price"        :0.625,
         "unit"         :"",
@@ -63,7 +63,7 @@
         "isInStock"    :true
     },
     "7": {
-        "id"           :303,
+        "id"           :302,
         "name"         :"1lb Jar",
         "price"        :1,
         "unit"         :"",
@@ -72,7 +72,7 @@
         "isInStock"    :true
     },
     "8": {
-        "id"           :304,
+        "id"           :303,
         "name"         :"2lb Jar",
         "price"        :2,
         "unit"         :"",
