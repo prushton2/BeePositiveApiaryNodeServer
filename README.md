@@ -29,6 +29,7 @@ Body:
   "Items": [
     {
       "productID": //ID of the product (String)
+      "subProductID": //ID of the subproduct (String)
       "amount": //Amount of the product (Integer)
     } //This object can be repeated to include multiple orders
   
@@ -92,3 +93,10 @@ Body:
 }
 
 ```
+
+### /getProducts (GET)
+returns all the products in inventory
+
+
+## TODO:
+* Add integration with sendgrid to send emails to people
