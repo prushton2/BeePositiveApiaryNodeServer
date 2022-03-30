@@ -1,5 +1,5 @@
 const { Model, DataTypes } = require('sequelize');
-const sequelize = require('../database.js')
+const sequelize = require('../src/database.js')
 
 class ArchivedOrders extends Model {}
 

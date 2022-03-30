@@ -1,7 +1,7 @@
 const fs = require("fs");
 
-archiveDir = "./backups"
-mainDB = "./bpa.sqlite"
+archiveDir = "../backups"
+mainDB = "../bpa.sqlite"
 extension = ".sqlite"
 
 

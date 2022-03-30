@@ -3,11 +3,11 @@ const enc               = require('./encryption.js');
 const config            = require('./config.js');
 const archive           = require('./archive.js');
 
-const Products           = require('./tables/Products.js');
-const ArchivedOrders     = require('./tables/ArchivedOrders.js');
-const ArchivedPurchases  = require('./tables/ArchivedPurchases.js');
-const Orders             = require('./tables/Orders.js');
-const Purchases          = require('./tables/Purchases.js');
+const Products           = require('../tables/Products.js');
+const ArchivedOrders     = require('../tables/ArchivedOrders.js');
+const ArchivedPurchases  = require('../tables/ArchivedPurchases.js');
+const Orders             = require('../tables/Orders.js');
+const Purchases          = require('../tables/Purchases.js');
 
 const cron              = require('node-cron');
 const cors              = require("cors");
