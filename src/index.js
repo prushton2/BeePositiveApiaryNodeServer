@@ -46,6 +46,11 @@ onStart = async() => {
   console.log("Config is ready")
   await Products.setProducts();
   console.log("Set up default table values")
+
+  app.listen(port,() => {
+    console.log(`App listening on port ${port}`)
+  })
+
 }
 
 onStart()
@@ -204,8 +209,4 @@ app.get("/getProducts", async(req, res) => {
 app.all("*", async(req, res) => {
   res.status(404)
   res.send({"response": "Endpoint does not exist"})
-})
-
-app.listen(port,() => {
-  console.log(`App listening on port ${port}`)
 })
