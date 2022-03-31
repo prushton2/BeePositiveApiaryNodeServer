@@ -89,7 +89,7 @@ Body:
 ```javascript
 {
   "password": //password (String)
-  "string": //string to hash (String)
+  "text": //string to hash (String)
 }
 
 ```
