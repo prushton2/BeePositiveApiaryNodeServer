@@ -185,7 +185,6 @@ app.post("/archive", async(req, res) => {
 })
 
 app.post("/hash", async(req, res) => {
-
   if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
     res.status(400)
     res.send({"response": "Invalid Credentials"})
@@ -193,7 +192,7 @@ app.post("/hash", async(req, res) => {
   }
 
   res.status(200)
-  res.send({"response": enc.hash(req.body["string"])})
+  res.send({"response": enc.hash(req.body["text"])})
 })
 
 app.get("/getProducts", async(req, res) => {
