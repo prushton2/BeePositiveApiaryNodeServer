@@ -8,13 +8,14 @@ defaultConfig = {
         ]
     }
 }
-filepath = "config.json"
+filepath = "./config/config.json"
 
 
 
 module.exports.createConfigIfNotExists = async() => {
-    fs.exists(filepath, (e) => {
+    fs.exists(filepath, async (e) => {
         if(!e) {
+            await fs.mkdirSync("./config")
             fs.open(filepath,'w',function(fileExists, file) {
                 fs.writeFile( filepath, JSON.stringify(defaultConfig), (err) => {
                     if (err) {
@@ -30,7 +31,7 @@ module.exports.createConfigIfNotExists = async() => {
 
 module.exports.read = async() => {
     return new Promise(function(resolve, reject) {
-        fs.readFile("./config.json", "utf-8", (err, file) => {
+        fs.readFile(filepath, "utf-8", (err, file) => {
             if(err != null) {
                 reject(err)
             }

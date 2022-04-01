@@ -5,8 +5,8 @@ This is a node.js server for [prushton2/beepositiveapiary](https://github.com/pr
 ## Setup
 
 * Install all dependencies listed in ```package.json```
-* Run the program to create ```config.json```
-* Create a post request to ```/hash``` following the endpoint guide below 
+* Run the program to create ```/config/config.json```
+* Create a post request to ```/hash``` following the [endpoint guide for /hash](#hash)
   * The default password is password
   * Put the password you want to hash in the value of string
 * Add the hashed string to the list in ```config.json["auth"]["passwords"]``` to put the password in use
@@ -89,7 +89,7 @@ Body:
 ```javascript
 {
   "password": //password (String)
-  "string": //string to hash (String)
+  "text": //string to hash (String)
 }
 
 ```

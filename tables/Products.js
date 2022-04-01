@@ -1,5 +1,5 @@
 const { Model, DataTypes } = require('sequelize');
-const sequelize = require('../database.js')
+const sequelize = require('../src/database.js')
 const fs = require("fs")
 const util = require('util');
 const readFile = (fileName) => util.promisify(fs.readFile)(fileName, 'utf8');

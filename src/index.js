@@ -3,11 +3,11 @@ const enc               = require('./encryption.js');
 const config            = require('./config.js');
 const archive           = require('./archive.js');
 
-const Products           = require('./tables/Products.js');
-const ArchivedOrders     = require('./tables/ArchivedOrders.js');
-const ArchivedPurchases  = require('./tables/ArchivedPurchases.js');
-const Orders             = require('./tables/Orders.js');
-const Purchases          = require('./tables/Purchases.js');
+const Products           = require('../tables/Products.js');
+const ArchivedOrders     = require('../tables/ArchivedOrders.js');
+const ArchivedPurchases  = require('../tables/ArchivedPurchases.js');
+const Orders             = require('../tables/Orders.js');
+const Purchases          = require('../tables/Purchases.js');
 
 const cron              = require('node-cron');
 const cors              = require("cors");
@@ -46,6 +46,11 @@ onStart = async() => {
   console.log("Config is ready")
   await Products.setProducts();
   console.log("Set up default table values")
+
+  app.listen(port,() => {
+    console.log(`App listening on port ${port}`)
+  })
+
 }
 
 onStart()
@@ -185,7 +190,6 @@ app.post("/archive", async(req, res) => {
 })
 
 app.post("/hash", async(req, res) => {
-
   if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
     res.status(400)
     res.send({"response": "Invalid Credentials"})
@@ -193,7 +197,7 @@ app.post("/hash", async(req, res) => {
   }
 
   res.status(200)
-  res.send({"response": enc.hash(req.body["string"])})
+  res.send({"response": enc.hash(req.body["text"])})
 })
 
 app.get("/getProducts", async(req, res) => {
@@ -205,8 +209,4 @@ app.get("/getProducts", async(req, res) => {
 app.all("*", async(req, res) => {
   res.status(404)
   res.send({"response": "Endpoint does not exist"})
-})
-
-app.listen(port,() => {
-  console.log(`App listening on port ${port}`)
 })
