@@ -13,6 +13,14 @@ This is a node.js server for [prushton2/beepositiveapiary](https://github.com/pr
 * delete the default password
 
 Config.json is read on request, so you dont need to restart the program when you update it.
+
+## Sendgrid
+The backend uses sendgrid to send an order confirmation email when a user places an order.
+* in ```config.json["sendgrid"]```:
+* put the sendgrid api key into ```["api_key"]```
+* put the sender email address into ```["email"]```
+* Enable use of the API by setting ```["enabled"]``` to ```true```
+
 ## Endpoints
 
 ### /add (POST)

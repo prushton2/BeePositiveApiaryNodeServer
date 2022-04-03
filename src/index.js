@@ -2,6 +2,7 @@ const sequelize         = require('./database.js');
 const enc               = require('./encryption.js');
 const config            = require('./config.js');
 const archive           = require('./archive.js');
+const sendgrid          = require('./sendgrid.js');
 
 const Products           = require('../tables/Products.js');
 const ArchivedOrders     = require('../tables/ArchivedOrders.js');
@@ -55,6 +56,12 @@ onStart = async() => {
 
 onStart()
 
+app.get("/sendEmail", async(req, res) => {
+
+  await sendgrid.sendOrderConfirmation({}, {})
+
+  res.send("Email is sending")
+})
 
 
 app.post('/add', async(req, res) => {
