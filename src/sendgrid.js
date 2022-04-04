@@ -34,20 +34,21 @@ module.exports.sendOrderConfirmation = async(order, shoppingList) => {
     const msg = {
         "from":{
             "email": config["sendgrid"]["fromEmail"],
+            "name": "Bee Positive Apiary"
         },
         "personalizations":[
             {
-            "to":[
-                {
-                    "email":order["email"]
-                }
-            ],
-            "dynamic_template_data":{
-                "name": order["name"],
-                "receipt": shoppingListString,
-                "cost": `$${totalcost.toFixed(2)}`,
-                "tax": `${100*config["pricing"]["tax"]}%`,
-                "date": date.toDateString().split(" GMT")[0],
+                "to":[
+                    {
+                        "email":order["email"]
+                    }
+                ],
+                "dynamic_template_data":{
+                    "name": order["name"],
+                    "receipt": shoppingListString,
+                    "cost": `$${totalcost.toFixed(2)}`,
+                    "tax": `${100*config["pricing"]["tax"]}%`,
+                    "date": date.toDateString().split(" GMT")[0],
                 }
             }
         ],
