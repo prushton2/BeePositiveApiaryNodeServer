@@ -1,26 +1,56 @@
 const sendgrid = require('@sendgrid/mail');
-const config = require("../config/config.json");
-sendgrid.setApiKey(config["sendgrid"]["apiKey"]);
+const sequelize         = require('./database.js');
 
-async function sendEmail(msg) {
-    return new Promise(function(resolve, reject) {
-        sendgrid.send(msg).then(() => {
-            resolve()
-        })
-    })
-}
+const Products           = require('../tables/Products.js');
+const config = require("../config/config.json");
+//put in env variable
+sendgrid.setApiKey(config["sendgrid"]["apiKey"]);
 
 module.exports.sendOrderConfirmation = async(order, shoppingList) => {
     
-    const msg = {
-        to: "peterrushton418@gmail.com",
-        from: config["sendgrid"]["fromEmail"],
-        subject: "Test Subject",
-        text: "Test Text",
-        html: "<b>Test HTML</b>",
+    if(!config["sendgrid"]["useSendgrid"]) {
+        return false
     }
 
-    await sendEmail(msg)
+    let date = new Date()
 
+    let shoppingListString = ""
+    console.log(shoppingList)
+
+    for(let i = 0; i < shoppingList.length; i++) {
+        console.log(shoppingList[i])
+        product = await Products.findOne({where: {id: shoppingList[i]["productID"]}})
+        subproduct = await Products.findOne({where: {id: shoppingList[i]["subProductID"]}})
+        
+        if(subproduct["ID"] != 0) {
+            subproduct["name"] += " of"
+        }
+        shoppingListString += `${shoppingList[i]["amount"]}x ${subproduct["name"]} ${product["name"]} <br>`
+    }
+    const msg = {
+    "from":{
+        "email": config["sendgrid"]["fromEmail"],
+     },
+     "personalizations":[
+        {
+           "to":[
+              {
+                 "email":order["email"]
+              }
+           ],
+           "dynamic_template_data":{
+              "name": order["name"],
+              "receipt": shoppingListString,
+              "cost": "$10.00",
+              "date": date.toDateString().split(" GMT")[0],
+            }
+        }
+     ],
+     "template_id": config["sendgrid"]["orderConfirmationTemplateID"]
+  }
+
+    console.log(msg)
+    
+    //await sendgrid.send(msg)
     return true
 }

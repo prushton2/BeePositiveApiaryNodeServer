@@ -56,15 +56,15 @@ onStart = async() => {
 
 onStart()
 
-app.get("/sendEmail", async(req, res) => {
-
-  await sendgrid.sendOrderConfirmation({}, {})
-
-  res.send("Email is sending")
-})
-
 
 app.post('/add', async(req, res) => {
+  
+  if(req.body["sendConfirmationEmail"]) {
+    await sendgrid.sendOrderConfirmation(req.body["Order"], req.body["Items"])
+  }
+
+  res.send({"response": "success"})
+  return
   const date = new Date()
   //validate input
   for(key in req.body["Order"]) {
@@ -94,6 +94,7 @@ app.post('/add', async(req, res) => {
       amount: req.body["Items"][purchase]["amount"]
     })
   }
+
   
   res.send({"response": "Order Created"})
 })
