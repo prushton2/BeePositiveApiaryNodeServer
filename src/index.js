@@ -63,8 +63,6 @@ app.post('/add', async(req, res) => {
     await sendgrid.sendOrderConfirmation(req.body["Order"], req.body["Items"])
   }
 
-  res.send({"response": "success"})
-  return
   const date = new Date()
   //validate input
   for(key in req.body["Order"]) {

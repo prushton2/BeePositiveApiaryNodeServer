@@ -19,8 +19,8 @@ module.exports.sendOrderConfirmation = async(order, shoppingList) => {
     let totalcost = 0
 
     for(let i = 0; i < shoppingList.length; i++) {
-        product = await Products.findOne({where: {id: shoppingList[i]["productID"]}})
-        subproduct = await Products.findOne({where: {id: shoppingList[i]["subProductID"]}})
+        let product = await Products.findOne({where: {id: shoppingList[i]["productID"]}})
+        let subproduct = await Products.findOne({where: {id: shoppingList[i]["subProductID"]}})
         
         cost = (product["price"] * subproduct["price"] * shoppingList[i]["amount"]).toFixed(2)
         totalcost += parseFloat(cost)
