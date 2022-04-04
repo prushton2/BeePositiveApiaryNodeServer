@@ -2,6 +2,7 @@ const sequelize         = require('./database.js');
 const enc               = require('./encryption.js');
 const config            = require('./config.js');
 const archive           = require('./archive.js');
+const sendgrid          = require('./sendgrid.js');
 
 const Products           = require('../tables/Products.js');
 const ArchivedOrders     = require('../tables/ArchivedOrders.js');
@@ -56,8 +57,12 @@ onStart = async() => {
 onStart()
 
 
-
 app.post('/add', async(req, res) => {
+  
+  if(req.body["sendConfirmationEmail"]) {
+    await sendgrid.sendOrderConfirmation(req.body["Order"], req.body["Items"])
+  }
+
   const date = new Date()
   //validate input
   for(key in req.body["Order"]) {
@@ -87,6 +92,7 @@ app.post('/add', async(req, res) => {
       amount: req.body["Items"][purchase]["amount"]
     })
   }
+
   
   res.send({"response": "Order Created"})
 })

@@ -4,8 +4,14 @@ This is a node.js server for [prushton2/beepositiveapiary](https://github.com/pr
 
 ## Setup
 
+### Basic setup
+
 * Install all dependencies listed in ```package.json```
 * Run the program to create ```/config/config.json```
+* Create the ```.env``` file in the root directory of the project
+
+### Auth setup
+
 * Create a post request to ```/hash``` following the [endpoint guide for /hash](#hash)
   * The default password is password
   * Put the password you want to hash in the value of string
@@ -13,6 +19,18 @@ This is a node.js server for [prushton2/beepositiveapiary](https://github.com/pr
 * delete the default password
 
 Config.json is read on request, so you dont need to restart the program when you update it.
+
+### Sendgrid setup
+
+The backend uses sendgrid to send an order confirmation email when a user places an order.
+
+* Add the following to ```config.json["sendgrid"]```:
+  * put the sender email address into ```["email"]```
+  * put order confirmation template ID into ```["orderConfirmationTemplateID"]```
+  * Enable use of the API by setting ```["enabled"]``` to ```true```
+* Add the following to the ```.env``` file:
+  * ```SENDGRID_API_KEY=<your_sendgrid_api_key>```
+
 ## Endpoints
 
 ### /add (POST)
@@ -20,6 +38,7 @@ Adds an order to the database<br>
 Body:
 ```javascript
 {
+  "sendConfirmationEmail" //Determines if the user wants an email confirming their order (boolean)
   "Order": {
     "name": //Name (String)
     "email": //Email (String)
