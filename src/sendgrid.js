@@ -15,17 +15,18 @@ module.exports.sendOrderConfirmation = async(order, shoppingList) => {
     let date = new Date()
 
     let shoppingListString = ""
-    console.log(shoppingList)
 
     for(let i = 0; i < shoppingList.length; i++) {
         console.log(shoppingList[i])
         product = await Products.findOne({where: {id: shoppingList[i]["productID"]}})
         subproduct = await Products.findOne({where: {id: shoppingList[i]["subProductID"]}})
         
-        if(subproduct["ID"] != 0) {
-            subproduct["name"] += " of"
+        console.log(subproduct)
+
+        if(subproduct["id"] != 0) {
+            subproduct["name"] += " of "
         }
-        shoppingListString += `${shoppingList[i]["amount"]}x ${subproduct["name"]} ${product["name"]} <br>`
+        shoppingListString += `${shoppingList[i]["amount"]}x ${subproduct["name"]}${product["name"]} <br>`
     }
     const msg = {
     "from":{
@@ -35,7 +36,7 @@ module.exports.sendOrderConfirmation = async(order, shoppingList) => {
         {
            "to":[
               {
-                 "email":order["email"]
+                "email":order["email"]
               }
            ],
            "dynamic_template_data":{
@@ -51,6 +52,6 @@ module.exports.sendOrderConfirmation = async(order, shoppingList) => {
 
     console.log(msg)
     
-    //await sendgrid.send(msg)
+    await sendgrid.send(msg)
     return true
 }
