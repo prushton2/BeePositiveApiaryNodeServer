@@ -7,6 +7,9 @@ defaultConfig = {
             "15ac60994616bb996ca08cdc4042927f032af8245485d5893388be83a16abf79"
         ]
     },
+    "pricing": {
+        "tax": 0.0625
+    },
     "sendgrid": {
         "useSendgrid": false,
         "fromEmail": "",
