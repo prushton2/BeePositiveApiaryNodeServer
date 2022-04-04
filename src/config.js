@@ -9,7 +9,6 @@ defaultConfig = {
     },
     "sendgrid": {
         "useSendgrid": false,
-        "apiKey": "",
         "fromEmail": "",
         "orderConfirmationTemplateID": "",
     }

@@ -26,6 +26,7 @@ The backend uses sendgrid to send an order confirmation email when a user places
 
 * Add the following to ```config.json["sendgrid"]```:
   * put the sender email address into ```["email"]```
+  * put order confirmation template ID into ```["orderConfirmationTemplateID"]```
   * Enable use of the API by setting ```["enabled"]``` to ```true```
 * Add the following to the ```.env``` file:
   * ```SENDGRID_API_KEY=<your_sendgrid_api_key>```
