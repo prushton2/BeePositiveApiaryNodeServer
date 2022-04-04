@@ -15,43 +15,44 @@ module.exports.sendOrderConfirmation = async(order, shoppingList) => {
     let date = new Date()
 
     let shoppingListString = ""
+    let totalcost = 0
 
     for(let i = 0; i < shoppingList.length; i++) {
-        console.log(shoppingList[i])
         product = await Products.findOne({where: {id: shoppingList[i]["productID"]}})
         subproduct = await Products.findOne({where: {id: shoppingList[i]["subProductID"]}})
         
-        console.log(subproduct)
-
+        cost = (product["price"] * subproduct["price"] * shoppingList[i]["amount"]).toFixed(2)
+        totalcost += parseFloat(cost)
         if(subproduct["id"] != 0) {
             subproduct["name"] += " of "
         }
-        shoppingListString += `${shoppingList[i]["amount"]}x ${subproduct["name"]}${product["name"]} <br>`
+        shoppingListString += `${shoppingList[i]["amount"]}x ${subproduct["name"]}${product["name"]} ($${cost})<br>`
     }
-    const msg = {
-    "from":{
-        "email": config["sendgrid"]["fromEmail"],
-     },
-     "personalizations":[
-        {
-           "to":[
-              {
-                "email":order["email"]
-              }
-           ],
-           "dynamic_template_data":{
-              "name": order["name"],
-              "receipt": shoppingListString,
-              "cost": "$10.00",
-              "date": date.toDateString().split(" GMT")[0],
-            }
-        }
-     ],
-     "template_id": config["sendgrid"]["orderConfirmationTemplateID"]
-  }
 
-    console.log(msg)
-    
+    totalcost += totalcost * config["pricing"]["tax"]
+    const msg = {
+        "from":{
+            "email": config["sendgrid"]["fromEmail"],
+        },
+        "personalizations":[
+            {
+            "to":[
+                {
+                    "email":order["email"]
+                }
+            ],
+            "dynamic_template_data":{
+                "name": order["name"],
+                "receipt": shoppingListString,
+                "cost": `$${totalcost.toFixed(2)}`,
+                "tax": `${100*config["pricing"]["tax"]}%`,
+                "date": date.toDateString().split(" GMT")[0],
+                }
+            }
+        ],
+        "template_id": config["sendgrid"]["orderConfirmationTemplateID"]
+    }
+    console.log(msg["personalizations"][0]["dynamic_template_data"])
     await sendgrid.send(msg)
     return true
 }
