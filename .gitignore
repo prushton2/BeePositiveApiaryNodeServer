@@ -3,3 +3,4 @@ bpa.sqlite
 /config
 /backups/*
 !/backups/placeholder.txt
+.env

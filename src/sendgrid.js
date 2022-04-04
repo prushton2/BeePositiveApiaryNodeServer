@@ -1,10 +1,11 @@
 const sendgrid = require('@sendgrid/mail');
-const sequelize         = require('./database.js');
+const sequelize = require('./database.js');
+require("dotenv").config()
 
-const Products           = require('../tables/Products.js');
+const Products = require('../tables/Products.js');
 const config = require("../config/config.json");
-//put in env variable
-sendgrid.setApiKey(config["sendgrid"]["apiKey"]);
+
+sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
 
 module.exports.sendOrderConfirmation = async(order, shoppingList) => {
     
