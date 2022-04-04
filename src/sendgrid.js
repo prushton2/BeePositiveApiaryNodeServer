@@ -52,7 +52,6 @@ module.exports.sendOrderConfirmation = async(order, shoppingList) => {
         ],
         "template_id": config["sendgrid"]["orderConfirmationTemplateID"]
     }
-    console.log(msg["personalizations"][0]["dynamic_template_data"])
     await sendgrid.send(msg)
     return true
 }
