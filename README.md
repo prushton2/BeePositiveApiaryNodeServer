@@ -7,8 +7,7 @@ This is a node.js server for [prushton2/beepositiveapiary](https://github.com/pr
 ### Basic setup
 
 * Install all dependencies listed in ```package.json```
-* Run the program to create ```/config/config.json```
-* Create the ```.env``` file in the root directory of the project
+* Run ```src/setup.js``` to create ```/config/config.json``` and ```.env```
 
 ### Auth setup
 

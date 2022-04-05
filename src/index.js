@@ -1,6 +1,6 @@
+const config            = require('./config.js');
 const sequelize         = require('./database.js');
 const enc               = require('./encryption.js');
-const config            = require('./config.js');
 const archive           = require('./archive.js');
 const sendgrid          = require('./sendgrid.js');
 
@@ -43,8 +43,6 @@ onStart = async() => {
 
   await sequelize.sync()
   console.log("Database is ready")
-  await config.createConfigIfNotExists()
-  console.log("Config is ready")
   await Products.setProducts();
   console.log("Set up default table values")
 
