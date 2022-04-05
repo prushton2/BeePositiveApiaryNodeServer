@@ -55,7 +55,7 @@ module.exports.createEnvIfNotExists = async() => {
 
 module.exports.read = async() => {
     return new Promise(function(resolve, reject) {
-        fs.readFile(filepath, "utf-8", (err, file) => {
+        fs.readFile(configpath, "utf-8", (err, file) => {
             if(err != null) {
                 reject(err)
             }

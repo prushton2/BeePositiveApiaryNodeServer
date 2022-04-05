@@ -73,6 +73,7 @@ app.post('/add', async(req, res) => {
   //Add Order to db
   req.body["Order"]["isComplete"] = false
   req.body["Order"]["date"] = date.getTime()
+  req.body["Order"]["emailSent"] = false
   output = await Orders.create(req.body["Order"])
   orderid = output["dataValues"]["id"] // Get order ID to be used in the Purchases database to create relations
   

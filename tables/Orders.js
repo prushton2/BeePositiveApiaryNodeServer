@@ -21,6 +21,9 @@ Orders.init({
   },
   date: {
     type: DataTypes.INTEGER
+  },
+  emailSent: {
+    type: DataTypes.BOOLEAN
   }
 }, {
   sequelize,
