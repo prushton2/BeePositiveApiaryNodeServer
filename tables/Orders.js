@@ -24,6 +24,9 @@ Orders.init({
   },
   emailSent: {
     type: DataTypes.BOOLEAN
+  },
+  wantsEmails: {
+    type: DataTypes.BOOLEAN
   }
 }, {
   sequelize,

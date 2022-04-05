@@ -37,7 +37,7 @@ Adds an order to the database<br>
 Body:
 ```javascript
 {
-  "sendConfirmationEmail" //Determines if the user wants an email confirming their order (boolean)
+  "wantsToReceiveEmails" //Determines if the user wants to receive emails (Order confirmation and order completion) (boolean)
   "Order": {
     "name": //Name (String)
     "email": //Email (String)

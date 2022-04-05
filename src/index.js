@@ -57,7 +57,7 @@ onStart()
 
 app.post('/add', async(req, res) => {
   
-  if(req.body["sendConfirmationEmail"]) {
+  if(req.body["wantsToReceiveEmails"]) {
     await sendgrid.sendOrderConfirmation(req.body["Order"], req.body["Items"])
   }
 
@@ -74,6 +74,7 @@ app.post('/add', async(req, res) => {
   req.body["Order"]["isComplete"] = false
   req.body["Order"]["date"] = date.getTime()
   req.body["Order"]["emailSent"] = false
+  req.body["Order"]["wantsEmails"] = req.body["wantsToReceiveEmails"]
   output = await Orders.create(req.body["Order"])
   orderid = output["dataValues"]["id"] // Get order ID to be used in the Purchases database to create relations
   
