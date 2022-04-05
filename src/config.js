@@ -13,7 +13,7 @@ defaultConfig = {
     "sendgrid": {
         "useSendgrid": false,
         "fromEmail": "",
-        "orderConfirmationTemplateID": "",
+        "orderConfirmationTemplateID": ""
     }
 }
 filepath = "./config/config.json"
