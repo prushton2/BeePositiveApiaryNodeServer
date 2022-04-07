@@ -70,11 +70,13 @@ app.post('/add', async(req, res) => {
       return;
     }
   }
-  //Add Order to db
+  //set up extra parameters in order
   req.body["Order"]["isComplete"] = false
   req.body["Order"]["date"] = date.getTime()
   req.body["Order"]["emailSent"] = false
   req.body["Order"]["wantsEmails"] = req.body["wantsToReceiveEmails"]
+
+  //Add Order to db
   output = await Orders.create(req.body["Order"])
   orderid = output["dataValues"]["id"] // Get order ID to be used in the Purchases database to create relations
   
@@ -140,6 +142,30 @@ app.post("/getOrders", async(req, res) => {
   return  
 })
 
+app.post("/sendCompletionEmail", async(req, res) => {
+  //verify password
+  if(!await enc.verifypassword(req.body["password"])) {
+    res.status(400)
+    res.send({"response": "Invalid Credentials"})
+    return
+  }
+  //get order from db
+  order = await Orders.findOne({where: {id: req.body["orderID"]}})
+  //check if order is complete
+  if(!order["isComplete"]) {
+    res.status(400)
+    res.send({"response": "Order is not complete"})
+    return
+  }
+  //update emailSent
+  order["emailSent"] = true
+  await order.save()
+
+  //send email
+  await sendgrid.sendOrderCompletionEmail(order)
+
+  res.send({"response": "Email sent"})
+})
 
 app.post("/complete", async(req, res) => {
   url = req.url.split("/").slice(2)

@@ -50,7 +50,6 @@ Body:
       "subProductID": //ID of the subproduct (String)
       "amount": //Amount of the product (Integer)
     } //This object can be repeated to include multiple orders
-  
   ]
 }
 
@@ -77,6 +76,16 @@ Body:
 
 ```
 
+### /sendCompletionEmail (POST)
+Sends an email to the user when an order is completed<br>
+Body:
+```javascript
+{
+  "password": //password (String)
+  "orderID": //id of order to grab from (int)
+}
+
+```
 
 ### /complete (POST)
 Changes the complete status of an order<br>

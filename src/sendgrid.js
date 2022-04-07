@@ -7,6 +7,12 @@ const config = require("../config/config.json");
 
 sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
 
+
+async function sendMail(msg) {
+    fulfilled = await sendgrid.send(msg).then(fulfilled => {return fulfilled})
+    return fulfilled
+}
+
 module.exports.sendOrderConfirmation = async(order, shoppingList) => {
     
     if(!config["sendgrid"]["useSendgrid"]) {
@@ -40,7 +46,7 @@ module.exports.sendOrderConfirmation = async(order, shoppingList) => {
             {
                 "to":[
                     {
-                        "email":order["email"]
+                        "email": order["email"]
                     }
                 ],
                 "dynamic_template_data":{
@@ -54,6 +60,42 @@ module.exports.sendOrderConfirmation = async(order, shoppingList) => {
         ],
         "template_id": config["sendgrid"]["orderConfirmationTemplateID"]
     }
-    await sendgrid.send(msg)
-    return true
+    fulfilled = await sendMail(msg)
+    return fulfilled
 }
+
+module.exports.sendOrderCompletionEmail = async(order) => {
+    
+    if(!config["sendgrid"]["useSendgrid"]) {
+        return false
+    }
+
+    let date = new Date()
+
+    const msg = {
+        "from": {
+            "email": config["sendgrid"]["fromEmail"],
+            "name": "Bee Positive Apiary"
+        },
+        "personalizations": [
+            {
+                "to": [
+                    {
+                        "email": order["email"]
+                    }
+                ],
+                "dynamic_template_data": {
+                    "name": order["name"],
+                    "date": date.toDateString().split(" GMT")[0]
+                }
+            }
+        ],
+        "template_id": config["sendgrid"]["orderCompletionTemplateID"]
+
+    }
+
+    fulfilled = await sendMail(msg)
+
+    return fulfilled
+}
+
