@@ -166,9 +166,10 @@ app.post("/sendCompletionEmail", async(req, res) => {
   await order.save()
 
   //send email
-  await sendgrid.sendOrderCompletionEmail(order, shoppingList)
+  emailSent = await sendgrid.sendOrderCompletionEmail(order, shoppingList)
 
-  res.send({"response": "Email sent"})
+  res.status(emailSent ? 200 : 403)
+  res.send({"response": emailSent ? "Email sent" : "Email failed to send"})
 })
 
 app.post("/complete", async(req, res) => {
