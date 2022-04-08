@@ -95,7 +95,7 @@ app.post('/add', async(req, res) => {
     })
   }
 
-  
+  res.status(201)
   res.send({"response": "Order Created"})
 })
 
@@ -223,6 +223,7 @@ app.post("/archive", async(req, res) => {
     Purchases.destroy({where: {id: element["dataValues"]["id"]}})
   });
   
+  res.send(200)
   res.send({"response":"Order Archived"})
 })
 
