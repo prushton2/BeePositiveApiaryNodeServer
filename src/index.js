@@ -3,6 +3,7 @@ const sequelize         = require('./database.js');
 const enc               = require('./encryption.js');
 const archive           = require('./archive.js');
 const sendgrid          = require('./sendgrid.js');
+const inputValidator    = require('./inputValidator.js');
 
 const Products           = require('../tables/Products.js');
 const ArchivedOrders     = require('../tables/ArchivedOrders.js');
@@ -99,6 +100,10 @@ app.post('/add', async(req, res) => {
   res.send({"response": "Order Created", "Email": emailSent ? "Sent" : "Not Sent"})
 })
 
+app.post("/validateInput", async(req, res) => {
+  res.status(200)
+  res.send({"response": inputValidator.validateInput(req.body["string"])})
+})
 
 app.post("/getPurchases", async(req, res) => {
   url = req.url.split("/").slice(2)
