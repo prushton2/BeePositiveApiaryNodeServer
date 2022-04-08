@@ -157,12 +157,16 @@ app.post("/sendCompletionEmail", async(req, res) => {
     res.send({"response": "Order is not complete"})
     return
   }
+
+  //get shoppingList
+  shoppingList = await Purchases.findAll({where: {orderID: req.body["orderID"]}})
+
   //update emailSent
   order["emailSent"] = true
   await order.save()
 
   //send email
-  await sendgrid.sendOrderCompletionEmail(order)
+  await sendgrid.sendOrderCompletionEmail(order, shoppingList)
 
   res.send({"response": "Email sent"})
 })

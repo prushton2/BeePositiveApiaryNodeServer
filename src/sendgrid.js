@@ -81,6 +81,10 @@ module.exports.sendOrderCompletionEmail = async(order) => {
 
     let date = new Date()
 
+    let output = await createShoppingListString(shoppingList)
+    let shoppingListString = output[0]
+    let totalcost = output[1]
+
     const msg = {
         "from": {
             "email": config["sendgrid"]["fromEmail"],
@@ -95,6 +99,9 @@ module.exports.sendOrderCompletionEmail = async(order) => {
                 ],
                 "dynamic_template_data": {
                     "name": order["name"],
+                    "receipt": shoppingListString,
+                    "cost": `$${totalcost.toFixed(2)}`,
+                    "tax": `${100*config["pricing"]["tax"]}%`,
                     "date": date.toDateString().split(" GMT")[0]
                 }
             }
