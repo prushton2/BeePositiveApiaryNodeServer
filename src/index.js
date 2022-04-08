@@ -56,10 +56,6 @@ onStart()
 
 
 app.post('/add', async(req, res) => {
-  
-  if(req.body["wantsToReceiveEmails"]) {
-    await sendgrid.sendOrderConfirmation(req.body["Order"], req.body["Items"])
-  }
 
   const date = new Date()
   //validate input
@@ -94,9 +90,13 @@ app.post('/add', async(req, res) => {
       amount: req.body["Items"][purchase]["amount"]
     })
   }
+  emailSent = false
+  if(req.body["wantsToReceiveEmails"]) {
+    emailSent = await sendgrid.sendOrderConfirmation(req.body["Order"], req.body["Items"])
+  }
 
   res.status(201)
-  res.send({"response": "Order Created"})
+  res.send({"response": "Order Created", "Email": emailSent ? "Sent" : "Not Sent"})
 })
 
 
