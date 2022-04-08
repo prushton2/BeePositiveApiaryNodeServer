@@ -104,7 +104,7 @@ app.post("/getPurchases", async(req, res) => {
   url = req.url.split("/").slice(2)
   
   if(!await enc.verifypassword(req.body["password"])) {
-    res.status(400)
+    res.status(401)
     res.send({"response": "Invalid Credentials"})
     return
   }
@@ -125,7 +125,7 @@ app.post("/getPurchases", async(req, res) => {
 app.post("/getOrders", async(req, res) => {
 
   if(!await enc.verifypassword(req.body["password"])) {
-    res.status(400)
+    res.status(401)
     res.send({"response": "Invalid Credentials"})
     return
   }
@@ -145,7 +145,7 @@ app.post("/getOrders", async(req, res) => {
 app.post("/sendCompletionEmail", async(req, res) => {
   //verify password
   if(!await enc.verifypassword(req.body["password"])) {
-    res.status(400)
+    res.status(401)
     res.send({"response": "Invalid Credentials"})
     return
   }
@@ -176,7 +176,7 @@ app.post("/complete", async(req, res) => {
   url = req.url.split("/").slice(2)
   
   if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
-    res.status(400)
+    res.status(401)
     res.send({"response": "Invalid Credentials"})
     return
   }
@@ -198,7 +198,7 @@ app.post("/complete", async(req, res) => {
 app.post("/archive", async(req, res) => {
 
   if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
-    res.status(400)
+    res.status(401)
     res.send({"response": "Invalid Credentials"})
     return
   }
@@ -228,7 +228,7 @@ app.post("/archive", async(req, res) => {
 
 app.post("/hash", async(req, res) => {
   if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
-    res.status(400)
+    res.status(401)
     res.send({"response": "Invalid Credentials"})
     return
   }
