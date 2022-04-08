@@ -13,19 +13,36 @@ defaultConfig = {
     "sendgrid": {
         "useSendgrid": false,
         "fromEmail": "",
-        "orderConfirmationTemplateID": ""
+        "orderConfirmationTemplateID": "",
+        "orderCompletionTemplateID": ""
     }
 }
-filepath = "./config/config.json"
-
+configpath = "./config/config.json"
+envpath = "./.env"
 
 
 module.exports.createConfigIfNotExists = async() => {
-    fs.exists(filepath, async (e) => {
+    fs.exists(configpath, async (e) => {
         if(!e) {
             await fs.mkdirSync("./config")
-            fs.open(filepath,'w',function(fileExists, file) {
-                fs.writeFile( filepath, JSON.stringify(defaultConfig), (err) => {
+            fs.open(configpath,'w',function(fileExists, file) {
+                fs.writeFile( configpath, JSON.stringify(defaultConfig), (err) => {
+                    if (err) {
+                        console.error(err);
+                        return
+                    }
+                    console.log('Data written')
+                });
+            });
+        }
+    })
+}
+
+module.exports.createEnvIfNotExists = async() => {
+    fs.exists(envpath, async (e) => {
+        if(!e) {
+            fs.open(envpath,'w',function(fileExists, file) {
+                fs.writeFile( envpath, "", (err) => {
                     if (err) {
                         console.error(err);
                         return
@@ -39,7 +56,7 @@ module.exports.createConfigIfNotExists = async() => {
 
 module.exports.read = async() => {
     return new Promise(function(resolve, reject) {
-        fs.readFile(filepath, "utf-8", (err, file) => {
+        fs.readFile(configpath, "utf-8", (err, file) => {
             if(err != null) {
                 reject(err)
             }

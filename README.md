@@ -7,8 +7,7 @@ This is a node.js server for [prushton2/beepositiveapiary](https://github.com/pr
 ### Basic setup
 
 * Install all dependencies listed in ```package.json```
-* Run the program to create ```/config/config.json```
-* Create the ```.env``` file in the root directory of the project
+* Run ```src/setup.js``` to create ```/config/config.json``` and ```.env```
 
 ### Auth setup
 
@@ -38,7 +37,7 @@ Adds an order to the database<br>
 Body:
 ```javascript
 {
-  "sendConfirmationEmail" //Determines if the user wants an email confirming their order (boolean)
+  "wantsToReceiveEmails" //Determines if the user wants to receive emails (Order confirmation and order completion) (boolean)
   "Order": {
     "name": //Name (String)
     "email": //Email (String)
@@ -51,7 +50,6 @@ Body:
       "subProductID": //ID of the subproduct (String)
       "amount": //Amount of the product (Integer)
     } //This object can be repeated to include multiple orders
-  
   ]
 }
 
@@ -78,6 +76,16 @@ Body:
 
 ```
 
+### /sendCompletionEmail (POST)
+Sends an email to the user when an order is completed<br>
+Body:
+```javascript
+{
+  "password": //password (String)
+  "orderID": //id of order to grab from (int)
+}
+
+```
 
 ### /complete (POST)
 Changes the complete status of an order<br>

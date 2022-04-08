@@ -1,6 +1,6 @@
+const config            = require('./config.js');
 const sequelize         = require('./database.js');
 const enc               = require('./encryption.js');
-const config            = require('./config.js');
 const archive           = require('./archive.js');
 const sendgrid          = require('./sendgrid.js');
 
@@ -43,8 +43,6 @@ onStart = async() => {
 
   await sequelize.sync()
   console.log("Database is ready")
-  await config.createConfigIfNotExists()
-  console.log("Config is ready")
   await Products.setProducts();
   console.log("Set up default table values")
 
@@ -59,7 +57,7 @@ onStart()
 
 app.post('/add', async(req, res) => {
   
-  if(req.body["sendConfirmationEmail"]) {
+  if(req.body["wantsToReceiveEmails"]) {
     await sendgrid.sendOrderConfirmation(req.body["Order"], req.body["Items"])
   }
 
@@ -72,9 +70,13 @@ app.post('/add', async(req, res) => {
       return;
     }
   }
-  //Add Order to db
+  //set up extra parameters in order
   req.body["Order"]["isComplete"] = false
   req.body["Order"]["date"] = date.getTime()
+  req.body["Order"]["emailSent"] = false
+  req.body["Order"]["wantsEmails"] = req.body["wantsToReceiveEmails"]
+
+  //Add Order to db
   output = await Orders.create(req.body["Order"])
   orderid = output["dataValues"]["id"] // Get order ID to be used in the Purchases database to create relations
   
@@ -93,7 +95,7 @@ app.post('/add', async(req, res) => {
     })
   }
 
-  
+  res.status(201)
   res.send({"response": "Order Created"})
 })
 
@@ -102,7 +104,7 @@ app.post("/getPurchases", async(req, res) => {
   url = req.url.split("/").slice(2)
   
   if(!await enc.verifypassword(req.body["password"])) {
-    res.status(400)
+    res.status(401)
     res.send({"response": "Invalid Credentials"})
     return
   }
@@ -123,7 +125,7 @@ app.post("/getPurchases", async(req, res) => {
 app.post("/getOrders", async(req, res) => {
 
   if(!await enc.verifypassword(req.body["password"])) {
-    res.status(400)
+    res.status(401)
     res.send({"response": "Invalid Credentials"})
     return
   }
@@ -140,12 +142,41 @@ app.post("/getOrders", async(req, res) => {
   return  
 })
 
+app.post("/sendCompletionEmail", async(req, res) => {
+  //verify password
+  if(!await enc.verifypassword(req.body["password"])) {
+    res.status(401)
+    res.send({"response": "Invalid Credentials"})
+    return
+  }
+  //get order from db
+  order = await Orders.findOne({where: {id: req.body["orderID"]}})
+  //check if order is complete
+  if(!order["isComplete"]) {
+    res.status(400)
+    res.send({"response": "Order is not complete"})
+    return
+  }
+
+  //get shoppingList
+  shoppingList = await Purchases.findAll({where: {orderID: req.body["orderID"]}})
+
+  //update emailSent
+  order["emailSent"] = true
+  await order.save()
+
+  //send email
+  emailSent = await sendgrid.sendOrderCompletionEmail(order, shoppingList)
+
+  res.status(emailSent ? 200 : 403)
+  res.send({"response": emailSent ? "Email sent" : "Email failed to send"})
+})
 
 app.post("/complete", async(req, res) => {
   url = req.url.split("/").slice(2)
   
   if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
-    res.status(400)
+    res.status(401)
     res.send({"response": "Invalid Credentials"})
     return
   }
@@ -167,7 +198,7 @@ app.post("/complete", async(req, res) => {
 app.post("/archive", async(req, res) => {
 
   if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
-    res.status(400)
+    res.status(401)
     res.send({"response": "Invalid Credentials"})
     return
   }
@@ -192,12 +223,13 @@ app.post("/archive", async(req, res) => {
     Purchases.destroy({where: {id: element["dataValues"]["id"]}})
   });
   
+  res.send(200)
   res.send({"response":"Order Archived"})
 })
 
 app.post("/hash", async(req, res) => {
   if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
-    res.status(400)
+    res.status(401)
     res.send({"response": "Invalid Credentials"})
     return
   }
