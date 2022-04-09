@@ -4,52 +4,46 @@ const numberRegex = /[^0-9\-]/g
 
 module.exports.validateInput = (order) => {
     //will validate the input and return the cleaned input, and a boolean indicating if the input had to be cleaned
+    //This function does not clean the email. This is because if the email is invalid, the endpoint should return a 400 instead of cleaning it.
     response = {
+        "wasCleaned": false,
         "email": {
             "cleanedString": order["email"],
-            "wasCleaned": !module.exports.validateEmail(order["email"])
+            "wasCleaned":   !module.exports.isValidEmail(order["email"])
         },
         "name": {
-            "cleanedString": module.exports.cleanText(order["name"]),
-            "wasCleaned": !module.exports.isTextClean(order["name"])
+            "cleanedString": module.exports.cleanText(order["name"], disallowedRegex),
+            "wasCleaned":   !module.exports.isTextClean(order["name"], disallowedRegex)
         },
         "address": {
-            "cleanedString": module.exports.cleanText(order["address"]),
-            "wasCleaned": !module.exports.isTextClean(order["address"])
+            "cleanedString": module.exports.cleanText(order["address"], disallowedRegex),
+            "wasCleaned":   !module.exports.isTextClean(order["address"], disallowedRegex)
         },
         "phoneNumber": {
-            "cleanedString": module.exports.cleanPhoneNumber(order["phoneNumber"]),
-            "wasCleaned": !module.exports.isPhoneNumberClean(order["phoneNumber"])
+            "cleanedString": module.exports.cleanText(order["phoneNumber"], numberRegex),
+            "wasCleaned":   !module.exports.isTextClean(order["phoneNumber"], numberRegex)
         }
+    }
+
+    if(JSON.stringify(response).indexOf('"wasCleaned":true') > -1) {
+        response["wasCleaned"] = true
     }
 
     return response
 }
 
-module.exports.validateEmail = (email) => {
-    //will validate the email and return the cleaned email, and a boolean indicating if the email had to be cleaned
-    response = emailValidator.validate(email)
+module.exports.cleanText = (text, regex) => {
+    //will clean the text by removing disallowed characters
+    response = text.replace(regex, "")
     return response
 }
 
-module.exports.isTextClean = (text) => {
-    //will check if the text is clean and return a boolean
-    return module.exports.cleanText(text) == text
+module.exports.isTextClean = (text, regex) => {
+    //will check if the text is clean
+    return text == module.exports.cleanText(text, regex)
 }
 
-module.exports.cleanText = (text) => {
-    //will clean the text and return the cleaned text, and a boolean indicating if the text had to be cleaned
-    response = text.replace(disallowedRegex, "")
-    return response
-}
-
-module.exports.cleanPhoneNumber = (phoneNumber) => {
-    //will clean the phone number and return the cleaned phone number, and a boolean indicating if the phone number had to be cleaned
-    response = phoneNumber.replace(numberRegex, "")
-    return response
-}
-
-module.exports.isPhoneNumberClean = (phoneNumber) => {
-    //will check if the phone number is clean and return a boolean
-    return module.exports.cleanPhoneNumber(phoneNumber) == phoneNumber
+module.exports.isValidEmail = (email) => {
+    //will check if the email is valid
+    return emailValidator.validate(email)
 }

@@ -59,14 +59,25 @@ onStart()
 app.post('/add', async(req, res) => {
 
   const date = new Date()
-  //validate input
+  
+  //validate any empty inputs
   for(key in req.body["Order"]) {
     if(!req.body["Order"][key]) {
       res.status(400)
-      res.send({"response": "Invalid input"})
+      res.send({"response": "Empty input given"})
       return;
     }
   }
+
+  //clean string
+  //if the data is not clean, return a 400. The front end prevents users inputting bad strings, but we do it here to be safe.
+  cleanedData = inputValidator.validateInput(req.body["Order"])
+  if(cleanedData["wasCleaned"]) {
+    res.status(400)
+    res.send({"response": "Invalid body input"})
+    return
+  }
+
   //set up extra parameters in order
   req.body["Order"]["isComplete"] = false
   req.body["Order"]["date"] = date.getTime()
@@ -101,6 +112,8 @@ app.post('/add', async(req, res) => {
 })
 
 app.post("/validateInput", async(req, res) => {
+  //meant for the frontend to check if the input is valid before sending it to the server. The server does the same thing,
+  //but this is more friendly for the end user.
   res.status(200)
   res.send({"response": inputValidator.validateInput(req.body["string"])})
 })
