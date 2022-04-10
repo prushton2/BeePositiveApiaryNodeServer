@@ -74,7 +74,8 @@ app.post('/add', async(req, res) => {
   cleanedData = inputValidator.validateInput(req.body["Order"])
   if(cleanedData["wasCleaned"]) {
     res.status(400)
-    res.send({"response": "Invalid body input"})
+    res.send({"response": "Invalid body input",
+              "cleanedInput": cleanedData})
     return
   }
 
@@ -115,7 +116,8 @@ app.post("/validateInput", async(req, res) => {
   //meant for the frontend to check if the input is valid before sending it to the server. The server does the same thing,
   //but this is more friendly for the end user.
   res.status(200)
-  res.send({"response": inputValidator.validateInput(req.body["string"])})
+  // res.send({"response": inputValidator.validateInput(req.body["string"])})
+  res.send({"response": inputValidator.validateShoppingList(req.body["string"])})
 })
 
 app.post("/getPurchases", async(req, res) => {

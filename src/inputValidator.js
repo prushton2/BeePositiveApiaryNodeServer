@@ -1,6 +1,7 @@
 const emailValidator = require("email-validator")
-const disallowedRegex = /[^a-zA-Z0-9 '.\/\\()\[\]{}\-_+=]/g
-const numberRegex = /[^0-9\-]/g
+const disallowedRegex = /[^a-zA-Z0-9 ,'.\/\\()\[\]{}\-_+=]/g
+const phonenumberRegex = /[^0-9\-]/g
+const numberRegex = /[^0-9]/g
 
 module.exports.validateInput = (order) => {
     //will validate the input and return the cleaned input, and a boolean indicating if the input had to be cleaned
@@ -20,8 +21,8 @@ module.exports.validateInput = (order) => {
             "wasCleaned":   !module.exports.isTextClean(order["address"], disallowedRegex)
         },
         "phoneNumber": {
-            "cleanedString": module.exports.cleanText(order["phoneNumber"], numberRegex),
-            "wasCleaned":   !module.exports.isTextClean(order["phoneNumber"], numberRegex)
+            "cleanedString": module.exports.cleanText(order["phoneNumber"], phonenumberRegex),
+            "wasCleaned":   !module.exports.isTextClean(order["phoneNumber"], phonenumberRegex)
         }
     }
 
@@ -31,6 +32,37 @@ module.exports.validateInput = (order) => {
 
     return response
 }
+
+module.exports.validateShoppingList = (shoppingList) => {
+    //will validate the input and return the cleaned input, and a boolean indicating if the input had to be cleaned
+    response = {
+        "wasCleaned": false,
+        "shoppingList": []
+    }
+
+    // console.log(response["shoppingList"])
+    // console.log(shoppingList)
+
+    for(key in shoppingList) {
+        console.log("shop list ")
+        console.log(response["shoppingList"])
+        console.log("product id "+shoppingList[key]["productID"])
+        console.log("clean "+module.exports.cleanText(shoppingList[key]["productID"], numberRegex))
+        response["shoppingList"].push({
+            "productID": module.exports.cleanText(shoppingList[key]["productID"], numberRegex),
+            "subProductID": 0,//module.exports.cleanText(shoppingList[key]["subProductID"], numberRegex),
+            "amount": 0//shoppingList[key]["amount"]
+        })
+    }
+
+    // if(JSON.stringify(response["shoppingList"]) == JSON.stringify(shoppingList)) {
+    //     response["wasCleaned"] = true
+    // }
+
+    return response
+}
+
+
 
 module.exports.cleanText = (text, regex) => {
     //will clean the text by removing disallowed characters
