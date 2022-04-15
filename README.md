@@ -6,7 +6,7 @@ This is a node.js server for [prushton2/beepositiveapiary](https://github.com/pr
 
 ### Basic setup
 
-* run ```npm ci``` to install the dependencies
+* Run ```npm ci``` to install the dependencies
 * Run ```src/setup.js``` to create ```/config/config.json``` and ```.env```
 
 ### Auth setup
@@ -124,7 +124,3 @@ Body:
 
 ### /getProducts (GET)
 returns all the products in inventory
-
-
-## TODO:
-* Add integration with sendgrid to send emails to people
