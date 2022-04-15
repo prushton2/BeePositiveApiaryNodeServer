@@ -1,6 +1,6 @@
 # BeePositiveApiaryNodeServer
 
-This is a node.js server for [prushton2/beepositiveapiary](https://github.com/prushton2/beepositiveapiary). This is built to store, view, and archive orders made from the site.<br>
+This is the node.js server for [prushton2/beepositiveapiary](https://github.com/prushton2/beepositiveapiary). This is built to store, view, and archive orders made from the site.<br>
 
 ## Setup
 
@@ -16,8 +16,6 @@ This is a node.js server for [prushton2/beepositiveapiary](https://github.com/pr
   * Put the password you want to hash in the value of string
 * Add the hashed string to the list in ```config.json["auth"]["passwords"]``` to put the password in use
 * delete the default password
-
-Config.json is read on request, so you dont need to restart the program when you update it.
 
 ### Sendgrid setup
 
