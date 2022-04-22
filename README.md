@@ -8,6 +8,7 @@ This is the node.js server for [prushton2/beepositiveapiary](https://github.com/
 
 * Run ```npm ci``` to install the dependencies
 * Run ```src/setup.js``` to create ```/config/config.json``` and ```.env```
+* Run ```src/index.js``` to run the program
 
 ### Auth setup
 
