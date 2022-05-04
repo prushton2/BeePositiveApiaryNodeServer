@@ -71,7 +71,7 @@ app.post('/add', async(req, res) => {
 
   //clean string
   //if the data is not clean, return a 400. The front end prevents users inputting bad strings, but we do it here to be safe.
-  cleanedData = inputValidator.validateInput(req.body["Order"])
+  let cleanedData = inputValidator.validateInput(req.body["Order"])
   if(cleanedData["wasCleaned"]) {
     res.status(400)
     res.send({"response": "Invalid body input",
@@ -86,8 +86,8 @@ app.post('/add', async(req, res) => {
   req.body["Order"]["wantsEmails"] = req.body["wantsToReceiveEmails"]
 
   //Add Order to db
-  output = await Orders.create(req.body["Order"])
-  orderid = output["dataValues"]["id"] // Get order ID to be used in the Purchases database to create relations
+  let output = await Orders.create(req.body["Order"])
+  let orderid = output["dataValues"]["id"] // Get order ID to be used in the Purchases database to create relations
   
   //Add purchases to db
   for (purchase in req.body["Items"]) {
@@ -103,7 +103,7 @@ app.post('/add', async(req, res) => {
       amount: req.body["Items"][purchase]["amount"]
     })
   }
-  emailSent = false
+  let emailSent = false
   if(req.body["wantsToReceiveEmails"]) {
     emailSent = await sendgrid.sendOrderConfirmation(req.body["Order"], req.body["Items"])
   }
@@ -121,8 +121,7 @@ app.post("/validateInput", async(req, res) => {
 })
 
 app.post("/getPurchases", async(req, res) => {
-  url = req.url.split("/").slice(2)
-  
+
   if(!await enc.verifypassword(req.body["password"])) {
     res.status(401)
     res.send({"response": "Invalid Credentials"})
@@ -170,7 +169,7 @@ app.post("/sendCompletionEmail", async(req, res) => {
     return
   }
   //get order from db
-  order = await Orders.findOne({where: {id: req.body["orderID"]}})
+  let order = await Orders.findOne({where: {id: req.body["orderID"]}})
   //check if order is complete
   if(!order["isComplete"]) {
     res.status(400)
@@ -179,21 +178,20 @@ app.post("/sendCompletionEmail", async(req, res) => {
   }
 
   //get shoppingList
-  shoppingList = await Purchases.findAll({where: {orderID: req.body["orderID"]}})
+  let shoppingList = await Purchases.findAll({where: {orderID: req.body["orderID"]}})
 
   //update emailSent
   order["emailSent"] = true
   await order.save()
 
   //send email
-  emailSent = await sendgrid.sendOrderCompletionEmail(order, shoppingList)
+  let emailSent = await sendgrid.sendOrderCompletionEmail(order, shoppingList)
 
   res.status(emailSent ? 200 : 403)
   res.send({"response": emailSent ? "Email sent" : "Email failed to send"})
 })
 
 app.post("/complete", async(req, res) => {
-  url = req.url.split("/").slice(2)
   
   if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
     res.status(401)
@@ -201,7 +199,7 @@ app.post("/complete", async(req, res) => {
     return
   }
 
-  order = await Orders.findOne({where: {id: req.body["orderID"]}})
+  let order = await Orders.findOne({where: {id: req.body["orderID"]}})
   try {
     order.isComplete = req.body["completeStatus"]  
     await order.save()
@@ -223,7 +221,7 @@ app.post("/archive", async(req, res) => {
     return
   }
 
-  order = await Orders.findOne({where: {id: req.body["orderID"]}})
+  let order = await Orders.findOne({where: {id: req.body["orderID"]}})
   
   try {
     order = order["dataValues"]
