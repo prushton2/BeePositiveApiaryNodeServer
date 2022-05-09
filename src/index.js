@@ -214,7 +214,7 @@ app.post("/archive", async(req, res) => {
   }  
   
   purchases = await Purchases.findAll({where: {orderID: req.body["orderID"]}})  
-  
+  order["reasonArchived"] = "Archived By Administrator"
   ArchivedOrders.create(order)
   Orders.destroy({where: {id: req.body["orderID"]}})
   
