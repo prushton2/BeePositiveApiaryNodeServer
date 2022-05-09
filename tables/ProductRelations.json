@@ -1,0 +1,21 @@
+{
+    "0": {
+        "productID": 100,
+        "subProductID": 0,
+        "price": 2.99,
+        "increment": 1
+    },
+    "1": {
+        "productID": 101,
+        "subProductID": 0,
+        "price": 3.99,
+        "increment": 1
+    },
+
+    "2": {
+        "productID": 200,
+        "subProductID": 300,
+        "price": 2.99,
+        "increment": 1
+    }
+}

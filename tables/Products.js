@@ -15,17 +15,8 @@ Products.init({
     name: {
         type: DataTypes.STRING,
     },
-    price: {
-        type: DataTypes.INTEGER,
-    },
     description: {
         type: DataTypes.STRING,
-    },
-    unit: {
-        type: DataTypes.STRING,
-    },
-    increment: {
-        type: DataTypes.DOUBLE,
     },
     isInStock: {
       type: DataTypes.BOOLEAN

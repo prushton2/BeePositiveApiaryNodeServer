@@ -5,6 +5,7 @@ const archive           = require('./archive.js');
 const sendgrid          = require('./sendgrid.js');
 
 const Products           = require('../tables/Products.js');
+const ProductRelations   = require('../tables/ProductRelations.js');
 const ArchivedOrders     = require('../tables/ArchivedOrders.js');
 const ArchivedPurchases  = require('../tables/ArchivedPurchases.js');
 const Orders             = require('../tables/Orders.js');

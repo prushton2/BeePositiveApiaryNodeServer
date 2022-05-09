@@ -17,19 +17,13 @@ ProductRelations.init({
 		primaryKey: true,
     },
     price: {
-        type: DataTypes.INTEGER,
-    },
-    description: {
-        type: DataTypes.STRING,
-    },
-    unit: {
-        type: DataTypes.STRING,
-    },
-    increment: {
         type: DataTypes.DOUBLE,
     },
-    isInStock: {
-      type: DataTypes.BOOLEAN
+	imageURL: {
+		type: DataTypes.STRING,
+	},
+    increment: {
+        type: DataTypes.DOUBLE,
     }
 }, {
     sequelize,
