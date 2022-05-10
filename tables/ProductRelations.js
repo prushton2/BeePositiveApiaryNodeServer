@@ -34,11 +34,11 @@ ProductRelations.init({
 module.exports = ProductRelations;
 
 //change this? export it to json on write and import it from json on load? I need a persisntent way to store the products aside from the database (I delete it too much)
-module.exports.setProductRelations = async() => {
+module.exports.setDefaults = async() => {
     const file = await readFile("./tables/ProductRelations.json")
     const productList = JSON.parse(file)
     for(i=0; i<Object.keys(productList).length; i++) { 
         //create product if it doesn't exist, or update if it does
-        output = await Products.upsert( productList[i] );
+        output = await ProductRelations.upsert( productList[i] );
     }
 }

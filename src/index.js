@@ -44,7 +44,8 @@ onStart = async() => {
 
   await sequelize.sync()
   console.log("Database is ready")
-  await Products.setProducts();
+  await Products.setDefaults();
+  await ProductRelations.setDefaults();
   console.log("Set up default table values")
 
   app.listen(port,() => {
