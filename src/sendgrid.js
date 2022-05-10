@@ -9,7 +9,20 @@ sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
 
 
 async function sendMail(msg) {
+
+    if(!config["sendgrid"]["useSendgrid"]) {
+        return false;
+    }
+
+    if(config["sendgrid"]["bccToSender"]) {
+        msg["personalizations"][0]["bcc"] = [
+            {
+                "email": config["sendgrid"]["fromEmail"]
+            }
+        ]
+    }
     fulfilled = await sendgrid.send(msg).then(fulfilled => {return fulfilled})
+
     return fulfilled
 }
 
@@ -35,10 +48,6 @@ async function createShoppingListString(shoppingList) {
 }
 
 module.exports.sendOrderConfirmation = async(order, shoppingList) => {
-    
-    if(!config["sendgrid"]["useSendgrid"]) {
-        return false
-    }
 
     let date = new Date()
 
@@ -74,10 +83,6 @@ module.exports.sendOrderConfirmation = async(order, shoppingList) => {
 }
 
 module.exports.sendOrderCompletionEmail = async(order) => {
-    
-    if(!config["sendgrid"]["useSendgrid"]) {
-        return false
-    }
 
     let date = new Date()
 

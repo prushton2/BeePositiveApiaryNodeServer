@@ -11,6 +11,7 @@ defaultConfig = {
         "tax": 0.0625
     },
     "sendgrid": {
+        "bccToSender": true,
         "useSendgrid": false,
         "fromEmail": "",
         "orderConfirmationTemplateID": "",

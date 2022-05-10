@@ -21,6 +21,9 @@ ArchivedOrders.init({
   },
   date: {
     type: DataTypes.INTEGER
+  },
+  reasonArchived: {
+    type: DataTypes.STRING
   }
 }, {
   sequelize,

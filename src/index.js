@@ -6,6 +6,7 @@ const sendgrid          = require('./sendgrid.js');
 const inputValidator    = require('./inputValidator.js');
 
 const Products           = require('../tables/Products.js');
+const ProductRelations   = require('../tables/ProductRelations.js');
 const ArchivedOrders     = require('../tables/ArchivedOrders.js');
 const ArchivedPurchases  = require('../tables/ArchivedPurchases.js');
 const Orders             = require('../tables/Orders.js');
@@ -44,7 +45,8 @@ onStart = async() => {
 
   await sequelize.sync()
   console.log("Database is ready")
-  await Products.setProducts();
+  await Products.setDefaults();
+  await ProductRelations.setDefaults();
   console.log("Set up default table values")
 
   app.listen(port,() => {
@@ -232,7 +234,7 @@ app.post("/archive", async(req, res) => {
   }  
   
   purchases = await Purchases.findAll({where: {orderID: req.body["orderID"]}})  
-  
+  order["reasonArchived"] = "Archived By Administrator"
   ArchivedOrders.create(order)
   Orders.destroy({where: {id: req.body["orderID"]}})
   
@@ -241,7 +243,7 @@ app.post("/archive", async(req, res) => {
     Purchases.destroy({where: {id: element["dataValues"]["id"]}})
   });
   
-  res.send(200)
+  res.status(200)
   res.send({"response":"Order Archived"})
 })
 
@@ -258,9 +260,16 @@ app.post("/hash", async(req, res) => {
 
 app.get("/getProducts", async(req, res) => {
   res.status(200)
-  res.send({"response": await Products.findAll()})
+  res.send({"response": {
+    "products": await Products.findAll(),
+    "productRelations": await ProductRelations.findAll()
+  }})
 })
 
+app.get("/ping", async(req, res) => {
+  res.status(200)
+  res.send({"response": "pong"})
+})
 
 app.all("*", async(req, res) => {
   res.status(404)

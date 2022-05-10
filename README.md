@@ -1,23 +1,22 @@
 # BeePositiveApiaryNodeServer
 
-This is a node.js server for [prushton2/beepositiveapiary](https://github.com/prushton2/beepositiveapiary). This is built to store, view, and archive orders made from the site.<br>
+This is the node.js server for [prushton2/beepositiveapiary](https://github.com/prushton2/beepositiveapiary). This is built to store, view, and archive orders made from the site.<br>
 
 ## Setup
 
 ### Basic setup
 
-* Install all dependencies listed in ```package.json```
+* Run ```npm ci``` to install the dependencies
 * Run ```src/setup.js``` to create ```/config/config.json``` and ```.env```
+* Run ```src/index.js``` to run the program
 
 ### Auth setup
 
-* Create a post request to ```/hash``` following the [endpoint guide for /hash](#hash)
+* Create a post request to ```/hash``` following the [endpoint guide for /hash](#hash-post)
   * The default password is password
   * Put the password you want to hash in the value of string
 * Add the hashed string to the list in ```config.json["auth"]["passwords"]``` to put the password in use
 * delete the default password
-
-Config.json is read on request, so you dont need to restart the program when you update it.
 
 ### Sendgrid setup
 
@@ -124,7 +123,3 @@ Body:
 
 ### /getProducts (GET)
 returns all the products in inventory
-
-
-## TODO:
-* Add integration with sendgrid to send emails to people
