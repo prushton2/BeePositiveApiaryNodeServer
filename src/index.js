@@ -76,7 +76,7 @@ app.post('/add', async(req, res) => {
   let cleanedData = inputValidator.validateInput(req.body["Order"])
   if(cleanedData["wasCleaned"]) {
     res.status(400)
-    res.send({"response": "Invalid body input",
+    res.send({"response": "Invalid body input, you used disallowed characters in a field",
               "cleanedInput": cleanedData})
     return
   }
@@ -190,7 +190,8 @@ app.post("/sendCompletionEmail", async(req, res) => {
   let emailSent = await sendgrid.sendOrderCompletionEmail(order, shoppingList)
 
   res.status(emailSent ? 200 : 403)
-  res.send({"response": emailSent ? "Email sent" : "Email failed to send"})
+  emailSentString = emailSent ? "Email Sent" : "Email Not Sent"
+  res.send({"response": emailSentString})
 })
 
 app.post("/complete", async(req, res) => {

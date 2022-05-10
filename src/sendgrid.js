@@ -3,6 +3,7 @@ const sequelize = require('./database.js');
 require("dotenv").config()
 
 const Products = require('../tables/Products.js');
+const ProductRelations = require('../tables/ProductRelations.js');
 const config = require("../config/config.json");
 
 sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
@@ -34,8 +35,9 @@ async function createShoppingListString(shoppingList) {
     for(let i = 0; i < shoppingList.length; i++) {
         let product = await Products.findOne({where: {id: shoppingList[i]["productID"]}})
         let subproduct = await Products.findOne({where: {id: shoppingList[i]["subProductID"]}})
+        let productRelation = await ProductRelations.findOne({where: {productId: shoppingList[i]["productID"], subProductId: shoppingList[i]["subProductID"]}})
 
-        let cost = product["price"] * subproduct["price"] * shoppingList[i]["amount"]
+        let cost = productRelation["price"] * shoppingList[i]["amount"]
         cost = cost.toFixed(2)
         totalcost += parseFloat(cost)
         if(subproduct["id"] != 0) {
@@ -82,7 +84,7 @@ module.exports.sendOrderConfirmation = async(order, shoppingList) => {
     return fulfilled
 }
 
-module.exports.sendOrderCompletionEmail = async(order) => {
+module.exports.sendOrderCompletionEmail = async(order, shoppingList) => {
 
     let date = new Date()
 
