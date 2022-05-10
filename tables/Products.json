@@ -9,24 +9,28 @@
         "id"           :100,
         "name"         :"Cuticle Salve",
         "description"  :"Cuticle Salve",
+        "imageURL"     :"../images/PXL_20211224_1646136751.jpg",
         "isInStock"    :true
     },
     "2": {
         "id"           :101,
         "name"         :"Spa in a Jar",
         "description"  :"Spa",
+        "imageURL"     :"../images/PXL_20211224_1646136751.jpg",
         "isInStock"    :true
     },
     "3": {
         "id"           :200,
         "name"         :"Plain Honey",
         "description"  :"Plain honey",
+        "imageURL"     :"../images/PXL_20211224_1646136751.jpg",
         "isInStock"    :true
     },
     "4": {
         "id"           :201,
         "name"         :"Cranberry Honey",
         "description"  :"Cranberry flavored honey",
+        "imageURL"     :"../images/PXL_20211224_1646136751.jpg",
         "isInStock"    :true
     },
     "5": {

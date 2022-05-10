@@ -18,6 +18,9 @@ Products.init({
     description: {
         type: DataTypes.STRING,
     },
+    imageURL: {
+        type: DataTypes.STRING,
+    },
     isInStock: {
       type: DataTypes.BOOLEAN
     }
