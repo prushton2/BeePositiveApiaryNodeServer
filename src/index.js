@@ -242,9 +242,16 @@ app.post("/hash", async(req, res) => {
 
 app.get("/getProducts", async(req, res) => {
   res.status(200)
-  res.send({"response": await Products.findAll()})
+  res.send({"response": {
+    "products": await Products.findAll(),
+    "productRelations": await ProductRelations.findAll()
+  }})
 })
 
+app.get("/ping", async(req, res) => {
+  res.status(200)
+  res.send({"response": "pong"})
+})
 
 app.all("*", async(req, res) => {
   res.status(404)
