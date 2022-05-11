@@ -18,8 +18,8 @@ defaultConfig = {
         "orderCompletionTemplateID": ""
     }
 }
-configpath = "./config/config.json"
-envpath = "./.env"
+const configpath = "./config/config.json"
+const envpath = "./.env"
 
 
 module.exports.createConfigIfNotExists = async() => {

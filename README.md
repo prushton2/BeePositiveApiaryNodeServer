@@ -122,4 +122,15 @@ Body:
 ```
 
 ### /getProducts (GET)
-returns all the products in inventory
+returns all the products in inventory<br><br>
+
+### /getSpecificOrder (POST)
+Gets all the information about an order given the orderID and viewKey. Meant to be used for the customer to view their order after it being placed<br>
+Body:
+```javascript
+{
+  "orderID": //password (String)
+  "viewKey": //string to hash (String)
+}
+
+```
