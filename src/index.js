@@ -108,7 +108,7 @@ app.post('/add', async(req, res) => {
     }
     let emailSent = false
     if(req.body["wantsToReceiveEmails"]) {
-        emailSent = await sendgrid.sendOrderConfirmation(req.body["Order"], req.body["Items"])
+        emailSent = await sendgrid.sendOrderConfirmation(req.body["Order"], req.body["Items"], orderid, viewKey)
     }
 
     res.status(201)
@@ -274,6 +274,7 @@ app.get("/getProducts", async(req, res) => {
 app.post("/getSpecificOrder", async(req, res) => {
     let order = await Orders.findOne({where: {id: req.body["orderID"], viewKey: enc.hash(req.body["viewKey"])}})
     
+
     if(order == null) {
         res.status(400)
         res.send({"response": "Invalid Order or View Key"})
@@ -285,7 +286,7 @@ app.post("/getSpecificOrder", async(req, res) => {
             "id": order["id"],
             "name": order["name"],
             "email": order["email"],
-            "phone": order["phone"],
+            "phoneNumber": order["phoneNumber"],
             "address": order["address"],
             "isComplete": order["isComplete"],
             "date": order["date"],

@@ -49,7 +49,7 @@ async function createShoppingListString(shoppingList) {
     return [shoppingListString, totalcost]
 }
 
-module.exports.sendOrderConfirmation = async(order, shoppingList) => {
+module.exports.sendOrderConfirmation = async(order, shoppingList, orderID, viewKey) => {
 
     let date = new Date()
 
@@ -75,6 +75,7 @@ module.exports.sendOrderConfirmation = async(order, shoppingList) => {
                     "cost": `$${totalcost.toFixed(2)}`,
                     "tax": `${100*config["pricing"]["tax"]}%`,
                     "date": date.toDateString().split(" GMT")[0],
+                    "link": `https://beepositiveapiary.com/checkout/OrderConfirmed.html?orderId=${orderID}&viewKey=${viewKey}`
                 }
             }
         ],
