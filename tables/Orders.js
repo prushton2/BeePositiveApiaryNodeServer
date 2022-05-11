@@ -27,6 +27,9 @@ Orders.init({
   },
   wantsEmails: {
     type: DataTypes.BOOLEAN
+  },
+  viewKey: {
+    type: DataTypes.STRING
   }
 }, {
   sequelize,

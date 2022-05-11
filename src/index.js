@@ -60,219 +60,246 @@ onStart()
 
 app.post('/add', async(req, res) => {
 
-  const date = new Date()
+    const date = new Date()
   
-  //validate any empty inputs
-  for(key in req.body["Order"]) {
-    if(!req.body["Order"][key]) {
-      res.status(400)
-      res.send({"response": "Empty input given"})
-      return;
+    //validate any empty inputs
+    for(key in req.body["Order"]) {
+        if(!req.body["Order"][key]) {
+        res.status(400)
+        res.send({"response": "Empty input given"})
+        return;
+        }
     }
-  }
 
-  //clean string
-  //if the data is not clean, return a 400. The front end prevents users inputting bad strings, but we do it here to be safe.
-  let cleanedData = inputValidator.validateInput(req.body["Order"])
-  if(cleanedData["wasCleaned"]) {
-    res.status(400)
-    res.send({"response": "Invalid body input, you used disallowed characters in a field",
-              "cleanedInput": cleanedData})
-    return
-  }
+    //clean string
+    //if the data is not clean, return a 400. The front end prevents users inputting bad strings, but we do it here to be safe.
+    let cleanedData = inputValidator.validateInput(req.body["Order"])
+    if(cleanedData["wasCleaned"]) {
+        res.status(400)
+        res.send({"response": "Invalid body input, you used disallowed characters in a field",
+                "cleanedInput": cleanedData})
+        return
+    }
+    let viewKey = enc.createHash()
+    //set up extra parameters in order
+    req.body["Order"]["isComplete"] = false
+    req.body["Order"]["date"] = date.getTime()
+    req.body["Order"]["emailSent"] = false
+    req.body["Order"]["wantsEmails"] = req.body["wantsToReceiveEmails"]
+    req.body["Order"]["viewKey"] = enc.hash(viewKey)
 
-  //set up extra parameters in order
-  req.body["Order"]["isComplete"] = false
-  req.body["Order"]["date"] = date.getTime()
-  req.body["Order"]["emailSent"] = false
-  req.body["Order"]["wantsEmails"] = req.body["wantsToReceiveEmails"]
-
-  //Add Order to db
-  let output = await Orders.create(req.body["Order"])
-  let orderid = output["dataValues"]["id"] // Get order ID to be used in the Purchases database to create relations
+    //Add Order to db
+    let output = await Orders.create(req.body["Order"])
+    let orderid = output["dataValues"]["id"] // Get order ID to be used in the Purchases database to create relations
   
-  //Add purchases to db
-  for (purchase in req.body["Items"]) {
+    //Add purchases to db
+    for (purchase in req.body["Items"]) {
+        
+        if (req.body["Items"][purchase]["amount"] <= 0) { // prevent orders of 0 items from getting stored.
+            continue;
+        }
     
-    if (req.body["Items"][purchase]["amount"] <= 0) { // prevent orders of 0 items from getting stored.
-      continue;
+        await Purchases.create({
+            orderID: orderid,
+            productID: req.body["Items"][purchase]["productID"],
+            subProductID: req.body["Items"][purchase]["subProductID"],
+            amount: req.body["Items"][purchase]["amount"]
+        })
     }
-    
-    await Purchases.create({
-      orderID: orderid,
-      productID: req.body["Items"][purchase]["productID"],
-      subProductID: req.body["Items"][purchase]["subProductID"],
-      amount: req.body["Items"][purchase]["amount"]
-    })
-  }
-  let emailSent = false
-  if(req.body["wantsToReceiveEmails"]) {
-    emailSent = await sendgrid.sendOrderConfirmation(req.body["Order"], req.body["Items"])
-  }
+    let emailSent = false
+    if(req.body["wantsToReceiveEmails"]) {
+        emailSent = await sendgrid.sendOrderConfirmation(req.body["Order"], req.body["Items"])
+    }
 
-  res.status(201)
-  res.send({"response": "Order Created", "Email": emailSent ? "Sent" : "Not Sent"})
+    res.status(201)
+    res.send({  "response": "Order Created", 
+                "Email": emailSent ? "Sent" : "Not Sent",
+                "viewKey": viewKey,
+                "orderID": orderid})
 })
 
 app.post("/validateInput", async(req, res) => {
-  //meant for the frontend to check if the input is valid before sending it to the server. The server does the same thing,
-  //but this is more friendly for the end user.
-  res.status(200)
-  // res.send({"response": inputValidator.validateInput(req.body["string"])})
-  res.send({"response": inputValidator.validateShoppingList(req.body["string"])})
+    //meant for the frontend to check if the input is valid before sending it to the server. The server does the same thing,
+    //but this is more friendly for the end user.
+    res.status(200)
+    // res.send({"response": inputValidator.validateInput(req.body["string"])})
+    res.send({"response": inputValidator.validateShoppingList(req.body["string"])})
 })
 
 app.post("/getPurchases", async(req, res) => {
 
-  if(!await enc.verifypassword(req.body["password"])) {
-    res.status(401)
-    res.send({"response": "Invalid Credentials"})
+    if(!await enc.verifypassword(req.body["password"])) {
+        res.status(401)
+        res.send({"response": "Invalid Credentials"})
+        return
+    }
+
+    let allpurchases;
+    if(req.body["getArchived"]) {
+        allpurchases = await ArchivedPurchases.findAll({where: {orderID: req.body["orderID"]}})
+    } else {
+        allpurchases = await Purchases.findAll({where: {orderID: req.body["orderID"]}})
+    }
+
+    res.status(200)
+    res.send({"response": allpurchases})
     return
-  }
-
-  let allpurchases;
-  if(req.body["getArchived"]) {
-    allpurchases = await ArchivedPurchases.findAll({where: {orderID: req.body["orderID"]}})
-  } else {
-    allpurchases = await Purchases.findAll({where: {orderID: req.body["orderID"]}})
-  }
-
-  res.status(200)
-  res.send({"response": allpurchases})
-  return
 })
 
 
 app.post("/getOrders", async(req, res) => {
 
-  if(!await enc.verifypassword(req.body["password"])) {
-    res.status(401)
-    res.send({"response": "Invalid Credentials"})
-    return
-  }
+    if(!await enc.verifypassword(req.body["password"])) {
+        res.status(401)
+        res.send({"response": "Invalid Credentials"})
+        return
+    }
 
-  let allOrders;
-  if(req.body["getArchived"]) {
-    allOrders = await ArchivedOrders.findAll()
-  } else {
-    allOrders = await Orders.findAll()
-  }
+    let allOrders;
+    if(req.body["getArchived"]) {
+        allOrders = await ArchivedOrders.findAll()
+    } else {
+        allOrders = await Orders.findAll()
+    }
 
-  res.status(200)
-  res.send({"archived":!!req.body["getArchived"], "response": allOrders})
-  return  
+    res.status(200)
+    res.send({"archived":!!req.body["getArchived"], "response": allOrders})
+    return  
 })
 
 app.post("/sendCompletionEmail", async(req, res) => {
   //verify password
-  if(!await enc.verifypassword(req.body["password"])) {
-    res.status(401)
-    res.send({"response": "Invalid Credentials"})
-    return
-  }
-  //get order from db
-  let order = await Orders.findOne({where: {id: req.body["orderID"]}})
-  //check if order is complete
-  if(!order["isComplete"]) {
-    res.status(400)
-    res.send({"response": "Order is not complete"})
-    return
-  }
+    if(!await enc.verifypassword(req.body["password"])) {
+        res.status(401)
+        res.send({"response": "Invalid Credentials"})
+        return
+    }
+    //get order from db
+    let order = await Orders.findOne({where: {id: req.body["orderID"]}})
+    //check if order is complete
+    if(!order["isComplete"]) {
+        res.status(400)
+        res.send({"response": "Order is not complete"})
+        return
+    }
 
-  //get shoppingList
-  let shoppingList = await Purchases.findAll({where: {orderID: req.body["orderID"]}})
+    //get shoppingList
+    let shoppingList = await Purchases.findAll({where: {orderID: req.body["orderID"]}})
 
-  //update emailSent
-  order["emailSent"] = true
-  await order.save()
+    //update emailSent
+    order["emailSent"] = true
+    await order.save()
 
-  //send email
-  let emailSent = await sendgrid.sendOrderCompletionEmail(order, shoppingList)
+    //send email
+    let emailSent = await sendgrid.sendOrderCompletionEmail(order, shoppingList)
 
-  res.status(emailSent ? 200 : 403)
-  emailSentString = emailSent ? "Email Sent" : "Email Not Sent"
-  res.send({"response": emailSentString})
+    res.status(emailSent ? 200 : 403)
+    emailSentString = emailSent ? "Email Sent" : "Email Not Sent"
+    res.send({"response": emailSentString})
 })
 
 app.post("/complete", async(req, res) => {
   
-  if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
-    res.status(401)
-    res.send({"response": "Invalid Credentials"})
-    return
-  }
+    if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
+        res.status(401)
+        res.send({"response": "Invalid Credentials"})
+        return
+    }
 
-  let order = await Orders.findOne({where: {id: req.body["orderID"]}})
-  try {
-    order.isComplete = req.body["completeStatus"]  
-    await order.save()
-  } catch {
-    res.status(400)
-    res.send({"response": "Invalid Order"})
-  }
+    let order = await Orders.findOne({where: {id: req.body["orderID"]}})
+    try {
+        order.isComplete = req.body["completeStatus"]  
+        await order.save()
+    } catch {
+        res.status(400)
+        res.send({"response": "Invalid Order"})
+    }
 
-  res.status(200)
-  res.send({"response": "Updated completion status"})
+    res.status(200)
+    res.send({"response": "Updated completion status"})
 })
 
 
 app.post("/archive", async(req, res) => {
 
-  if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
-    res.status(401)
-    res.send({"response": "Invalid Credentials"})
-    return
-  }
+    if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
+        res.status(401)
+        res.send({"response": "Invalid Credentials"})
+        return
+    }
 
-  let order = await Orders.findOne({where: {id: req.body["orderID"]}})
-  
-  try {
-    order = order["dataValues"]
-    order["id"] = req.body["orderID"] //Persist the order ID so the purchases table refers to the right Orders instance
-  } catch {
-    res.status(400)
-    res.send({"response": "Invalid Order"})
-  }  
-  
-  purchases = await Purchases.findAll({where: {orderID: req.body["orderID"]}})  
-  order["reasonArchived"] = "Archived By Administrator"
-  ArchivedOrders.create(order)
-  Orders.destroy({where: {id: req.body["orderID"]}})
-  
-  purchases.forEach(element => {
-    ArchivedPurchases.create(element["dataValues"])
-    Purchases.destroy({where: {id: element["dataValues"]["id"]}})
-  });
-  
-  res.status(200)
-  res.send({"response":"Order Archived"})
+    let order = await Orders.findOne({where: {id: req.body["orderID"]}})
+    
+    try {
+        order = order["dataValues"]
+        order["id"] = req.body["orderID"] //Persist the order ID so the purchases table refers to the right Orders instance
+    } catch {
+        res.status(400)
+        res.send({"response": "Invalid Order"})
+    }  
+    
+    purchases = await Purchases.findAll({where: {orderID: req.body["orderID"]}})  
+    order["reasonArchived"] = "Archived By Administrator"
+    ArchivedOrders.create(order)
+    Orders.destroy({where: {id: req.body["orderID"]}})
+    
+    purchases.forEach(element => {
+        ArchivedPurchases.create(element["dataValues"])
+        Purchases.destroy({where: {id: element["dataValues"]["id"]}})
+    });
+    
+    res.status(200)
+    res.send({"response":"Order Archived"})
 })
 
 app.post("/hash", async(req, res) => {
-  if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
-    res.status(401)
-    res.send({"response": "Invalid Credentials"})
-    return
-  }
+    if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
+        res.status(401)
+        res.send({"response": "Invalid Credentials"})
+        return
+    }
 
-  res.status(200)
-  res.send({"response": enc.hash(req.body["text"])})
+    res.status(200)
+    res.send({"response": enc.hash(req.body["text"])})
 })
 
 app.get("/getProducts", async(req, res) => {
-  res.status(200)
-  res.send({"response": {
-    "products": await Products.findAll(),
-    "productRelations": await ProductRelations.findAll()
-  }})
+    res.status(200)
+    res.send({"response": {
+        "products": await Products.findAll(),
+        "productRelations": await ProductRelations.findAll()
+    }})
 })
 
-app.get("/ping", async(req, res) => {
-  res.status(200)
-  res.send({"response": "pong"})
+app.post("/getSpecificOrder", async(req, res) => {
+    let order = await Orders.findOne({where: {id: req.body["orderID"], viewKey: enc.hash(req.body["viewKey"])}})
+    
+    if(order == null) {
+        res.status(400)
+        res.send({"response": "Invalid Order or View Key"})
+        return
+    }
+    
+    let response = {
+        "order": {
+            "id": order["id"],
+            "name": order["name"],
+            "email": order["email"],
+            "phone": order["phone"],
+            "address": order["address"],
+            "isComplete": order["isComplete"],
+            "date": order["date"],
+        },
+        "purchases": await (await Purchases.findAll({where: {orderID: order["id"]}})).map(purchase => { return {"productID": purchase["productID"], 
+                                                                                                                "subProductID": purchase["subProductID"], 
+                                                                                                                "amount": purchase["amount"] } })
+    }
+
+    res.status(200)
+    res.send({"response": response})
 })
 
 app.all("*", async(req, res) => {
-  res.status(404)
-  res.send({"response": "Endpoint does not exist"})
+    res.status(404)
+    res.send({"response": "Endpoint does not exist"})
 })
