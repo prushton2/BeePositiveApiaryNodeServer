@@ -3,8 +3,8 @@ const fs = require("fs")
 //default password is password
 defaultConfig = {
     "domain": {
-        "database-url": "https://example.com",
-        "frontend-url": "https://example.com"
+        "frontend-url": "https://example.com",
+        "backend-url": "https://example.com"
     },
     "auth": {
         "passwords": [
