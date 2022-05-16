@@ -56,7 +56,12 @@ module.exports.validateShoppingList = (shoppingList) => {
 
 module.exports.cleanText = (text, regex) => {
     //will clean the text by removing disallowed characters
-    let response = text.toString().replace(regex, "")
+    let response
+    try {
+        response = text.toString().replace(regex, "")
+    } catch {
+        response = ""
+    }
     return response
 }
 

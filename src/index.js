@@ -12,12 +12,12 @@ const ArchivedPurchases  = require('../tables/ArchivedPurchases.js');
 const Orders             = require('../tables/Orders.js');
 const Purchases          = require('../tables/Purchases.js');
 
-const cron              = require('node-cron');
-const cors              = require("cors");
-const express           = require("express");
-const bodyParser        = require('body-parser');
-const app               = express();
-const port              = 3000
+const cron               = require('node-cron');
+const cors               = require("cors");
+const express            = require("express");
+const bodyParser         = require('body-parser');
+const app                = express();
+const port               = 3000
 
 app.use(bodyParser.urlencoded({
   extended: true
