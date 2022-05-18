@@ -68,15 +68,6 @@ app.use("/purchases", purchasesRoute);
 app.use("/db", dbRoute);
 app.use("/email", emailRoute);
 
-
-app.post("/validateInput", async(req, res) => {
-    //meant for the frontend to check if the input is valid before sending it to the server. The server does the same thing,
-    //but this is more friendly for the end user.
-    res.status(200)
-    // res.send({"response": inputValidator.validateInput(req.body["string"])})
-    res.send({"response": inputValidator.validateShoppingList(req.body["string"])})
-})
-
 app.all("*", async(req, res) => {
     res.status(404)
     res.send({"response": "Endpoint does not exist"})
