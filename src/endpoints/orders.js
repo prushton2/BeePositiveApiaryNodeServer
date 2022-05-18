@@ -11,12 +11,12 @@ const ArchivedPurchases = require("../../tables/ArchivedPurchases.js");
 const express = require("express");
 // const bodyParser = require("body-parser");
 
-let orders = express.Router()
+let ordersRouter = express.Router()
 
-module.exports.orders = orders;
+module.exports.orders = ordersRouter;
 
 
-orders.post('/add', async(req, res) => {
+ordersRouter.post('/add', async(req, res) => {
 
     const date = new Date()
   
@@ -76,7 +76,7 @@ orders.post('/add', async(req, res) => {
                 "orderID": orderid})
 })
 
-orders.get("/getByKey", async(req, res) => {
+ordersRouter.get("/getByKey", async(req, res) => {
     let order = await Orders.findOne({where: {id: req.body["orderID"], viewKey: enc.hash(req.body["viewKey"])}})
     
 
@@ -105,7 +105,7 @@ orders.get("/getByKey", async(req, res) => {
     res.send({"response": response})
 })
 
-orders.get("/get", async(req, res) => {
+ordersRouter.get("/get", async(req, res) => {
 
     if(!await enc.verifypassword(req.body["password"])) {
         res.status(401)
@@ -126,7 +126,7 @@ orders.get("/get", async(req, res) => {
 })
 
 
-orders.patch("/complete", async(req, res) => {
+ordersRouter.patch("/complete", async(req, res) => {
   
     if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
         res.status(401)
@@ -149,7 +149,7 @@ orders.patch("/complete", async(req, res) => {
 })
 
 
-orders.post("/archive", async(req, res) => {
+ordersRouter.post("/archive", async(req, res) => {
 
     if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
         res.status(401)

@@ -20,6 +20,7 @@ const app                = express();
 const port               = 3000
 
 const ordersRoute = require('./endpoints/orders.js');
+const purchasesRoute = require('./endpoints/purchases.js');
 
 app.use(bodyParser.urlencoded({
   extended: true
@@ -32,7 +33,7 @@ app.use(cors({
 }));
 
 app.use("/orders", ordersRoute.orders);
-
+app.use("/purchases", purchasesRoute.purchases);
 
 
 process.on('uncaughtException', (err) => {
@@ -71,26 +72,6 @@ app.post("/validateInput", async(req, res) => {
     res.status(200)
     // res.send({"response": inputValidator.validateInput(req.body["string"])})
     res.send({"response": inputValidator.validateShoppingList(req.body["string"])})
-})
-
-app.post("/getPurchases", async(req, res) => {
-
-    if(!await enc.verifypassword(req.body["password"])) {
-        res.status(401)
-        res.send({"response": "Invalid Credentials"})
-        return
-    }
-
-    let allpurchases;
-    if(req.body["getArchived"]) {
-        allpurchases = await ArchivedPurchases.findAll({where: {orderID: req.body["orderID"]}})
-    } else {
-        allpurchases = await Purchases.findAll({where: {orderID: req.body["orderID"]}})
-    }
-
-    res.status(200)
-    res.send({"response": allpurchases})
-    return
 })
 
 app.post("/sendCompletionEmail", async(req, res) => {
