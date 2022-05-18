@@ -22,6 +22,7 @@ const port               = 3000
 const ordersRoute = require('./endpoints/orders.js');
 const purchasesRoute = require('./endpoints/purchases.js');
 const dbRoute = require('./endpoints/db.js');
+const emailRoute = require('./endpoints/email.js');
 
 app.use(bodyParser.urlencoded({
   extended: true
@@ -33,38 +34,39 @@ app.use(cors({
   origin: "*"
 }));
 
-app.use("/orders", ordersRoute);
-app.use("/purchases", purchasesRoute);
-app.use("/db", dbRoute);
-
 process.on('uncaughtException', (err) => {
-  console.log(err)
+    console.log(err)
 })
 
 //Archive every tuesday at 11pm
 cron.schedule("0 23 * * 2", () => {
-  archive.archiveDB()
+    archive.archiveDB()
 });
 
 onStart = async() => {
-  if(false) { //set to true to load the latest save on start
-    await archive.loadLatestSave();
-  }
-
-  await sequelize.sync()
-  console.log("Database is ready")
-  await Products.setDefaults();
-  await ProductRelations.setDefaults();
-  console.log("Set up default table values")
-
-  app.listen(port,() => {
-    console.log(`App listening on port ${port}`)
-  })
-
+    if(false) { //set to true to load the latest save on start
+        await archive.loadLatestSave();
+    }
+    
+    await sequelize.sync()
+    console.log("Database is ready")
+    await Products.setDefaults();
+    await ProductRelations.setDefaults();
+    console.log("Set up default table values")
+    
+    app.listen(port,() => {
+        console.log(`App listening on port ${port}`)
+    })
+    
 }
 
 onStart()
 
+//Routing for endpoints
+app.use("/orders", ordersRoute);
+app.use("/purchases", purchasesRoute);
+app.use("/db", dbRoute);
+app.use("/email", emailRoute);
 
 
 app.post("/validateInput", async(req, res) => {
@@ -74,38 +76,6 @@ app.post("/validateInput", async(req, res) => {
     // res.send({"response": inputValidator.validateInput(req.body["string"])})
     res.send({"response": inputValidator.validateShoppingList(req.body["string"])})
 })
-
-app.post("/sendCompletionEmail", async(req, res) => {
-  //verify password
-    if(!await enc.verifypassword(req.body["password"])) {
-        res.status(401)
-        res.send({"response": "Invalid Credentials"})
-        return
-    }
-    //get order from db
-    let order = await Orders.findOne({where: {id: req.body["orderID"]}})
-    //check if order is complete
-    if(!order["isComplete"]) {
-        res.status(400)
-        res.send({"response": "Order is not complete"})
-        return
-    }
-
-    //get shoppingList
-    let shoppingList = await Purchases.findAll({where: {orderID: req.body["orderID"]}})
-
-    //update emailSent
-    order["emailSent"] = true
-    await order.save()
-
-    //send email
-    let emailSent = await sendgrid.sendOrderCompletionEmail(order, shoppingList)
-
-    res.status(emailSent ? 200 : 403)
-    emailSentString = emailSent ? "Email Sent" : "Email Not Sent"
-    res.send({"response": emailSentString})
-})
-
 
 app.all("*", async(req, res) => {
     res.status(404)
