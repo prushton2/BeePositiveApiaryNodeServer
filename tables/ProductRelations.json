@@ -62,14 +62,14 @@
         "subProductId": 302,
         "price": 4.99,
         "increment": 1,
-        "imageURL": "https://cdn.beepositiveapiary.com/products/201/302.png"
+        "imageURL": "https://cdn.beepositiveapiary.com/relations/201/302.png"
     },
     "9": {
         "productId": 201,
         "subProductId": 303,
         "price": 5.99,
         "increment": 1,
-        "imageURL": "https://cdn.beepositiveapiary.com/products/201/303.png"
+        "imageURL": "https://cdn.beepositiveapiary.com/relations/201/303.png"
     }
 
 
