@@ -107,7 +107,7 @@ Body:
 }
 ```
 ## /db
-### /get (GET)
+### /getProducts (GET)
 returns all the products in inventory<br><br>
 ### /hash (GET)
 hashes a given string with the same hash used for the passwords<br>

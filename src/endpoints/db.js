@@ -9,7 +9,7 @@ const dbRouter = express.Router();
 
 module.exports = dbRouter;
 
-dbRouter.get("/get", async(req, res) => {
+dbRouter.get("/getProducts", async(req, res) => {
     res.status(200)
     res.send({"response": {
         "products": await Products.findAll(),
