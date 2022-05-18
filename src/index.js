@@ -21,6 +21,7 @@ const port               = 3000
 
 const ordersRoute = require('./endpoints/orders.js');
 const purchasesRoute = require('./endpoints/purchases.js');
+const dbRoute = require('./endpoints/db.js');
 
 app.use(bodyParser.urlencoded({
   extended: true
@@ -32,9 +33,9 @@ app.use(cors({
   origin: "*"
 }));
 
-app.use("/orders", ordersRoute.orders);
-app.use("/purchases", purchasesRoute.purchases);
-
+app.use("/orders", ordersRoute);
+app.use("/purchases", purchasesRoute);
+app.use("/db", dbRoute);
 
 process.on('uncaughtException', (err) => {
   console.log(err)
@@ -105,24 +106,6 @@ app.post("/sendCompletionEmail", async(req, res) => {
     res.send({"response": emailSentString})
 })
 
-app.post("/hash", async(req, res) => {
-    if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
-        res.status(401)
-        res.send({"response": "Invalid Credentials"})
-        return
-    }
-
-    res.status(200)
-    res.send({"response": enc.hash(req.body["text"])})
-})
-
-app.get("/getProducts", async(req, res) => {
-    res.status(200)
-    res.send({"response": {
-        "products": await Products.findAll(),
-        "productRelations": await ProductRelations.findAll()
-    }})
-})
 
 app.all("*", async(req, res) => {
     res.status(404)

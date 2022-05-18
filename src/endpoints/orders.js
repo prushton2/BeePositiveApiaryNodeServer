@@ -13,7 +13,7 @@ const express = require("express");
 
 let ordersRouter = express.Router()
 
-module.exports.orders = ordersRouter;
+module.exports = ordersRouter;
 
 
 ordersRouter.post('/add', async(req, res) => {

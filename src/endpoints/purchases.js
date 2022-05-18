@@ -7,7 +7,7 @@ const enc = require("../encryption.js");
 
 let purchasesRouter = express.Router();
 
-module.exports.purchases = purchasesRouter;
+module.exports = purchasesRouter;
 
 purchasesRouter.get("/get", async(req, res) => {
 
