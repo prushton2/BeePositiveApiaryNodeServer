@@ -35,7 +35,7 @@ async function createShoppingListString(shoppingList) {
     for(let i = 0; i < shoppingList.length; i++) {
         let product = await Products.findOne({where: {id: shoppingList[i]["productID"]}})
         let subproduct = await Products.findOne({where: {id: shoppingList[i]["subProductID"]}})
-        let productRelation = await ProductRelations.findOne({where: {productId: shoppingList[i]["productID"], subProductId: shoppingList[i]["subProductID"]}})
+        let productRelation = await ProductRelations.findOne({where: {id: shoppingList[i]["productID"], subProductId: shoppingList[i]["subProductID"]}})
 
         let cost = productRelation["price"] * shoppingList[i]["amount"]
         cost = cost.toFixed(2)

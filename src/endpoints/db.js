@@ -66,7 +66,7 @@ dbRouter.patch("/update", async(req, res) => {
     res.send({"response": "Product Updated"})
 })
 
-dbRouter.get("/hash", async(req, res) => {
+dbRouter.post("/hash", async(req, res) => {
     if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
         res.status(401)
         res.send({"response": "Invalid Credentials"})

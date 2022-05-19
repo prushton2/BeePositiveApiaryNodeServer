@@ -9,7 +9,7 @@ let purchasesRouter = express.Router();
 
 module.exports = purchasesRouter;
 
-purchasesRouter.get("/get", async(req, res) => {
+purchasesRouter.post("/get", async(req, res) => {
 
     if(!await enc.verifypassword(req.body["password"])) {
         res.status(401)

@@ -9,7 +9,7 @@ const sendgrid = require("../sendgrid.js");
 let sendgridRouter = express.Router();
 module.exports = sendgridRouter;
 
-sendgridRouter.get("/completionEmail", async(req, res) => {
+sendgridRouter.post("/completionEmail", async(req, res) => {
     //verify password
       if(!await enc.verifypassword(req.body["password"])) {
           res.status(401)

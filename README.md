@@ -56,7 +56,7 @@ Body:
 }
 
 ```
-### /getByKey (GET)
+### /getByKey (POST)
 Gets all the information about an order given the orderID and viewKey. Meant to be used for the customer to view their order after it being placed<br>
 Body:
 ```javascript
@@ -66,7 +66,7 @@ Body:
 }
 
 ```
-### /get (GET)
+### /get (POST)
 Gets all orders<br>
 Body:
 ```javascript
@@ -96,7 +96,7 @@ Body:
 
 ```
 ## /purchases
-### /get (GET)
+### /get (POST)
 Gets purchases by orderID<br>
 Body:
 ```javascript
@@ -109,7 +109,7 @@ Body:
 ## /db
 ### /getProducts (GET)
 returns all the products in inventory<br><br>
-### /hash (GET)
+### /hash (POST)
 hashes a given string with the same hash used for the passwords<br>
 Body:
 ```javascript
