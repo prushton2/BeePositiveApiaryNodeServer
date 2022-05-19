@@ -8,11 +8,11 @@ const readFile = (fileName) => util.promisify(fs.readFile)(fileName, 'utf8');
 class ProductRelations extends Model {}
 
 ProductRelations.init({
-    productId: {
+    id: {
       	type: DataTypes.INTEGER,
       	primaryKey: true,
   	},
-    subProductId: {
+    subProductID: {
 		type: DataTypes.INTEGER,
 		primaryKey: true,
     },

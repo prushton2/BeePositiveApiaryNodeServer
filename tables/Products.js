@@ -21,8 +21,8 @@ Products.init({
     imageURL: {
         type: DataTypes.STRING,
     },
-    isInStock: {
-      type: DataTypes.BOOLEAN
+    stock: {
+      type: DataTypes.INTEGER
     }
 }, {
     sequelize,
