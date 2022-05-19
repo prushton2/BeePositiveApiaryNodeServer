@@ -1,0 +1,16 @@
+Structure:
+  orders:
+    - add (public)
+    - getByKey (creator)
+    - get (admin)
+    - complete (admin)
+    - archive (admin)
+  purchases:
+    - get (admin)
+  db:
+    - update (admin)
+    - get (admin)
+    - hash (admin)
+  email:
+    - completionEmail (admin)
+  
