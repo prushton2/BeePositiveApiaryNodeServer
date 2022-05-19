@@ -12,6 +12,7 @@ const ArchivedPurchases  = require('../tables/ArchivedPurchases.js');
 const Orders             = require('../tables/Orders.js');
 const Purchases          = require('../tables/Purchases.js');
 
+const fs                 = require('fs');
 const cron               = require('node-cron');
 const cors               = require("cors");
 const express            = require("express");
@@ -48,12 +49,21 @@ onStart = async() => {
         await archive.loadLatestSave();
     }
     
+    let addProducts = true
+    if(fs.existsSync("./bpa.sqlite")) {
+        addProducts = false
+    }
+
     await sequelize.sync()
+
+    if(addProducts) {
+        await Products.setDefaults();
+        await ProductRelations.setDefaults();
+        console.log("Set up default table values")
+    }
+
     console.log("Database is ready")
-    await Products.setDefaults();
-    await ProductRelations.setDefaults();
-    console.log("Set up default table values")
-    
+    delete addProducts
     app.listen(port,() => {
         console.log(`App listening on port ${port}`)
     })
