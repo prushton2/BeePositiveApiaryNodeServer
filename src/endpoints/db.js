@@ -25,6 +25,7 @@ dbRouter.patch("/update", async(req, res) => {
     }
 
     let whereClause = {}
+
     try {
         whereClause["id"] = req.body["primaryKeys"][0]
     } catch {
@@ -37,7 +38,6 @@ dbRouter.patch("/update", async(req, res) => {
         whereClause["subProductID"] = req.body["primaryKeys"][1]
     }
 
-    console.log(whereClause)
     let response
 
     if(req.body["table"] == "ProductRelations") {
@@ -50,7 +50,6 @@ dbRouter.patch("/update", async(req, res) => {
         return
     }
     
-    console.log(response)
     try {
         response[req.body["column"]] = req.body["value"]
         response.save()
@@ -59,8 +58,6 @@ dbRouter.patch("/update", async(req, res) => {
         res.send({"response": "Invalid column"})
         return
     }
-
-    console.log(response)
 
     res.status(200)
     res.send({"response": "Product Updated"})
