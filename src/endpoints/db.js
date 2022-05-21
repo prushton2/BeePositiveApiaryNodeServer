@@ -90,6 +90,23 @@ dbRouter.delete("/deleteEntry", async(req, res) => {
         return
     }
 
+    let whereClause = req.body["primaryKeys"]
+
+    switch(req.body["table"]) {
+        case "Products":
+            await Products.destroy({where: whereClause})
+            break
+        case "ProductRelations":
+            await ProductRelations.destroy({where: whereClause})
+            break
+        default:
+            res.status(400)
+            res.send({"response": "Invalid table"})
+            break
+    }
+
+    res.status(200)
+    res.send({"response": "Entry deleted"})
 })
 
 dbRouter.post("/hash", async(req, res) => {
