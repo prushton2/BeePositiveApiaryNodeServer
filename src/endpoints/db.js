@@ -24,20 +24,7 @@ dbRouter.patch("/update", async(req, res) => {
         return
     }
 
-    let whereClause = {}
-
-    try {
-        whereClause["id"] = req.body["primaryKeys"][0]
-    } catch {
-        res.status(400)
-        res.send({"response": "Invalid primary key"})
-        return
-    }
-
-    if(req.body["primaryKeys"][1] != undefined) {
-        whereClause["subProductID"] = req.body["primaryKeys"][1]
-    }
-
+    let whereClause = req.body["primaryKeys"]
     let response
 
     if(req.body["table"] == "ProductRelations") {
@@ -61,6 +48,65 @@ dbRouter.patch("/update", async(req, res) => {
 
     res.status(200)
     res.send({"response": "Product Updated"})
+})
+
+dbRouter.post("/newEntry", async(req, res) => {
+    if(!await enc.verifypassword(req.body["password"])) {
+        res.status(401)
+        res.send({"response": "Invalid Credentials"})
+        return
+    }
+
+    let newEntry = req.body["values"]
+
+    try {
+        
+        switch(req.body["table"]) {
+            case "Products":
+                await Products.create(newEntry)
+                break
+            case "ProductRelations":
+                await ProductRelations.create(newEntry)
+                break
+            default:
+                res.status(400)
+                res.send({"response": "Invalid table"})
+                break
+        }
+    } catch {
+        res.status(400)
+        res.send({"response": "Internal error caused by invalid columns"})
+        return
+    }
+
+    res.status(200)
+    res.send({"response": "New entry created"})
+})
+
+dbRouter.delete("/deleteEntry", async(req, res) => {
+    if(!await enc.verifypassword(req.body["password"])) {
+        res.status(401)
+        res.send({"response": "Invalid Credentials"})
+        return
+    }
+
+    let whereClause = req.body["primaryKeys"]
+
+    switch(req.body["table"]) {
+        case "Products":
+            await Products.destroy({where: whereClause})
+            break
+        case "ProductRelations":
+            await ProductRelations.destroy({where: whereClause})
+            break
+        default:
+            res.status(400)
+            res.send({"response": "Invalid table"})
+            break
+    }
+
+    res.status(200)
+    res.send({"response": "Entry deleted"})
 })
 
 dbRouter.post("/hash", async(req, res) => {

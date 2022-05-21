@@ -118,6 +118,30 @@ Body:
   "text": //string to hash (String)
 }
 ```
+
+### /update (PATCH)
+updated a specific column of a specific entry in either the Products or ProductRelations tables
+```javascript
+{
+    "password": 
+    "table": 
+    "primaryKeys": 
+    "column": 
+    "value": 
+}
+```
+
+### /newEntry (PATCH)
+adds a specific entry in either the Products or ProductRelations tables
+```javascript
+{
+    "password": "{{password}}",
+    "table": "Products",
+    "values" {} //values for the new row
+}
+```
+
+
 ## /email
 ### /completionEmail (POST)
 Sends an email to the user when an order is completed<br>
