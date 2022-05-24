@@ -1,9 +1,10 @@
-const config            = require('./config.js');
-const sequelize         = require('./database.js');
-const enc               = require('./encryption.js');
-const archive           = require('./archive.js');
-const sendgrid          = require('./sendgrid.js');
-const inputValidator    = require('./inputValidator.js');
+const config             = require('./config.js');
+const sequelize          = require('./database.js');
+const enc                = require('./encryption.js');
+const archive            = require('./archive.js');
+const sendgrid           = require('./sendgrid.js');
+const inputValidator     = require('./inputValidator.js');
+const cookieParser       = require('cookie-parser');
 
 const Products           = require('../tables/Products.js');
 const ProductRelations   = require('../tables/ProductRelations.js');
@@ -24,6 +25,7 @@ const ordersRoute = require('./endpoints/orders.js');
 const purchasesRoute = require('./endpoints/purchases.js');
 const dbRoute = require('./endpoints/db.js');
 const emailRoute = require('./endpoints/email.js');
+const authRoute = require('./endpoints/auth.js');
 
 app.use(bodyParser.urlencoded({
   extended: true
@@ -34,6 +36,9 @@ app.use(bodyParser.json());
 app.use(cors({
   origin: "*"
 }));
+
+//use cookie parser
+app.use(cookieParser());
 
 process.on('uncaughtException', (err) => {
     console.log(err)
@@ -77,6 +82,7 @@ app.use("/orders", ordersRoute);
 app.use("/purchases", purchasesRoute);
 app.use("/db", dbRoute);
 app.use("/email", emailRoute);
+app.use("/auth", authRoute);
 
 app.all("*", async(req, res) => {
     res.status(404)
