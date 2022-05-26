@@ -1,5 +1,8 @@
 const crypto = require("crypto")
 const config = require("./config.js")
+
+const Sessions = require("../tables/Sessions.js")
+
 module.exports.hash = (str) => {
     // I love hashing, and I am paranoid
     
@@ -15,6 +18,21 @@ module.exports.hash = (str) => {
 module.exports.verifypassword = async(pswd) => {
   contents = await config.read()  
   return contents["auth"]["passwords"].indexOf(module.exports.hash(pswd)) >= 0
+}
+
+module.exports.verifySession = async(sessionID, userID) => {
+    let session = await Sessions.findOne({where: {sessionID: sessionID, userID: userID}})
+    
+    if(session == null) {
+        return false
+    }
+    
+    if(session["expDate"] < new Date().getTime()) {
+        await Sessions.destroy({where: {sessionID: sessionID, userID: userID}})
+        return false
+    }
+
+    return true
 }
 
 module.exports.convertUrlEscapeCharacters = (string) => {

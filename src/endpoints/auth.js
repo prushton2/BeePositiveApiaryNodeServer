@@ -1,24 +1,37 @@
 const express = require("express")
+const config = require("../../config/config.json")
+const enc = require("../encryption.js")
+
+const Users = require("../../tables/Users.js")
+const Sessions = require("../../tables/Sessions.js")
+
 const {OAuth2Client} = require('google-auth-library');
-const client = new OAuth2Client(CLIENT_ID);
-// const jwt     = require("jsonwebtoken")
+const CLIENT_ID = config["auth"]["OAuth2ClientID"]
+const client = new OAuth2Client(config["auth"]["OAuth2ClientID"]);
 
 const authRouter = express.Router()
 
 module.exports = authRouter
 
 
-authRouter.get("/", (req, res) => {
+authRouter.get("/", async(req, res) => {
     res.send("Hello World")
 })
 
-authRouter.post("/login", (req, res) => {
+authRouter.post("/login", async(req, res) => {
+    
     let date = new Date()
-
     let jwt = req.body["JWT"]
     let payload = jwt.split(".")[1]
+    let decoded = Buffer.from(payload, "base64").toString("ascii")
 
-    let verified = true //jwt.verify()
+    // console.log("-----JWT-----")
+    // console.log(req.body["JWT"])
+    // console.log("-----DECODED-----")
+    // console.log(decoded)
+    // console.log(JSON.parse(decoded)["sub"])
+    
+    let verified = await verify(jwt, JSON.parse(decoded)["sub"])
 
     if(!verified) {
         res.status(401)
@@ -26,32 +39,61 @@ authRouter.post("/login", (req, res) => {
         return
     }
 
-    let decoded = Buffer.from(payload, "base64").toString("ascii")
+    let userCreated = await createUserIfNotExists(enc.hash(JSON.parse(decoded)["sub"]), "google", JSON.parse(decoded))
+    let user = await Users.findOne({where: {authID: enc.hash(JSON.parse(decoded)["sub"]), authType: "google"}})
+    let sessionCreated = await Sessions.create({
+        userID: user["ID"],
+        sessionID: enc.createHash(),
+        expDate: date.getTime() + 7776000
+    })
 
-    console.log("-----JWT-----")
-    console.log(req.body["JWT"])
-    console.log("-----DECODED-----")
-    console.log(decoded)
-
-
+    console.log(sessionCreated)
 
     let authToken = {
-        "SID": 0, 
-        "userID": 0, 
-        "expDate": date.getTime() + 7776000
+        "SID": sessionCreated["sessionID"], 
+        "userID": sessionCreated["ID"],
+        "expDate": sessionCreated["expDate"]
     }
-    res.send({"response": authToken})
+    res.status(200)
+    res.send({
+        "response": {
+            "authToken": authToken,
+            "userCreated": userCreated
+        } 
+    })
 })
 
-async function verify() {
-  const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
-      // Or, if multiple clients access the backend:
-      //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
-  });
-  const payload = ticket.getPayload();
-  const userid = payload['sub'];
-  // If request specified a G Suite domain:
-  // const domain = payload['hd'];
+async function verify(jwt, originalID) {
+    try {
+        const ticket = await client.verifyIdToken({
+            idToken: jwt,
+            audience: CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
+            // Or, if multiple clients access the backend:
+            //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
+        });
+        const payload = ticket.getPayload();
+        const userid = payload['sub'];
+        // If request specified a G Suite domain:
+        // const domain = payload['hd'];
+        return userid == originalID
+    } catch (error) {
+        console.log(`Nonfatal error verifying JWT: ${error}`)
+        return false
+    }
+}
+
+async function createUserIfNotExists(authID, authType, JWT) {
+    let user = await Users.findOne({where: {authID: authID, authType: authType}})
+    if(user == null) {
+        await Users.create({
+            ID: enc.createHash(),
+            authID: authID,
+            authType: authType,
+            name: JWT["name"],
+            pfpURL: JWT["picture"],
+            email: JWT["email"],
+            permissions: "user"
+        })
+    }
+    return user == null
 }
