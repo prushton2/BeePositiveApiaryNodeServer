@@ -18,9 +18,7 @@ dbRouter.get("/getProducts", async(req, res) => {
 })
 
 dbRouter.patch("/update", async(req, res) => {
-    if(!await enc.verifypassword(req.body["password"])) {
-        res.status(401)
-        res.send({"response": "Invalid Credentials"})
+    if(!await enc.verifySession(req.body, res, "admin")) {
         return
     }
 
@@ -51,9 +49,7 @@ dbRouter.patch("/update", async(req, res) => {
 })
 
 dbRouter.post("/newEntry", async(req, res) => {
-    if(!await enc.verifypassword(req.body["password"])) {
-        res.status(401)
-        res.send({"response": "Invalid Credentials"})
+    if(!await enc.verifySession(req.body, res, "admin")) {
         return
     }
 
@@ -84,9 +80,7 @@ dbRouter.post("/newEntry", async(req, res) => {
 })
 
 dbRouter.delete("/deleteEntry", async(req, res) => {
-    if(!await enc.verifypassword(req.body["password"])) {
-        res.status(401)
-        res.send({"response": "Invalid Credentials"})
+    if(!await enc.verifySession(req.body, res, "admin")) {
         return
     }
 
@@ -110,9 +104,7 @@ dbRouter.delete("/deleteEntry", async(req, res) => {
 })
 
 dbRouter.post("/hash", async(req, res) => {
-    if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
-        res.status(401)
-        res.send({"response": "Invalid Credentials"})
+    if(!await enc.verifySession(req.body, res, "admin")) {
         return
     }
 

@@ -126,9 +126,7 @@ ordersRouter.post("/get", async(req, res) => {
 
 ordersRouter.patch("/complete", async(req, res) => {
   
-    if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
-        res.status(401)
-        res.send({"response": "Invalid Credentials"})
+    if(!await enc.verifySession(req.body, res, "admin")) {
         return
     }
 
@@ -149,9 +147,7 @@ ordersRouter.patch("/complete", async(req, res) => {
 
 ordersRouter.post("/archive", async(req, res) => {
 
-    if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
-        res.status(401)
-        res.send({"response": "Invalid Credentials"})
+    if(!await enc.verifySession(req.body, res, "admin")) {
         return
     }
 
