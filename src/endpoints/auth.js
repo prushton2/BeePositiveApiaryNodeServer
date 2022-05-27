@@ -13,6 +13,7 @@ const authRouter = express.Router()
 
 module.exports = authRouter
 
+module.exports.roleHeirarchy = ["user", "admin"]
 
 authRouter.get("/", async(req, res) => {
     res.send("Hello World")
@@ -24,13 +25,7 @@ authRouter.post("/login", async(req, res) => {
     let jwt = req.body["JWT"]
     let payload = jwt.split(".")[1]
     let decoded = Buffer.from(payload, "base64").toString("ascii")
-
-    // console.log("-----JWT-----")
-    // console.log(req.body["JWT"])
-    // console.log("-----DECODED-----")
-    // console.log(decoded)
-    // console.log(JSON.parse(decoded)["sub"])
-    
+  
     let verified = await verify(jwt, JSON.parse(decoded)["sub"])
 
     if(!verified) {
@@ -46,8 +41,6 @@ authRouter.post("/login", async(req, res) => {
         sessionID: enc.createHash(),
         expDate: date.getTime() + 7776000
     })
-
-    console.log(sessionCreated)
 
     let authToken = {
         "SID": sessionCreated["sessionID"], 

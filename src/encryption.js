@@ -1,7 +1,11 @@
 const crypto = require("crypto")
 const config = require("./config.js")
+const configjson = require("../config/config.json")
+
+const auth = require("./endpoints/auth.js")
 
 const Sessions = require("../tables/Sessions.js")
+const Users = require("../tables/Users.js")
 
 module.exports.hash = (str) => {
     // I love hashing, and I am paranoid
@@ -20,15 +24,42 @@ module.exports.verifypassword = async(pswd) => {
   return contents["auth"]["passwords"].indexOf(module.exports.hash(pswd)) >= 0
 }
 
-module.exports.verifySession = async(sessionID, userID) => {
-    let session = await Sessions.findOne({where: {sessionID: sessionID, userID: userID}})
+module.exports.verifySession = async(body, res, requiredRole) => {
+    let sessionID
+    let userID
     
-    if(session == null) {
+    try { //why does this have to be so complicated?
+        sessionID = body.auth.sessionID
+        userID = body.auth.userID
+        if(!sessionID || !userID) {
+            throw "Missing sessionID or userID"
+        }
+    } catch {
+        res.status(400)
+        res.send({"response": "No Session Found"})
         return false
     }
     
+    let session = await Sessions.findOne({where: {sessionID: sessionID, userID: userID}})
+    
+    if(session == null) {
+        res.status(302)
+        res.send({"response": "No Valid Session Found", "redirect": `${configjson["domain"]["frontend-url"]}/login`})
+        return false
+    }
+    
+    let user = await Users.findOne({where: {ID: userID}})
+
     if(session["expDate"] < new Date().getTime()) {
         await Sessions.destroy({where: {sessionID: sessionID, userID: userID}})
+        res.status(302)
+        res.send({"response": "Session Expired", "redirect": `${configjson["domain"]["frontend-url"]}/login`})
+        return false
+    }
+
+    if(!auth.roleHeirarchy.indexOf(requiredRole) >= auth.roleHeirarchy.indexOf(user["permissions"])) {
+        res.status(401)
+        res.send({"response": "Insufficient Permissions"})
         return false
     }
 
