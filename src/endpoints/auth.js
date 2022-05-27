@@ -43,8 +43,8 @@ authRouter.post("/login", async(req, res) => {
     })
 
     let authToken = {
-        "SID": sessionCreated["sessionID"], 
-        "userID": sessionCreated["ID"],
+        "sessionID": sessionCreated["sessionID"], 
+        "userID": sessionCreated["userID"],
         "expDate": sessionCreated["expDate"]
     }
     res.status(200)
