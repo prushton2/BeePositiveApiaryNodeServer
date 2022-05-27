@@ -90,3 +90,13 @@ async function createUserIfNotExists(authID, authType, JWT) {
     }
     return user == null
 }
+
+
+authRouter.post("/getUsers", async(req, res) => {
+    if(!await enc.verifySession(req.body, res, "admin")) {
+        return
+    }
+    let users = await Users.findAll()
+    res.status(200)
+    res.send({"response": users})
+})

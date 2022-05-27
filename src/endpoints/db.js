@@ -2,6 +2,7 @@ const express = require("express");
 
 const Products = require("../../tables/Products.js");
 const ProductRelations = require("../../tables/ProductRelations.js");
+const Users = require("../../tables/Users.js");
 
 const enc = require("../encryption.js");
 
@@ -29,6 +30,8 @@ dbRouter.patch("/update", async(req, res) => {
         response = await ProductRelations.findOne({where: whereClause})
     } else if(req.body["table"] == "Products") {
         response = await Products.findOne({where: whereClause})
+    } else if(req.body["table"] == "Users") {
+        response = await Users.findOne({where: whereClause})
     } else {
         res.status(400)
         res.send({"response": "Invalid table"})
@@ -64,6 +67,9 @@ dbRouter.post("/newEntry", async(req, res) => {
             case "ProductRelations":
                 await ProductRelations.create(newEntry)
                 break
+            case "Users":
+                await Users.create(newEntry)
+                break
             default:
                 res.status(400)
                 res.send({"response": "Invalid table"})
@@ -92,6 +98,9 @@ dbRouter.delete("/deleteEntry", async(req, res) => {
             break
         case "ProductRelations":
             await ProductRelations.destroy({where: whereClause})
+            break
+        case "Users":
+            await Users.destroy({where: whereClause})
             break
         default:
             res.status(400)
