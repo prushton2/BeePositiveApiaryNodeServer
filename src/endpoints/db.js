@@ -19,7 +19,7 @@ dbRouter.get("/getProducts", async(req, res) => {
 })
 
 dbRouter.patch("/update", async(req, res) => {
-    if(!await enc.verifySession(req.body, res, "admin")) {
+    if(!await enc.verifySession(req, res, "admin")) {
         return
     }
 
@@ -52,7 +52,7 @@ dbRouter.patch("/update", async(req, res) => {
 })
 
 dbRouter.post("/newEntry", async(req, res) => {
-    if(!await enc.verifySession(req.body, res, "admin")) {
+    if(!await enc.verifySession(req, res, "admin")) {
         return
     }
 
@@ -86,7 +86,7 @@ dbRouter.post("/newEntry", async(req, res) => {
 })
 
 dbRouter.delete("/deleteEntry", async(req, res) => {
-    if(!await enc.verifySession(req.body, res, "admin")) {
+    if(!await enc.verifySession(req, res, "admin")) {
         return
     }
 
@@ -113,7 +113,7 @@ dbRouter.delete("/deleteEntry", async(req, res) => {
 })
 
 dbRouter.post("/hash", async(req, res) => {
-    if(!await enc.verifySession(req.body, res, "admin")) {
+    if(!await enc.verifySession(req, res, "admin")) {
         return
     }
 

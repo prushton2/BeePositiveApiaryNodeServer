@@ -42,6 +42,11 @@ authRouter.post("/login", async(req, res) => {
         expDate: date.getTime() + 7776000
     })
 
+    if(req.body.oldSession != null) { //delete the old session
+        deleteSession(req.body.oldSession.sessionID, req.body.oldSession.userID)
+    }
+
+
     let authToken = {
         "sessionID": sessionCreated["sessionID"], 
         "userID": sessionCreated["userID"],
@@ -91,12 +96,34 @@ async function createUserIfNotExists(authID, authType, JWT) {
     return user == null
 }
 
+authRouter.post("/logout", async(req, res) => {
+    if(!await enc.verifySession(req, res, "user")) {
+        return
+    }
+
+    await deleteSession(req.body.auth.sessionID, req.body.auth.userID)
+
+    res.status(200)
+    res.send({"response": "Logged out"})
+})
+
+
+async function deleteSession(sessionID, userID) {
+    await Sessions.destroy({
+        where: {
+            sessionID: sessionID,
+            userID: userID
+        }
+    })
+}
+
 
 authRouter.post("/getUsers", async(req, res) => {
-    if(!await enc.verifySession(req.body, res, "admin")) {
+    if(!await enc.verifySession(req, res, "admin")) {
         return
     }
     let users = await Users.findAll()
     res.status(200)
     res.send({"response": users})
 })
+

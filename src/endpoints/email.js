@@ -11,7 +11,7 @@ module.exports = sendgridRouter;
 
 sendgridRouter.post("/completionEmail", async(req, res) => {
     //verify password
-    if(!await enc.verifySession(req.body, res, "admin")) {
+    if(!await enc.verifySession(req, res, "admin")) {
         return
     }
       //get order from db

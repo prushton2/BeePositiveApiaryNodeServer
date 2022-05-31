@@ -107,7 +107,7 @@ ordersRouter.post("/getByKey", async(req, res) => {
 
 ordersRouter.post("/get", async(req, res) => {
 
-    if(!await enc.verifySession(req.body, res, "admin")) {
+    if(!await enc.verifySession(req, res, "admin")) {
         return
     }
 
@@ -126,7 +126,7 @@ ordersRouter.post("/get", async(req, res) => {
 
 ordersRouter.patch("/complete", async(req, res) => {
   
-    if(!await enc.verifySession(req.body, res, "admin")) {
+    if(!await enc.verifySession(req, res, "admin")) {
         return
     }
 
@@ -147,7 +147,7 @@ ordersRouter.patch("/complete", async(req, res) => {
 
 ordersRouter.post("/archive", async(req, res) => {
 
-    if(!await enc.verifySession(req.body, res, "admin")) {
+    if(!await enc.verifySession(req, res, "admin")) {
         return
     }
 

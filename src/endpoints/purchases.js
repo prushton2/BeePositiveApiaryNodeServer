@@ -11,7 +11,7 @@ module.exports = purchasesRouter;
 
 purchasesRouter.post("/get", async(req, res) => {
 
-    if(!await enc.verifySession(req.body, res, "admin")) {
+    if(!await enc.verifySession(req, res, "admin")) {
         return
     }
 

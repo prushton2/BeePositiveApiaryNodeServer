@@ -1,3 +1,4 @@
+//handles credential checks and hashing
 const crypto = require("crypto")
 const config = require("./config.js")
 const configjson = require("../config/config.json")
@@ -6,6 +7,7 @@ const auth = require("./endpoints/auth.js")
 
 const Sessions = require("../tables/Sessions.js")
 const Users = require("../tables/Users.js")
+
 
 module.exports.hash = (str) => {
     // I love hashing, and I am paranoid
@@ -24,9 +26,11 @@ module.exports.verifypassword = async(pswd) => {
   return contents["auth"]["passwords"].indexOf(module.exports.hash(pswd)) >= 0
 }
 
-module.exports.verifySession = async(body, res, requiredRole) => {
+module.exports.verifySession = async(req, res, requiredRole) => {
     let sessionID
     let userID
+    let body = req.body
+
     
     try { //why does this have to be so complicated?
         sessionID = body.auth.sessionID
@@ -57,7 +61,8 @@ module.exports.verifySession = async(body, res, requiredRole) => {
         return false
     }
 
-    if(!auth.roleHeirarchy.indexOf(requiredRole) >= auth.roleHeirarchy.indexOf(user["permissions"])) {
+    //if the user doesnt have the required permission, deny the action
+    if(auth.roleHeirarchy.indexOf(requiredRole) > auth.roleHeirarchy.indexOf(user["permissions"])) {
         res.status(401)
         res.send({"response": "Insufficient Permissions"})
         return false
