@@ -5,7 +5,6 @@ The app routes to different files based on how the user is logging in.
 
 //used modules
 const express = require("express")
-const config = require("../../config/config.json")
 const enc = require("../encryption.js")
 const authManager = require("./auth/authManager.js")
 

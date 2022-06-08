@@ -1,6 +1,7 @@
 //this file handles all the abstract functions to log in/out users.
-const enc = require("../../encryption.js")
 
+//basic dependencies
+const enc = require("../../encryption.js")
 const Sessions = require("../../../tables/Sessions.js")
 const Users = require("../../../tables/Users.js")
 
@@ -41,3 +42,4 @@ module.exports.createSession = async(userID) => {
     })
     return session
 }
+
