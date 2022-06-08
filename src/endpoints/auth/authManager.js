@@ -43,3 +43,10 @@ module.exports.createSession = async(userID) => {
     return session
 }
 
+module.exports.deleteAllSessions = async(userID) => {
+    await Sessions.destroy({
+        where: {
+            userID: userID
+        }
+    })
+}

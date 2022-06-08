@@ -38,8 +38,16 @@ authRouter.post("/logout", async(req, res) => {
     res.send({"response": "Logged out"})
 })
 
+authRouter.post("/logoutOfAll", async(req, res) => {
+    if(!await enc.verifySession(req, res, "user")) {
+        return
+    }
 
+    await authManager.deleteAllSessions(req.body.auth.userID)
 
+    res.status(200)
+    res.send({"response": "Logged out of all sessions"})
+})
 
 //for the logged in user to get their user info
 authRouter.post("/getUser", async(req, res) => {
