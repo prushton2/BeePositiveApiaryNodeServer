@@ -1,13 +1,13 @@
 /*
-This file is built to handle logging in/out of the application.
-The app routes to different files based on how the user is logging in. Once logged in,
-this file handles all session management.
+This file is built to handle universal authentication commands (basically logging out)
+The app routes to different files based on how the user is logging in.
 */
 
 //used modules
 const express = require("express")
 const config = require("../../config/config.json")
 const enc = require("../encryption.js")
+const authManager = require("./auth/authManager.js")
 
 //used tables
 const Users = require("../../tables/Users.js")
@@ -26,48 +26,6 @@ module.exports.roleHeirarchy = ["user", "admin"]
 //routers
 authRouter.use("/google", googleRoute)
 
-authRouter.get("/", async(req, res) => {
-    res.send("Hello World")
-})
-//-----------AUTH FUNCTIONS-----------
-//create user if it doesn't exist
-async function createUserIfNotExists(authID, authType, name, pfpUrl, email) {
-    let user = await Users.findOne({where: {authID: authID, authType: authType}})
-    if(user == null) {
-        await Users.create({
-            ID: enc.createHash(),
-            authID: authID,
-            authType: authType,
-            name: name,
-            pfpURL: pfpUrl,
-            email: email,
-            permissions: "user"
-        })
-    }
-    return user == null
-}
-
-//deletes a session
-async function deleteSession(sessionID, userID) {
-    await Sessions.destroy({
-        where: {
-            sessionID: sessionID,
-            userID: userID
-        }
-    })
-}
-
-//creates a new session
-async function createSession(userID) {
-    let date = new Date()
-    let session = await Sessions.create({
-        userID: userID,
-        sessionID: enc.createHash(128),
-        expDate: date.getTime() + 7776000
-    })
-    return session
-}
-
 //-----------AUTH ENDPOINTS-----------
 //logout user and delete session
 authRouter.post("/logout", async(req, res) => {
@@ -75,7 +33,7 @@ authRouter.post("/logout", async(req, res) => {
         return
     }
 
-    await deleteSession(req.body.auth.sessionID, req.body.auth.userID)
+    await authManager.deleteSession(req.body.auth.sessionID, req.body.auth.userID)
 
     res.status(200)
     res.send({"response": "Logged out"})

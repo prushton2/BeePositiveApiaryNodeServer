@@ -2,8 +2,7 @@
 const express = require("express")
 const config = require("../../../config/config.json")
 const enc = require("../../encryption.js")
-
-const auth = require("../auth.js") //I dont like this either
+const authManager = require("./authManager.js")
 
 //google auth stuff
 const {OAuth2Client} = require('google-auth-library');
@@ -34,7 +33,7 @@ authGoogleRouter.post("/login", async(req, res) => {
 
     let userID = enc.hash(JSON.parse(decoded)["sub"])
 
-    let userCreated = await auth.createUserIfNotExists(
+    let userCreated = await authManager.createUserIfNotExists(
         userID,
         "google",
         JSON.parse(decoded)["name"],
@@ -43,7 +42,7 @@ authGoogleRouter.post("/login", async(req, res) => {
     )
     
     
-    let sessionCreated = await auth.createSession(userID)
+    let sessionCreated = await authManager.createSession(userID)
 
     if(req.body.oldSession != null) { //delete the old session
         try {
