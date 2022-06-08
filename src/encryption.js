@@ -110,11 +110,11 @@ module.exports.convertUrlEscapeCharacters = (string) => {
   return string
 }
 
-module.exports.createHash = function() {
+module.exports.createHash = function(len=32) {
   let result           = '';
   let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
   let charactersLength = characters.length;
-  for ( var i = 0; i < 32; i++ ) {
+  for ( var i = 0; i < len; i++ ) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
    }
    return result;
