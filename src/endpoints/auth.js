@@ -32,7 +32,7 @@ authRouter.post("/logout", async(req, res) => {
         return
     }
 
-    await authManager.deleteSession(req.body.auth.sessionID, req.body.auth.userID)
+    await authManager.deleteSession(enc.hash(req.body.auth.sessionID), req.body.auth.userID)
 
     res.status(200)
     res.send({"response": "Logged out"})
