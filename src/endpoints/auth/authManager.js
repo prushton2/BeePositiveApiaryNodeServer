@@ -35,12 +35,16 @@ module.exports.deleteSession = async(sessionID, userID) =>{
 //creates a new session
 module.exports.createSession = async(userID) => {
     let date = new Date()
-    let session = await Sessions.create({
+    let sid = enc.createHash(128)
+    await Sessions.create({
         userID: userID,
-        sessionID: enc.createHash(128),
+        sessionID: enc.hash(sid),
         expDate: date.getTime() + 7776000
     })
-    return session
+    return {
+        "userID": userID,
+        "sessionID": sid,
+    }
 }
 
 module.exports.deleteAllSessions = async(userID) => {

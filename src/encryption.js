@@ -44,7 +44,7 @@ module.exports.verifySession = async(req, res, requiredRole) => {
         return false
     }
     
-    let session = await Sessions.findOne({where: {sessionID: sessionID, userID: userID}})
+    let session = await Sessions.findOne({where: {sessionID: module.exports.hash(sessionID), userID: userID}})
     
     if(session == null) {
         res.status(302)
@@ -55,7 +55,7 @@ module.exports.verifySession = async(req, res, requiredRole) => {
     let user = await Users.findOne({where: {ID: userID}})
 
     if(session["expDate"] < new Date().getTime()) {
-        await Sessions.destroy({where: {sessionID: sessionID, userID: userID}})
+        await Sessions.destroy({where: {sessionID: module.exports.hash(sessionID), userID: userID}})
         res.status(302)
         res.send({"response": "Session Expired", "redirect": `${configjson["domain"]["frontend-url"]}/login`})
         return false

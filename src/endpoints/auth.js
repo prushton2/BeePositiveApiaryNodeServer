@@ -55,7 +55,7 @@ authRouter.post("/getUser", async(req, res) => {
         return
     }
     
-    let session = await Sessions.findOne({where: {sessionID: req.body.auth.sessionID, userID: req.body.auth.userID}})
+    let session = await Sessions.findOne({where: {sessionID: enc.hash(req.body.auth.sessionID), userID: req.body.auth.userID}})
     if(session == null) {
         res.status(401)
         res.send({"response": "Invalid session"})
