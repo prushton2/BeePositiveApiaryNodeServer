@@ -44,9 +44,11 @@ authGoogleRouter.post("/login", async(req, res) => {
     
     let sessionCreated = await authManager.createSession(userID)
 
-    if(req.body.oldSession != null) { //delete the old session
+    if(req.cookies.auth != null) { //delete the old session
         try {
-            await auth.deleteSession(req.body.oldSession.sessionID, req.body.oldSession.userID)
+            let act = req.cookies.auth.split(":")[0]
+            let sid = req.cookies.auth.split(":")[1]
+            await auth.deleteSession(sid, act)
         } catch {}
     }
 

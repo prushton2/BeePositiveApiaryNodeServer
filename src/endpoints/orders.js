@@ -132,7 +132,7 @@ ordersRouter.patch("/complete", async(req, res) => {
 
     let order = await Orders.findOne({where: {id: req.body["orderID"]}})
     if(order != null) {
-        order.isComplete = req.body["completeStatus"]  
+        order.isComplete = req.body["isComplete"]  
         await order.save()
     } else {
         res.status(400)

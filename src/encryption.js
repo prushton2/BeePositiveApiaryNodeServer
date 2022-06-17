@@ -29,31 +29,16 @@ module.exports.verifypassword = async(pswd) => {
 module.exports.verifySession = async(req, res, requiredRole) => {
     let sessionID
     let userID
-
+    let authCookie = req.cookies.auth
     // console.log
-
-    console.log(req.method);
-    console.log(req.path);
-    console.log('query: ')
-    console.log(req.query.code)
-    console.log('params: ')
-    console.log(req.params.code);
-    console.log('cookie: ')
-    console.log(req.cookies);
-    console.log("header cookie: ")
-    console.log(req.headers.cookies);
-    res.status(401).send("Request Denied")
-    return false
-    // try { //why does this have to be so complicated?
-    //     userID = body.auth.userID
-    //     if(!sessionID || !userID) {
-    //         throw "Missing sessionID or userID"
-    //     }
-    // } catch {
-    //     res.status(400)
-    //     res.send({"response": "No Session Found"})
-    //     return false
-    // }
+    if(authCookie) {
+        userID = authCookie.split(":")[0]
+        sessionID = authCookie.split(":")[1]
+    } else {
+        res.status(400)
+        res.send({"response": "No Session Found"})
+        return false
+    }
     
     let session = await Sessions.findOne({where: {sessionID: module.exports.hash(sessionID), userID: userID}})
     
