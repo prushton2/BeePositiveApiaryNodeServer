@@ -24,22 +24,24 @@ module.exports.createUserIfNotExists = async(authID, authType, name, pfpUrl, ema
 
 //deletes a session
 module.exports.deleteSession = async(sessionID, userID) =>{
-    await Sessions.destroy({
+    let response = await Sessions.destroy({
         where: {
             sessionID: sessionID,
             userID: userID
         }
     })
+    return response
 }
 
 //creates a new session
 module.exports.createSession = async(userID) => {
     let date = new Date()
     let sid = enc.createHash(128)
+
     await Sessions.create({
         userID: userID,
         sessionID: enc.hash(sid),
-        expDate: date.getTime() + 7776000
+        expDate: date.getTime() + 604800
     })
     return {
         "userID": userID,

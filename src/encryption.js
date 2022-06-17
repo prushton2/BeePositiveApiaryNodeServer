@@ -5,8 +5,6 @@ const configjson = require("../config/config.json")
 
 const auth = require("./endpoints/auth.js")
 
-const cookieParser = require('cookie-parser');
-
 const Sessions = require("../tables/Sessions.js")
 const Users = require("../tables/Users.js")
 
@@ -30,7 +28,7 @@ module.exports.verifySession = async(req, res, requiredRole) => {
     let sessionID
     let userID
     let authCookie = req.cookies.auth
-    // console.log
+
     if(authCookie) {
         userID = authCookie.split(":")[0]
         sessionID = authCookie.split(":")[1]

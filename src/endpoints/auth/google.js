@@ -14,7 +14,6 @@ module.exports = authGoogleRouter
 
 
 authGoogleRouter.post("/login", async(req, res) => {
-    
     // let date = new Date() //get date
     let jwt = req.body["JWT"] //get jwt from body
     let payload = jwt.split(".")[1] //get payload
@@ -27,9 +26,6 @@ authGoogleRouter.post("/login", async(req, res) => {
         res.send({"response": "Invalid JWT signature"})
         return
     }
-
-    
-    // let user = await Users.findOne({where: {authID: enc.hash(JSON.parse(decoded)["sub"]), authType: "google"}})
 
     let userID = enc.hash(JSON.parse(decoded)["sub"])
 
@@ -53,7 +49,6 @@ authGoogleRouter.post("/login", async(req, res) => {
     }
 
     res.status(200)
-    res.cookie('cookieName', "value", {expires: new Date() + 99999, maxAge: 99999, path: '/'});
     res.send({
         "response": {
             "authToken": {
@@ -81,7 +76,7 @@ async function verify(jwt, originalID) {
         // const domain = payload['hd'];
         return userid == originalID
     } catch (error) {
-        console.log(`Nonfatal error verifying JWT: ${error}`)
+        console.log(`Nonfatal error verifying Google JWT: ${error}`)
         return false
     }
 }

@@ -28,11 +28,19 @@ authRouter.use("/google", googleRoute)
 //-----------AUTH ENDPOINTS-----------
 //logout user and delete session
 authRouter.post("/logout", async(req, res) => {
+    console.log("running")
     if(!await enc.verifySession(req, res, "user")) {
         return
     }
+    console.log("passed auth")
+    let sessionID = req.cookies.auth.split(":")[1]
+    let userID = req.cookies.auth.split(":")[0]
 
-    await authManager.deleteSession(enc.hash(req.body.auth.sessionID), req.body.auth.userID)
+    console.log(sessionID)
+    console.log(userID)
+
+    let opt = await authManager.deleteSession(enc.hash(sessionID), userID)
+    console.log(opt)
 
     res.status(200)
     res.send({"response": "Logged out"})
@@ -50,18 +58,21 @@ authRouter.post("/logoutOfAll", async(req, res) => {
 })
 
 //for the logged in user to get their user info
-authRouter.post("/getUser", async(req, res) => {
+authRouter.get("/getUser", async(req, res) => {
     if(!await enc.verifySession(req, res, "user")) {
         return
     }
     
-    let session = await Sessions.findOne({where: {sessionID: enc.hash(req.body.auth.sessionID), userID: req.body.auth.userID}})
+    let userID = req.cookies.auth.split(":")[0]
+    let sessionID = req.cookies.auth.split(":")[1]
+
+    let session = await Sessions.findOne({where: {sessionID: enc.hash(sessionID), userID: userID}})
     if(session == null) {
         res.status(401)
         res.send({"response": "Invalid session"})
         return
     }
-    let user = await Users.findOne({where: {ID: req.body.auth.userID}})
+    let user = await Users.findOne({where: {ID: userID}})
     
     res.status(200)
     res.send({"response": user})
