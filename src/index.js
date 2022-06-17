@@ -27,18 +27,19 @@ const dbRoute = require('./endpoints/db.js');
 const emailRoute = require('./endpoints/email.js');
 const authRoute = require('./endpoints/auth.js');
 
+app.use(cookieParser());
+
 app.use(bodyParser.urlencoded({
   extended: true
 }))
 
 app.use(bodyParser.json());
 
-app.use(cors({
-  origin: "*"
+app.use( cors({
+    origin:true,
+    credentials: true
 }));
 
-//use cookie parser
-app.use(cookieParser());
 
 process.on('uncaughtException', (err) => {
     console.log(err)

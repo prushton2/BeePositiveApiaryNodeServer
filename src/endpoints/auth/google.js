@@ -51,6 +51,7 @@ authGoogleRouter.post("/login", async(req, res) => {
     }
 
     res.status(200)
+    res.cookie('cookieName', "value", {expires: new Date() + 99999, maxAge: 99999, path: '/'});
     res.send({
         "response": {
             "authToken": {

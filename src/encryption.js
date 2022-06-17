@@ -5,13 +5,13 @@ const configjson = require("../config/config.json")
 
 const auth = require("./endpoints/auth.js")
 
+const cookieParser = require('cookie-parser');
+
 const Sessions = require("../tables/Sessions.js")
 const Users = require("../tables/Users.js")
 
 
 module.exports.hash = (str) => {
-    // I love hashing, and I am paranoid
-    
     currenthash = crypto.createHmac('sha256', str).update("Normal Salt").digest("hex")
     
     for(i=0; i<10; i++) {
@@ -29,20 +29,31 @@ module.exports.verifypassword = async(pswd) => {
 module.exports.verifySession = async(req, res, requiredRole) => {
     let sessionID
     let userID
-    let body = req.body
 
-    
-    try { //why does this have to be so complicated?
-        sessionID = body.auth.sessionID
-        userID = body.auth.userID
-        if(!sessionID || !userID) {
-            throw "Missing sessionID or userID"
-        }
-    } catch {
-        res.status(400)
-        res.send({"response": "No Session Found"})
-        return false
-    }
+    // console.log
+
+    console.log(req.method);
+    console.log(req.path);
+    console.log('query: ')
+    console.log(req.query.code)
+    console.log('params: ')
+    console.log(req.params.code);
+    console.log('cookie: ')
+    console.log(req.cookies);
+    console.log("header cookie: ")
+    console.log(req.headers.cookies);
+    res.status(401).send("Request Denied")
+    return false
+    // try { //why does this have to be so complicated?
+    //     userID = body.auth.userID
+    //     if(!sessionID || !userID) {
+    //         throw "Missing sessionID or userID"
+    //     }
+    // } catch {
+    //     res.status(400)
+    //     res.send({"response": "No Session Found"})
+    //     return false
+    // }
     
     let session = await Sessions.findOne({where: {sessionID: module.exports.hash(sessionID), userID: userID}})
     
