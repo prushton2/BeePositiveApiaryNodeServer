@@ -19,6 +19,14 @@ authGoogleRouter.post("/login", async(req, res) => {
     let payload = jwt.split(".")[1] //get payload
     let decoded = Buffer.from(payload, "base64").toString("ascii")//decode payload
   
+    //log out if already logged in
+    if(await enc.verifySession(req, res, "user", false)) {
+        let sid = req.cookies.auth.split(":")[1]
+        let userID = req.cookies.auth.split(":")[0]
+        await authManager.deleteSession(enc.hash(sid), userID)
+    }
+
+
     let verified = await verify(jwt, JSON.parse(decoded)["sub"])//verify JWT
 
     if(!verified) {//if JWT is not verified

@@ -37,6 +37,7 @@ authRouter.post("/logout", async(req, res) => {
     await authManager.deleteSession(enc.hash(sessionID), userID)
 
     res.status(200)
+    res.cookie("auth", "", {maxAge: 0, httpOnly: true, sameSite: "strict", secure: config["environment"]["environment-type"] == "production"})
     res.send({"response": "Logged out"})
 })
 
