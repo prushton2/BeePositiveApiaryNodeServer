@@ -7,6 +7,7 @@ The app routes to different files based on how the user is logging in.
 const express = require("express")
 const enc = require("../encryption.js")
 const authManager = require("./auth/authManager.js")
+const config = require("../../config/config.json")
 
 //used tables
 const Users = require("../../tables/Users.js")
@@ -36,8 +37,8 @@ authRouter.post("/logout", async(req, res) => {
 
     await authManager.deleteSession(enc.hash(sessionID), userID)
 
+    res.cookie("auth", "", {maxAge: 10, httpOnly: true, sameSite: "strict", secure: config["environment"]["environment-type"] == "production"})
     res.status(200)
-    res.cookie("auth", "", {maxAge: 0, httpOnly: true, sameSite: "strict", secure: config["environment"]["environment-type"] == "production"})
     res.send({"response": "Logged out"})
 })
 

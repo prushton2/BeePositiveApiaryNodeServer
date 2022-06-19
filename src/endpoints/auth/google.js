@@ -26,7 +26,6 @@ authGoogleRouter.post("/login", async(req, res) => {
         await authManager.deleteSession(enc.hash(sid), userID)
     }
 
-
     let verified = await verify(jwt, JSON.parse(decoded)["sub"])//verify JWT
 
     if(!verified) {//if JWT is not verified
