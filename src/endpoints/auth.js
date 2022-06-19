@@ -28,19 +28,13 @@ authRouter.use("/google", googleRoute)
 //-----------AUTH ENDPOINTS-----------
 //logout user and delete session
 authRouter.post("/logout", async(req, res) => {
-    console.log("running")
     if(!await enc.verifySession(req, res, "user")) {
         return
     }
-    console.log("passed auth")
     let sessionID = req.cookies.auth.split(":")[1]
     let userID = req.cookies.auth.split(":")[0]
 
-    console.log(sessionID)
-    console.log(userID)
-
-    let opt = await authManager.deleteSession(enc.hash(sessionID), userID)
-    console.log(opt)
+    await authManager.deleteSession(enc.hash(sessionID), userID)
 
     res.status(200)
     res.send({"response": "Logged out"})

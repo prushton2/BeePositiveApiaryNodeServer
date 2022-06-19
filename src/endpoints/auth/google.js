@@ -49,6 +49,16 @@ authGoogleRouter.post("/login", async(req, res) => {
     }
 
     res.status(200)
+
+
+
+    res.cookie("auth", userID + ":" + sessionCreated.sessionID, 
+    {
+        maxAge: 1000 * 60 * 60 * 24 * 7, 
+        httpOnly: true, 
+        sameSite: "strict", 
+        secure: config["environment"]["environment-type"] == "production" //if in production, set secure to true, else use false so it can be accessed from localhost
+    })
     res.send({
         "response": {
             "authToken": {
