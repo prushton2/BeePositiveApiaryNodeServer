@@ -38,7 +38,7 @@ authGoogleRouter.post("/login", async(req, res) => {
 
     let userCreated = await authManager.createUserIfNotExists(
         userID,
-        "google",
+        "Google",
         JSON.parse(decoded)["name"],
         JSON.parse(decoded)["picture"],
         JSON.parse(decoded)["email"]
