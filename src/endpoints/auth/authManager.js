@@ -1,8 +1,8 @@
 //this file handles all the abstract functions to log in/out users.
 
 //file variables
-const expiryTime = 604800
-const deleteExpiryTime = 60
+const expiryTime = 604800_000
+const deleteExpiryTime = 60_000
 
 //basic dependencies
 const enc = require("../../encryption.js")
@@ -63,17 +63,28 @@ module.exports.deleteAllSessions = async(userID) => {
 
 module.exports.deleteAccount = async(userID, sessionID) => {
     if(!await enc.verifySessionWithTokens(userID, sessionID, "user")) {
+        console.log("Invalid Session")
         return false
     }
     let date = new Date()
     let session = await Sessions.findOne({where: {sessionID: enc.hash(sessionID), userID: userID}})
 
     //the session must be made less than a minute ago to prove the user can sign in to their account before deletion
+    
+    console.log(`Now:            ${date.getTime()}`)
+    console.log(`Session Expiry: ${session["expDate"]} \n   Delta: ${session["expDate"] - date.getTime()}`)
+    
+    
+
+    console.log(expiryTime)
+    console.log(expiryTime - deleteExpiryTime)
+    console.log(session.expDate - (expiryTime - deleteExpiryTime))
     if(date.getTime() < session.expDate - (expiryTime - deleteExpiryTime)) { 
-        Users.destroy({where: {} })
+        Users.destroy({where: {ID: userID} })
+        this.deleteAllSessions(userID)
         return true
     } else {
-        
+        console.log("Session Expired")
         return false
     }
 

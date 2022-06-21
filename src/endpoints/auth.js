@@ -87,12 +87,19 @@ authRouter.post("/getUsers", async(req, res) => {
 })
 
 
-authRouter.get("/deleteAccount", async(req, res) => {
+authRouter.post("/deleteAccount", async(req, res) => {
     if(!await enc.verifySession(req, res, "user")) {
         return
     }
     let userID = req.cookies.auth.split(":")[0]
     let sessionID = req.cookies.auth.split(":")[1]
 
+    if(!await authManager.deleteAccount(userID, sessionID)) {
+        res.status(301)
+        res.send({"response": "Newer session ID required", "redirect": `${config}/login`})
+        return
+    }
 
+    res.status(200)
+    res.send({"response": "Account deleted"})
 })
