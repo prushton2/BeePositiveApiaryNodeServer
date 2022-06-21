@@ -24,7 +24,11 @@ module.exports.verifypassword = async(pswd) => {
   return contents["auth"]["passwords"].indexOf(module.exports.hash(pswd)) >= 0
 }
 
-module.exports.verifySession = async(req, res, requiredRole) => {
+module.exports.verifySessionWithTokens = async(userID, sessionID, requiredRole) => {
+    return module.exports.verifySession({cookies: {auth: `${userID}:${sessionID}`}}, {}, requiredRole, exitIfInvalid=false)
+}
+
+module.exports.verifySession = async(req, res, requiredRole, exitIfInvalid=true) => {
     let sessionID
     let userID
     let authCookie = req.cookies.auth
@@ -33,16 +37,20 @@ module.exports.verifySession = async(req, res, requiredRole) => {
         userID = authCookie.split(":")[0]
         sessionID = authCookie.split(":")[1]
     } else {
-        res.status(400)
-        res.send({"response": "No Session Found"})
+        if(exitIfInvalid) {
+            res.status(400)
+            res.send({"response": "No Session Found"})
+        }
         return false
     }
     
     let session = await Sessions.findOne({where: {sessionID: module.exports.hash(sessionID), userID: userID}})
     
     if(session == null) {
-        res.status(302)
-        res.send({"response": "No Valid Session Found", "redirect": `${configjson["domain"]["frontend-url"]}/login`})
+        if(exitIfInvalid) {
+            res.status(302)
+            res.send({"response": "No Valid Session Found", "redirect": `${configjson["domain"]["frontend-url"]}/login`})
+        }
         return false
     }
     
@@ -50,15 +58,19 @@ module.exports.verifySession = async(req, res, requiredRole) => {
 
     if(session["expDate"] < new Date().getTime()) {
         await Sessions.destroy({where: {sessionID: module.exports.hash(sessionID), userID: userID}})
-        res.status(302)
-        res.send({"response": "Session Expired", "redirect": `${configjson["domain"]["frontend-url"]}/login`})
+        if(exitIfInvalid) {
+            res.status(302)
+            res.send({"response": "Session Expired", "redirect": `${configjson["domain"]["frontend-url"]}/login`})
+        }
         return false
     }
 
     //if the user doesnt have the required permission, deny the action
     if(auth.roleHeirarchy.indexOf(requiredRole) > auth.roleHeirarchy.indexOf(user["permissions"])) {
-        res.status(401)
-        res.send({"response": "Insufficient Permissions"})
+        if(exitIfInvalid) {
+            res.status(401)
+            res.send({"response": "Insufficient Permissions"})
+        }
         return false
     }
 

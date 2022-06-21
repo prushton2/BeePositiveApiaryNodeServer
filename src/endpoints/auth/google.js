@@ -19,6 +19,13 @@ authGoogleRouter.post("/login", async(req, res) => {
     let payload = jwt.split(".")[1] //get payload
     let decoded = Buffer.from(payload, "base64").toString("ascii")//decode payload
   
+    //log out if already logged in
+    if(await enc.verifySession(req, res, "user", false)) {
+        let sid = req.cookies.auth.split(":")[1]
+        let userID = req.cookies.auth.split(":")[0]
+        await authManager.deleteSession(sid, userID)
+    }
+
     let verified = await verify(jwt, JSON.parse(decoded)["sub"])//verify JWT
 
     if(!verified) {//if JWT is not verified
@@ -31,14 +38,14 @@ authGoogleRouter.post("/login", async(req, res) => {
 
     let userCreated = await authManager.createUserIfNotExists(
         userID,
-        "google",
+        "Google",
         JSON.parse(decoded)["name"],
         JSON.parse(decoded)["picture"],
         JSON.parse(decoded)["email"]
     )
     
     
-    let sessionCreated = await authManager.createSession(userID)
+    let sessionCreated = await authManager.createSession(userCreated.ID)
 
     if(req.cookies.auth != null) { //delete the old session
         try {
@@ -49,15 +56,18 @@ authGoogleRouter.post("/login", async(req, res) => {
     }
 
     res.status(200)
+
+
+
+    res.cookie("auth", userCreated.ID + ":" + sessionCreated.sessionID, 
+    {
+        maxAge: 1000 * 60 * 60 * 24 * 7, 
+        httpOnly: true, 
+        sameSite: "strict", 
+        secure: config["environment"]["environment-type"] == "production" //if in production, set secure to true, else use false so it can be accessed from localhost
+    })
     res.send({
-        "response": {
-            "authToken": {
-                "sessionID": sessionCreated["sessionID"], 
-                "userID": sessionCreated["userID"],
-                "expDate": sessionCreated["expDate"]
-            },
-            "userCreated": userCreated
-        } 
+        "response": "Successfully logged in" 
     })
 })
 

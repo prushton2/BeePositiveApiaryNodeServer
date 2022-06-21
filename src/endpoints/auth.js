@@ -7,6 +7,7 @@ The app routes to different files based on how the user is logging in.
 const express = require("express")
 const enc = require("../encryption.js")
 const authManager = require("./auth/authManager.js")
+const config = require("../../config/config.json")
 
 //used tables
 const Users = require("../../tables/Users.js")
@@ -28,20 +29,15 @@ authRouter.use("/google", googleRoute)
 //-----------AUTH ENDPOINTS-----------
 //logout user and delete session
 authRouter.post("/logout", async(req, res) => {
-    console.log("running")
     if(!await enc.verifySession(req, res, "user")) {
         return
     }
-    console.log("passed auth")
     let sessionID = req.cookies.auth.split(":")[1]
     let userID = req.cookies.auth.split(":")[0]
 
-    console.log(sessionID)
-    console.log(userID)
+    await authManager.deleteSession(sessionID, userID)
 
-    let opt = await authManager.deleteSession(enc.hash(sessionID), userID)
-    console.log(opt)
-
+    res.cookie("auth", "", {maxAge: 10, httpOnly: true, sameSite: "strict", secure: config["environment"]["environment-type"] == "production"})
     res.status(200)
     res.send({"response": "Logged out"})
 })
@@ -66,16 +62,14 @@ authRouter.get("/getUser", async(req, res) => {
     let userID = req.cookies.auth.split(":")[0]
     let sessionID = req.cookies.auth.split(":")[1]
 
-    let session = await Sessions.findOne({where: {sessionID: enc.hash(sessionID), userID: userID}})
-    if(session == null) {
-        res.status(401)
-        res.send({"response": "Invalid session"})
-        return
-    }
     let user = await Users.findOne({where: {ID: userID}})
+    let allExtraMenuItems = {
+        "user": [],
+        "admin": [`<a href="${config["domain"]["frontend-url"]}/admin">Admin</a>`]
+    }
     
     res.status(200)
-    res.send({"response": user})
+    res.send({"response": user, "extraMenuItems": allExtraMenuItems[user.permissions]})
     
 })
 
@@ -88,4 +82,22 @@ authRouter.post("/getUsers", async(req, res) => {
     let users = await Users.findAll()
     res.status(200)
     res.send({"response": users})
+})
+
+
+authRouter.post("/deleteAccount", async(req, res) => {
+    if(!await enc.verifySession(req, res, "user")) {
+        return
+    }
+    let userID = req.cookies.auth.split(":")[0]
+    let sessionID = req.cookies.auth.split(":")[1]
+
+    if(!await authManager.deleteAccount(userID, sessionID)) {
+        res.status(301)
+        res.send({"response": "Newer session ID required", "redirect": `${config}/login`})
+        return
+    }
+
+    res.status(200)
+    res.send({"response": "Account deleted"})
 })
