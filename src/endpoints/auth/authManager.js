@@ -1,5 +1,9 @@
 //this file handles all the abstract functions to log in/out users.
 
+//file variables
+const expiryTime = 604800
+const deleteExpiryTime = 60
+
 //basic dependencies
 const enc = require("../../encryption.js")
 const Sessions = require("../../../tables/Sessions.js")
@@ -9,7 +13,7 @@ const Users = require("../../../tables/Users.js")
 module.exports.createUserIfNotExists = async(authID, authType, name, pfpUrl, email) =>{
     let user = await Users.findOne({where: {authID: authID, authType: authType}})
     if(user == null) {
-        await Users.create({
+        user = await Users.create({
             ID: enc.createHash(),
             authID: authID,
             authType: authType,
@@ -19,14 +23,14 @@ module.exports.createUserIfNotExists = async(authID, authType, name, pfpUrl, ema
             permissions: "user"
         })
     }
-    return user == null
+    return user
 }
 
 //deletes a session
 module.exports.deleteSession = async(sessionID, userID) =>{
     let response = await Sessions.destroy({
         where: {
-            sessionID: sessionID,
+            sessionID: enc.hash(sessionID),
             userID: userID
         }
     })
@@ -41,7 +45,7 @@ module.exports.createSession = async(userID) => {
     await Sessions.create({
         userID: userID,
         sessionID: enc.hash(sid),
-        expDate: date.getTime() + 604800
+        expDate: date.getTime() + expiryTime
     })
     return {
         "userID": userID,
@@ -55,4 +59,22 @@ module.exports.deleteAllSessions = async(userID) => {
             userID: userID
         }
     })
+}
+
+module.exports.deleteAccount = async(userID, sessionID) => {
+    if(!await enc.verifySessionWithTokens(userID, sessionID, "user")) {
+        return false
+    }
+    let date = new Date()
+    let session = await Sessions.findOne({where: {sessionID: enc.hash(sessionID), userID: userID}})
+
+    //the session must be made less than a minute ago to prove the user can sign in to their account before deletion
+    if(date.getTime() < session.expDate - (expiryTime - deleteExpiryTime)) { 
+        Users.destroy({where: {} })
+        return true
+    } else {
+        
+        return false
+    }
+
 }
