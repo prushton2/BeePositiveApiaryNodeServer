@@ -71,14 +71,6 @@ module.exports.deleteAccount = async(userID, sessionID) => {
 
     //the session must be made less than a minute ago to prove the user can sign in to their account before deletion
     
-    console.log(`Now:            ${date.getTime()}`)
-    console.log(`Session Expiry: ${session["expDate"]} \n   Delta: ${session["expDate"] - date.getTime()}`)
-    
-    
-
-    console.log(expiryTime)
-    console.log(expiryTime - deleteExpiryTime)
-    console.log(session.expDate - (expiryTime - deleteExpiryTime))
     if(date.getTime() < session.expDate - (expiryTime - deleteExpiryTime)) { 
         Users.destroy({where: {ID: userID} })
         this.deleteAllSessions(userID)
