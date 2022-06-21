@@ -24,6 +24,10 @@ module.exports.verifypassword = async(pswd) => {
   return contents["auth"]["passwords"].indexOf(module.exports.hash(pswd)) >= 0
 }
 
+module.exports.verifySessionWithTokens = async(userID, sessionID, requiredRole) => {
+    return module.exports.verifySession({cookies: {auth: `${userID}:${sessionID}`}}, {}, requiredRole, exitIfInvalid=false)
+}
+
 module.exports.verifySession = async(req, res, requiredRole, exitIfInvalid=true) => {
     let sessionID
     let userID

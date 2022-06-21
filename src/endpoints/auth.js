@@ -35,7 +35,7 @@ authRouter.post("/logout", async(req, res) => {
     let sessionID = req.cookies.auth.split(":")[1]
     let userID = req.cookies.auth.split(":")[0]
 
-    await authManager.deleteSession(enc.hash(sessionID), userID)
+    await authManager.deleteSession(sessionID, userID)
 
     res.cookie("auth", "", {maxAge: 10, httpOnly: true, sameSite: "strict", secure: config["environment"]["environment-type"] == "production"})
     res.status(200)
@@ -84,4 +84,15 @@ authRouter.post("/getUsers", async(req, res) => {
     let users = await Users.findAll()
     res.status(200)
     res.send({"response": users})
+})
+
+
+authRouter.get("/deleteAccount", async(req, res) => {
+    if(!await enc.verifySession(req, res, "user")) {
+        return
+    }
+    let userID = req.cookies.auth.split(":")[0]
+    let sessionID = req.cookies.auth.split(":")[1]
+
+
 })
