@@ -1,8 +1,15 @@
+//handles credential checks and hashing
 const crypto = require("crypto")
 const config = require("./config.js")
+const configjson = require("../config/config.json")
+
+const auth = require("./endpoints/auth.js")
+
+const Sessions = require("../tables/Sessions.js")
+const Users = require("../tables/Users.js")
+
+
 module.exports.hash = (str) => {
-    // I love hashing, and I am paranoid
-    
     currenthash = crypto.createHmac('sha256', str).update("Normal Salt").digest("hex")
     
     for(i=0; i<10; i++) {
@@ -15,6 +22,59 @@ module.exports.hash = (str) => {
 module.exports.verifypassword = async(pswd) => {
   contents = await config.read()  
   return contents["auth"]["passwords"].indexOf(module.exports.hash(pswd)) >= 0
+}
+
+module.exports.verifySessionWithTokens = async(userID, sessionID, requiredRole) => {
+    return module.exports.verifySession({cookies: {auth: `${userID}:${sessionID}`}}, {}, requiredRole, exitIfInvalid=false)
+}
+
+module.exports.verifySession = async(req, res, requiredRole, exitIfInvalid=true) => {
+    let sessionID
+    let userID
+    let authCookie = req.cookies.auth
+
+    if(authCookie) {
+        userID = authCookie.split(":")[0]
+        sessionID = authCookie.split(":")[1]
+    } else {
+        if(exitIfInvalid) {
+            res.status(400)
+            res.send({"response": "No Session Found"})
+        }
+        return false
+    }
+    
+    let session = await Sessions.findOne({where: {sessionID: module.exports.hash(sessionID), userID: userID}})
+    
+    if(session == null) {
+        if(exitIfInvalid) {
+            res.status(302)
+            res.send({"response": "No Valid Session Found", "redirect": `${configjson["domain"]["frontend-url"]}/login`})
+        }
+        return false
+    }
+    
+    let user = await Users.findOne({where: {ID: userID}})
+
+    if(session["expDate"] < new Date().getTime()) {
+        await Sessions.destroy({where: {sessionID: module.exports.hash(sessionID), userID: userID}})
+        if(exitIfInvalid) {
+            res.status(302)
+            res.send({"response": "Session Expired", "redirect": `${configjson["domain"]["frontend-url"]}/login`})
+        }
+        return false
+    }
+
+    //if the user doesnt have the required permission, deny the action
+    if(auth.roleHeirarchy.indexOf(requiredRole) > auth.roleHeirarchy.indexOf(user["permissions"])) {
+        if(exitIfInvalid) {
+            res.status(401)
+            res.send({"response": "Insufficient Permissions"})
+        }
+        return false
+    }
+
+    return true
 }
 
 module.exports.convertUrlEscapeCharacters = (string) => {
@@ -56,11 +116,11 @@ module.exports.convertUrlEscapeCharacters = (string) => {
   return string
 }
 
-module.exports.createHash = function() {
+module.exports.createHash = function(len=32) {
   let result           = '';
   let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
   let charactersLength = characters.length;
-  for ( var i = 0; i < 32; i++ ) {
+  for ( var i = 0; i < len; i++ ) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
    }
    return result;

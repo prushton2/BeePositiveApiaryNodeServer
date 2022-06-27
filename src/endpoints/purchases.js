@@ -11,9 +11,7 @@ module.exports = purchasesRouter;
 
 purchasesRouter.post("/get", async(req, res) => {
 
-    if(!await enc.verifypassword(req.body["password"])) {
-        res.status(401)
-        res.send({"response": "Invalid Credentials"})
+    if(!await enc.verifySession(req, res, "admin")) {
         return
     }
 

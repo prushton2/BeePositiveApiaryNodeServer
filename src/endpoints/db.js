@@ -2,6 +2,7 @@ const express = require("express");
 
 const Products = require("../../tables/Products.js");
 const ProductRelations = require("../../tables/ProductRelations.js");
+const Users = require("../../tables/Users.js");
 
 const enc = require("../encryption.js");
 
@@ -18,9 +19,7 @@ dbRouter.get("/getProducts", async(req, res) => {
 })
 
 dbRouter.patch("/update", async(req, res) => {
-    if(!await enc.verifypassword(req.body["password"])) {
-        res.status(401)
-        res.send({"response": "Invalid Credentials"})
+    if(!await enc.verifySession(req, res, "admin")) {
         return
     }
 
@@ -31,6 +30,8 @@ dbRouter.patch("/update", async(req, res) => {
         response = await ProductRelations.findOne({where: whereClause})
     } else if(req.body["table"] == "Products") {
         response = await Products.findOne({where: whereClause})
+    } else if(req.body["table"] == "Users") {
+        response = await Users.findOne({where: whereClause})
     } else {
         res.status(400)
         res.send({"response": "Invalid table"})
@@ -51,9 +52,7 @@ dbRouter.patch("/update", async(req, res) => {
 })
 
 dbRouter.post("/newEntry", async(req, res) => {
-    if(!await enc.verifypassword(req.body["password"])) {
-        res.status(401)
-        res.send({"response": "Invalid Credentials"})
+    if(!await enc.verifySession(req, res, "admin")) {
         return
     }
 
@@ -67,6 +66,9 @@ dbRouter.post("/newEntry", async(req, res) => {
                 break
             case "ProductRelations":
                 await ProductRelations.create(newEntry)
+                break
+            case "Users":
+                await Users.create(newEntry)
                 break
             default:
                 res.status(400)
@@ -84,9 +86,7 @@ dbRouter.post("/newEntry", async(req, res) => {
 })
 
 dbRouter.delete("/deleteEntry", async(req, res) => {
-    if(!await enc.verifypassword(req.body["password"])) {
-        res.status(401)
-        res.send({"response": "Invalid Credentials"})
+    if(!await enc.verifySession(req, res, "admin")) {
         return
     }
 
@@ -99,6 +99,9 @@ dbRouter.delete("/deleteEntry", async(req, res) => {
         case "ProductRelations":
             await ProductRelations.destroy({where: whereClause})
             break
+        case "Users":
+            await Users.destroy({where: whereClause})
+            break
         default:
             res.status(400)
             res.send({"response": "Invalid table"})
@@ -110,9 +113,7 @@ dbRouter.delete("/deleteEntry", async(req, res) => {
 })
 
 dbRouter.post("/hash", async(req, res) => {
-    if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
-        res.status(401)
-        res.send({"response": "Invalid Credentials"})
+    if(!await enc.verifySession(req, res, "admin")) {
         return
     }
 

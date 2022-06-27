@@ -11,11 +11,9 @@ module.exports = sendgridRouter;
 
 sendgridRouter.post("/completionEmail", async(req, res) => {
     //verify password
-      if(!await enc.verifypassword(req.body["password"])) {
-          res.status(401)
-          res.send({"response": "Invalid Credentials"})
-          return
-      }
+    if(!await enc.verifySession(req, res, "admin")) {
+        return
+    }
       //get order from db
       let order = await Orders.findOne({where: {id: req.body["orderID"]}})
       //check if order is complete

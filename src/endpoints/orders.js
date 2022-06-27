@@ -107,9 +107,7 @@ ordersRouter.post("/getByKey", async(req, res) => {
 
 ordersRouter.post("/get", async(req, res) => {
 
-    if(!await enc.verifypassword(req.body["password"])) {
-        res.status(401)
-        res.send({"response": "Invalid Credentials"})
+    if(!await enc.verifySession(req, res, "admin")) {
         return
     }
 
@@ -128,15 +126,13 @@ ordersRouter.post("/get", async(req, res) => {
 
 ordersRouter.patch("/complete", async(req, res) => {
   
-    if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
-        res.status(401)
-        res.send({"response": "Invalid Credentials"})
+    if(!await enc.verifySession(req, res, "admin")) {
         return
     }
 
     let order = await Orders.findOne({where: {id: req.body["orderID"]}})
     if(order != null) {
-        order.isComplete = req.body["completeStatus"]  
+        order.isComplete = req.body["isComplete"]  
         await order.save()
     } else {
         res.status(400)
@@ -151,9 +147,7 @@ ordersRouter.patch("/complete", async(req, res) => {
 
 ordersRouter.post("/archive", async(req, res) => {
 
-    if(!await enc.verifypassword(req.body["password"])) { // exit if password is invalid
-        res.status(401)
-        res.send({"response": "Invalid Credentials"})
+    if(!await enc.verifySession(req, res, "admin")) {
         return
     }
 
