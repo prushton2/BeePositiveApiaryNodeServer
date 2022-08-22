@@ -28,7 +28,7 @@ authRouter.use("/google", googleRoute)
 
 //-----------AUTH ENDPOINTS-----------
 //logout user and delete session
-authRouter.post("/logout", async(req, res) => {
+authRouter.get("/logout", async(req, res) => {
     if(!await enc.verifySession(req, res, "user")) {
         return
     }
