@@ -46,7 +46,7 @@ process.on('uncaughtException', (err) => {
 })
 
 //Archive every tuesday at 11pm
-cron.schedule("0 23 * * 2", () => {
+cron.schedule("0 13 * * 2", () => {
     archive.archiveDB()
 });
 
