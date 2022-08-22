@@ -1,7 +1,7 @@
 const fs = require("fs");
 
-archiveDir = "../backups"
-mainDB = "../bpa.sqlite"
+archiveDir = "backups"
+mainDB = "bpa.sqlite"
 extension = ".sqlite"
 
 
@@ -23,8 +23,13 @@ module.exports.archiveDB = async() => {
     time = date.getTime()
     fileName = time + extension
   
-    fs.copyFile(mainDB, `${archiveDir}/${fileName}`, (e) => {});
-    console.log(`Archived ${mainDB} to ${fileName}`)  
+    fs.copyFile(mainDB, `${archiveDir}/${fileName}`, (e) => { 
+        if(e) {
+            console.log(e)
+        } else {
+            console.log(`Archived ${mainDB} to ${fileName}`)  
+        }
+    });
 }
 
 module.exports.loadLatestSave = async() => {
