@@ -86,8 +86,15 @@ ordersRouter.post('/add', async(req, res) => {
 
 ordersRouter.post("/getByKey", async(req, res) => {
     let order = await Orders.findOne({where: {id: req.body["orderID"], viewKey: enc.hash(req.body["viewKey"])}})
+    let purchases;
+    //if not found in active table, check archived table
+    if(order == null) {
+        order = await ArchivedOrders.findOne({where: {id: req.body["orderID"], viewKey: enc.hash(req.body["viewKey"])}})
+        purchases = await ArchivedPurchases.findAll({where: {orderID: order["id"]}})
+    } else {
+        purchases = await Purchases.findAll({where: {orderID: order["id"]}})
+    }
     
-
     if(order == null) {
         res.status(400)
         res.send({"response": "Invalid Order or View Key"})
@@ -104,14 +111,23 @@ ordersRouter.post("/getByKey", async(req, res) => {
             "isComplete": order["isComplete"],
             "date": order["date"],
         },
-        "purchases": await (await Purchases.findAll({where: {orderID: order["id"]}})).map(purchase => { return {"productID": purchase["productID"], 
-                                                                                                                "subProductID": purchase["subProductID"], 
-                                                                                                                "amount": purchase["amount"] } })
+        "purchases":purchases.map(purchase => { return {"productID": purchase["productID"], 
+                                                        "subProductID": purchase["subProductID"], 
+                                                        "amount": purchase["amount"] } })
     }
 
     res.status(200)
     res.send({"response": response})
 })
+
+ordersRouter.get("/getPlacedOrders", async(req, res) => {
+    if(!await enc.verifySession(req, res, "user")) {
+        return
+    }
+
+
+})
+
 
 ordersRouter.post("/get", async(req, res) => {
 

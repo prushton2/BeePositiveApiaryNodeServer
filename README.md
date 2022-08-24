@@ -48,7 +48,7 @@ Deletes all sessions that the user sent the request from, logging them out of al
 
 ### /google/login (POST)
 Logs the user in with google
-Body:
+- Body:
 ```javascript
 {
     "JWT": //the JWT that google returns when the user logs in
@@ -62,7 +62,7 @@ Body:
 ### /update (PATCH)
 - Requires admin permissions
 - Updates the product tables and the users table on the backend
-Body: 
+- Body: 
 ```javascript
 {
     "table": "",//the table to modify. Either Products, ProductRelations, or Users 
@@ -74,7 +74,7 @@ Body:
 ### /newEntry (POST)
 - Requires admin permissions
 - Adds a new entry to one of the tables allowed in the [update endpoint](#update-patch)
-Body:
+- Body:
 ```javascript
 {
     "table": "",//table to add new entry
@@ -85,7 +85,7 @@ Body:
 ### /deleteEntry (DELETE)
 - Requires admin permissions
 - Deletes an entry from one of the allowed tables in the [update endpoint](#update-patch)
-Body:
+- Body:
 ```javascript
 {
     "table": "", //name of table to delete row from
@@ -96,7 +96,7 @@ Body:
 ### /hash (POST)
 - Requires admin permission
 - Hashes a given string using the same hash method used throughout the database
-Body: 
+- Body: 
 ```javascript
 {
     "text": "" //text to hash
@@ -108,7 +108,7 @@ Body:
 ### /completionEmail (POST)
 - Requires admin permission
 - Sends an email confirming the completion of an order to the listed email address in the order, aswell as a bcc to the sender if the setting is set in ```config.json["sendgrid"]["bccToSender"]```
-Body:
+- Body:
 ```javascript
 {
     "orderID": 0 //ID of the order to send the completion email for
@@ -120,7 +120,7 @@ Body:
 ### /add (POST)
 - No required account
 - Places an order in the database
-Body:
+- Body:
 ```javascript
 {
   "wantsToReceiveEmails": true, //Determines if the user wants to receive emails (Order confirmation and order completion)
@@ -143,17 +143,26 @@ Body:
 ### /getByKey (POST)
 - No required permission
 - This is used to allow users to view their order after it is placed without an account
-Body: 
+- Body: 
 ```javascript
 {
     "orderID": 0, //ID of order to view
     "viewKey": "" //viewkey of the order, given in the response of the add endpoint
 }
 ```
+### /getPlacedOrders (GET)
+- Requires user permission
+- Returns the order ids and dates of the orders placed by the logged in user
+
+### /getPlacedOrder?id={OrderID} (GET)
+- Requires user permission
+- Used to provide a logged in user with the information about a placed order
+- Returns the same information [/getByKey](#getbykey-post) returns
+
 ### /get (POST)
 - Requires admin permissions
-- Returns orders
-Body:
+- Returns orders<br>
+- Body:
 ```javascript
 {
     "getArchived": false //Get the archived orders instead of active orders
@@ -163,7 +172,7 @@ Body:
 ### /archive (PATCH)
 - Requires admin permission
 - Archives an order, preventing it from being viewable through the [/getByKey endpoint](#getbykey-post)
-Body:
+- Body:
 ```javascript
 {
     "orderID": 0 //id of order to archive
@@ -173,7 +182,7 @@ Body:
 ### /complete (PATCH)
 - Requires admin permission
 - Changes the complete status of an order (doesnt send completion email)
-Body:
+- Body:
 ```javascript
 {
     "orderID": 0, //id of order to edit
@@ -186,7 +195,7 @@ Body:
 ### /get (POST)
 - Requires admin permission
 - returns the products that were purchased with a specific order
-Body:
+- Body:
 ```javascript
 {
     "getArchived": false, //Whether or not to read the products from an archived purchase

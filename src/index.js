@@ -61,7 +61,7 @@ onStart = async() => {
     }
 
     // await sequelize.sync()
-    await sequelize.sync({ })//force: false })
+    await sequelize.sync({ force: false })
 
 
     if(addProducts) {

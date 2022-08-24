@@ -17,7 +17,7 @@ const Users              = require("../tables/Users.js");
 
 
 async function main() {
-    console.log(await sequelize.query("ALTER TABLE Orders ADD COLUMN owner varchar(255);"));
+    console.log(await sequelize.query("ALTER TABLE ArchivedOrders ADD COLUMN viewKey varchar(255);"));
 }
 
 main()
