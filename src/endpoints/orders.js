@@ -46,6 +46,14 @@ ordersRouter.post('/add', async(req, res) => {
     req.body["Order"]["wantsEmails"] = req.body["wantsToReceiveEmails"]
     req.body["Order"]["viewKey"] = enc.hash(viewKey)
 
+    //Add a user to the order if there is one
+    req.body["Order"]["owner"] = ""
+
+    if(await enc.verifySession(req, res, "user", false)) {
+        req.body["Order"]["owner"] = req.cookies.auth.split(":")[0]
+    }
+
+
     //Add Order to db
     let output = await Orders.create(req.body["Order"])
     let orderid = output["dataValues"]["id"] // Get order ID to be used in the Purchases database to create relations

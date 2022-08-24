@@ -60,7 +60,9 @@ onStart = async() => {
         addProducts = false
     }
 
-    await sequelize.sync()
+    // await sequelize.sync()
+    await sequelize.sync({ })//force: false })
+
 
     if(addProducts) {
         await Products.setDefaults();
