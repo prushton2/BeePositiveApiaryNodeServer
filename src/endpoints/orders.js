@@ -125,7 +125,17 @@ ordersRouter.get("/getPlacedOrders", async(req, res) => {
         return
     }
 
+    let userID = req.cookies.auth.split(":")[0]
 
+    let allOrders = {
+        "active": await Orders.findAll({where: {"owner": userID}}),
+        "completed": await ArchivedOrders.findAll({where: {"owner": userID}})
+    }
+       
+                    
+    console.log(allOrders)
+    res.status(200)
+    res.send(allOrders)
 })
 
 
