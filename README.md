@@ -140,24 +140,14 @@ Logs the user in with google
 }
 ```
 
-### /getByKey (POST)
+### /getByKey?orderId={orderID}&viewKey={viewKey} (GET)
 - No required permission
 - This is used to allow users to view their order after it is placed without an account
-- Body: 
-```javascript
-{
-    "orderID": 0, //ID of order to view
-    "viewKey": "" //viewkey of the order, given in the response of the add endpoint
-}
-```
+- If the viewKey is set to ```loggedInUser```, you only need to provide the orderID to view the order assuming the logged in user placed the order.
+
 ### /getPlacedOrders (GET)
 - Requires user permission
 - Returns the order ids and dates of the orders placed by the logged in user
-
-### /getPlacedOrder?id={OrderID} (GET)
-- Requires user permission
-- Used to provide a logged in user with the information about a placed order
-- Returns the same information [/getByKey](#getbykey-post) returns
 
 ### /get (POST)
 - Requires admin permissions

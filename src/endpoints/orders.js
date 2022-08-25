@@ -84,15 +84,24 @@ ordersRouter.post('/add', async(req, res) => {
                 "orderID": orderid})
 })
 
-ordersRouter.post("/getByKey", async(req, res) => {
-    let order = await Orders.findOne({where: {id: req.body["orderID"], viewKey: enc.hash(req.body["viewKey"])}})
+ordersRouter.get("/getByKey", async(req, res) => {
+
+    let whereClause
+    if(req.query.viewKey == "loggedInUser") {
+        if(!await enc.verifySession(req, res, "user")) { return } //return if not logged in
+        whereClause = {where: {id: req.query.orderId, owner: req.cookies.auth.split(":")[0]}} //set the where clause
+    } else {
+        whereClause = {where: {id: req.query.orderId, viewKey: enc.hash(req.query.viewKey)}} //set the where clause
+    }
+
+    let order = await Orders.findOne(whereClause)
     let purchases;
     //if not found in active table, check archived table
     if(order == null) {
-        order = await ArchivedOrders.findOne({where: {id: req.body["orderID"], viewKey: enc.hash(req.body["viewKey"])}})
-        purchases = await ArchivedPurchases.findAll({where: {orderID: order["id"]}})
+        order = await ArchivedOrders.findOne(whereClause)
+        purchases = await ArchivedPurchases.findAll({where: {orderID: req.query.orderId}})
     } else {
-        purchases = await Purchases.findAll({where: {orderID: order["id"]}})
+        purchases = await Purchases.findAll({where: {orderID: req.query.orderId}})
     }
     
     if(order == null) {
@@ -131,44 +140,13 @@ ordersRouter.get("/getPlacedOrders", async(req, res) => {
         "active": (await Orders.findAll({where: {"owner": userID}})).map(purchase => {return {  "id": purchase["id"],
                                                                                                 "date": purchase["date"],
                                                                                                 "isComplete": purchase["isComplete"]}}),
-        "completed": await ArchivedOrders.findAll({where: {"owner": userID}}).map(purchase => {return { "id": purchase["id"],
+        "completed": (await ArchivedOrders.findAll({where: {"owner": userID}})).map(purchase => {return { "id": purchase["id"],
                                                                                                         "date": purchase["date"],
                                                                                                         "isComplete": purchase["isComplete"]}})
     }
 
-    console.log(allOrders)
     res.status(200)
     res.send({"response": allOrders})
-})
-
-ordersRouter.post("/getPlacedOrder", async(req, res) => {
-    if(!await enc.verifySession(req, res, "user")) {
-        return
-    }
-
-    let order = Orders.findOne({where: {id: req.query.id, owner: req.cookies.auth.split(":")[0]}})
-    let purchases;
-    if(order == null) {
-        order = ArchivedOrders.findOne({where: {id: req.query.id, owner: req.cookies.auth.split(":")[0]}})
-        purchases = ArchivedPurchases.findOne({where: {id: req.query.id, owner: req.cookies.auth.split(":")[0]}})
-    } else {
-        purchases = Purchases.findOne({where: {id: req.query.id, owner: req.cookies.auth.split(":")[0]}})
-    }
-
-    if(order == null) {
-        res.status(400)
-        res.send({"response": "Invalid order ID"})
-        return
-    }
-
-    res.status(200)
-    res.send({
-        "response": {
-            order: order,
-            purchases: purchases
-        }
-    })
-
 })
 
 ordersRouter.post("/get", async(req, res) => {
