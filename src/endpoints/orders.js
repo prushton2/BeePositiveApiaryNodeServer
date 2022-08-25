@@ -128,16 +128,48 @@ ordersRouter.get("/getPlacedOrders", async(req, res) => {
     let userID = req.cookies.auth.split(":")[0]
 
     let allOrders = {
-        "active": await Orders.findAll({where: {"owner": userID}}),
-        "completed": await ArchivedOrders.findAll({where: {"owner": userID}})
+        "active": (await Orders.findAll({where: {"owner": userID}})).map(purchase => {return {  "id": purchase["id"],
+                                                                                                "date": purchase["date"],
+                                                                                                "isComplete": purchase["isComplete"]}}),
+        "completed": await ArchivedOrders.findAll({where: {"owner": userID}}).map(purchase => {return { "id": purchase["id"],
+                                                                                                        "date": purchase["date"],
+                                                                                                        "isComplete": purchase["isComplete"]}})
     }
-       
-                    
+
     console.log(allOrders)
     res.status(200)
-    res.send(allOrders)
+    res.send({"response": allOrders})
 })
 
+ordersRouter.post("/getPlacedOrder", async(req, res) => {
+    if(!await enc.verifySession(req, res, "user")) {
+        return
+    }
+
+    let order = Orders.findOne({where: {id: req.query.id, owner: req.cookies.auth.split(":")[0]}})
+    let purchases;
+    if(order == null) {
+        order = ArchivedOrders.findOne({where: {id: req.query.id, owner: req.cookies.auth.split(":")[0]}})
+        purchases = ArchivedPurchases.findOne({where: {id: req.query.id, owner: req.cookies.auth.split(":")[0]}})
+    } else {
+        purchases = Purchases.findOne({where: {id: req.query.id, owner: req.cookies.auth.split(":")[0]}})
+    }
+
+    if(order == null) {
+        res.status(400)
+        res.send({"response": "Invalid order ID"})
+        return
+    }
+
+    res.status(200)
+    res.send({
+        "response": {
+            order: order,
+            purchases: purchases
+        }
+    })
+
+})
 
 ordersRouter.post("/get", async(req, res) => {
 
