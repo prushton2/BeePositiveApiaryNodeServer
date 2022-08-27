@@ -46,6 +46,14 @@ ordersRouter.post('/add', async(req, res) => {
     req.body["Order"]["wantsEmails"] = req.body["wantsToReceiveEmails"]
     req.body["Order"]["viewKey"] = enc.hash(viewKey)
 
+    //Add a user to the order if there is one
+    req.body["Order"]["owner"] = ""
+
+    if(await enc.verifySession(req, res, "user", false)) {
+        req.body["Order"]["owner"] = req.cookies.auth.split(":")[0]
+    }
+
+
     //Add Order to db
     let output = await Orders.create(req.body["Order"])
     let orderid = output["dataValues"]["id"] // Get order ID to be used in the Purchases database to create relations
@@ -76,10 +84,26 @@ ordersRouter.post('/add', async(req, res) => {
                 "orderID": orderid})
 })
 
-ordersRouter.post("/getByKey", async(req, res) => {
-    let order = await Orders.findOne({where: {id: req.body["orderID"], viewKey: enc.hash(req.body["viewKey"])}})
-    
+ordersRouter.get("/getByKey", async(req, res) => {
 
+    let whereClause
+    if(req.query.viewKey == "loggedInUser") {
+        if(!await enc.verifySession(req, res, "user")) { return } //return if not logged in
+        whereClause = {where: {id: req.query.orderId, owner: req.cookies.auth.split(":")[0]}} //set the where clause
+    } else {
+        whereClause = {where: {id: req.query.orderId, viewKey: enc.hash(req.query.viewKey)}} //set the where clause
+    }
+
+    let order = await Orders.findOne(whereClause)
+    let purchases;
+    //if not found in active table, check archived table
+    if(order == null) {
+        order = await ArchivedOrders.findOne(whereClause)
+        purchases = await ArchivedPurchases.findAll({where: {orderID: req.query.orderId}})
+    } else {
+        purchases = await Purchases.findAll({where: {orderID: req.query.orderId}})
+    }
+    
     if(order == null) {
         res.status(400)
         res.send({"response": "Invalid Order or View Key"})
@@ -96,13 +120,33 @@ ordersRouter.post("/getByKey", async(req, res) => {
             "isComplete": order["isComplete"],
             "date": order["date"],
         },
-        "purchases": await (await Purchases.findAll({where: {orderID: order["id"]}})).map(purchase => { return {"productID": purchase["productID"], 
-                                                                                                                "subProductID": purchase["subProductID"], 
-                                                                                                                "amount": purchase["amount"] } })
+        "purchases":purchases.map(purchase => { return {"productID": purchase["productID"], 
+                                                        "subProductID": purchase["subProductID"], 
+                                                        "amount": purchase["amount"] } })
     }
 
     res.status(200)
     res.send({"response": response})
+})
+
+ordersRouter.get("/getPlacedOrders", async(req, res) => {
+    if(!await enc.verifySession(req, res, "user")) {
+        return
+    }
+
+    let userID = req.cookies.auth.split(":")[0]
+
+    let allOrders = {
+        "active": (await Orders.findAll({where: {"owner": userID}})).map(purchase => {return {  "id": purchase["id"],
+                                                                                                "date": purchase["date"],
+                                                                                                "isComplete": purchase["isComplete"]}}),
+        "completed": (await ArchivedOrders.findAll({where: {"owner": userID}})).map(purchase => {return { "id": purchase["id"],
+                                                                                                        "date": purchase["date"],
+                                                                                                        "isComplete": purchase["isComplete"]}})
+    }
+
+    res.status(200)
+    res.send({"response": allOrders})
 })
 
 ordersRouter.post("/get", async(req, res) => {
