@@ -65,7 +65,7 @@ authRouter.get("/getUser", async(req, res) => {
     let user = await Users.findOne({where: {ID: userID}})
     let allExtraMenuItems = {
         "user": [],
-        "admin": [`<a href="${config["domain"]["frontend-url"]}/admin">Admin</a>`]
+        "admin": [[`${config["domain"]["frontend-url"]}/admin`, "Admin"]]
     }
     
     res.status(200)
