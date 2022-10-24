@@ -25,7 +25,10 @@ dbRouter.patch("/update", async(req, res) => {
 
     let whereClause = req.body["primaryKeys"]
     let response
+    
 
+    //not my proudest moment, but this endpoint seems vulnerable and I dont want to take any chances
+    
     if(req.body["table"] == "ProductRelations") {
         response = await ProductRelations.findOne({where: whereClause})
     } else if(req.body["table"] == "Products") {
