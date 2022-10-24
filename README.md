@@ -10,6 +10,7 @@ This is the node.js server for [prushton2/beepositiveapiary](https://github.com/
 * Run ```src/setup.js``` to create ```/config/config.json``` and ```.env```
 * Run ```src/index.js``` to run the program
 * Edit ```config.json["domain"]["frontend-url"]``` and ```config.json["domain"]["backend-url"]```to fit your backend and frontend urls
+* Edit ```config.json["environment"]["environment-type"]``` to ```development``` or ```production```
 
 ## Auth setup
 
