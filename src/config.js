@@ -2,6 +2,9 @@ const fs = require("fs")
 
 //default password is password
 defaultConfig = {
+	"environment": {
+		"environment-type": "development"
+	},
     "domain": {
         "frontend-url": "https://www.example.com",
         "backend-url": "https://backend.example.com",
