@@ -8,6 +8,8 @@ const Purchases = require("../../tables/Purchases.js");
 const ArchivedOrders = require("../../tables/ArchivedOrders.js");
 const ArchivedPurchases = require("../../tables/ArchivedPurchases.js");
 
+const Products = require("../../tables/Products.js")
+
 const express = require("express");
 // const bodyParser = require("body-parser");
 
@@ -57,12 +59,37 @@ ordersRouter.post('/add', async(req, res) => {
             continue;
         }
     
+		//verify there is enough stock of the items
+		
+		let product = await Products.findOne({where: {id: req.body["Items"][purchase]["productID"]}});
+		let subproduct = await Products.findOne({where: {id: req.body["Items"][purchase]["subProductID"]}});
+		
+		if( (product.stock != null && product.stock - req.body["Items"][purchase]["amount"] < 0) ||
+			(subproduct.stock != null && subproduct.stock - req.body["Items"][purchase]["amount"] < 0)) {
+			res.status(400);
+			res.send({
+				"response": `Not enough stock for product ${req.body.Items[purchase]["productID"]} with ${req.body.Items[purchase]["subProductID"]}`
+			});
+			return;
+		}	
+		
+		//create the purchase
         await Purchases.create({
             orderID: orderid,
             productID: req.body["Items"][purchase]["productID"],
             subProductID: req.body["Items"][purchase]["subProductID"],
             amount: req.body["Items"][purchase]["amount"]
         })
+
+
+		//remove the stock
+		product.stock -= req.body["Items"][purchase]["amount"];
+		subproduct.stock -= req.body["Items"][purchase]["amount"]
+
+		product.save();
+		subproduct.save();
+
+
     }
     let emailSent = false
     if(req.body["wantsToReceiveEmails"]) {
