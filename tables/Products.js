@@ -22,7 +22,7 @@ Products.init({
         type: DataTypes.STRING,
     },
     stock: {
-      type: DataTypes.INTEGER
+      type: DataTypes.DOUBLE
     }
 }, {
     sequelize,

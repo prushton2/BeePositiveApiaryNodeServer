@@ -10,6 +10,7 @@ This is the node.js server for [prushton2/beepositiveapiary](https://github.com/
 * Run ```src/setup.js``` to create ```/config/config.json``` and ```.env```
 * Run ```src/index.js``` to run the program
 * Edit ```config.json["domain"]["frontend-url"]``` and ```config.json["domain"]["backend-url"]```to fit your backend and frontend urls
+* Edit ```config.json["environment"]["environment-type"]``` to ```development``` or ```production```
 
 ## Auth setup
 
@@ -42,13 +43,17 @@ Index of all routes
 ## [Auth (/auth/*)](#endpoints)
 ---
 ### /logout (GET)
-Deletes the session that the user sent the request from, logging them out
+- Requires account
+- Deletes the session that the user sent the request from, logging them out
 ### /logoutOfAll (GET)
-Deletes all sessions that the user sent the request from, logging them out of all devices
-
+- Requires account
+- Deletes all sessions that the user sent the request from, logging them out of all devices
+### /getUser (GET)
+- Requires account
+- Returns the user's information aswell as any extra permissions
 ### /google/login (POST)
 Logs the user in with google
-- Body:
+Body:
 ```javascript
 {
     "JWT": //the JWT that google returns when the user logs in
@@ -62,7 +67,7 @@ Logs the user in with google
 ### /update (PATCH)
 - Requires admin permissions
 - Updates the product tables and the users table on the backend
-- Body: 
+Body: 
 ```javascript
 {
     "table": "",//the table to modify. Either Products, ProductRelations, or Users 
@@ -74,7 +79,7 @@ Logs the user in with google
 ### /newEntry (POST)
 - Requires admin permissions
 - Adds a new entry to one of the tables allowed in the [update endpoint](#update-patch)
-- Body:
+Body:
 ```javascript
 {
     "table": "",//table to add new entry
@@ -85,7 +90,7 @@ Logs the user in with google
 ### /deleteEntry (DELETE)
 - Requires admin permissions
 - Deletes an entry from one of the allowed tables in the [update endpoint](#update-patch)
-- Body:
+Body:
 ```javascript
 {
     "table": "", //name of table to delete row from
@@ -96,7 +101,7 @@ Logs the user in with google
 ### /hash (POST)
 - Requires admin permission
 - Hashes a given string using the same hash method used throughout the database
-- Body: 
+Body: 
 ```javascript
 {
     "text": "" //text to hash
@@ -108,7 +113,7 @@ Logs the user in with google
 ### /completionEmail (POST)
 - Requires admin permission
 - Sends an email confirming the completion of an order to the listed email address in the order, aswell as a bcc to the sender if the setting is set in ```config.json["sendgrid"]["bccToSender"]```
-- Body:
+Body:
 ```javascript
 {
     "orderID": 0 //ID of the order to send the completion email for
@@ -120,7 +125,7 @@ Logs the user in with google
 ### /add (POST)
 - No required account
 - Places an order in the database
-- Body:
+Body:
 ```javascript
 {
   "wantsToReceiveEmails": true, //Determines if the user wants to receive emails (Order confirmation and order completion)
@@ -140,19 +145,20 @@ Logs the user in with google
 }
 ```
 
-### /getByKey?orderId={orderID}&viewKey={viewKey} (GET)
+### /getByKey (POST)
 - No required permission
 - This is used to allow users to view their order after it is placed without an account
-- If the viewKey is set to ```loggedInUser```, you only need to provide the orderID to view the order assuming the logged in user placed the order.
-
-### /getPlacedOrders (GET)
-- Requires user permission
-- Returns the order ids and dates of the orders placed by the logged in user
-
+Body: 
+```javascript
+{
+    "orderID": 0, //ID of order to view
+    "viewKey": "" //viewkey of the order, given in the response of the add endpoint
+}
+```
 ### /get (POST)
 - Requires admin permissions
-- Returns orders<br>
-- Body:
+- Returns orders
+Body:
 ```javascript
 {
     "getArchived": false //Get the archived orders instead of active orders
@@ -162,7 +168,7 @@ Logs the user in with google
 ### /archive (PATCH)
 - Requires admin permission
 - Archives an order, preventing it from being viewable through the [/getByKey endpoint](#getbykey-post)
-- Body:
+Body:
 ```javascript
 {
     "orderID": 0 //id of order to archive
@@ -172,7 +178,7 @@ Logs the user in with google
 ### /complete (PATCH)
 - Requires admin permission
 - Changes the complete status of an order (doesnt send completion email)
-- Body:
+Body:
 ```javascript
 {
     "orderID": 0, //id of order to edit
@@ -185,7 +191,7 @@ Logs the user in with google
 ### /get (POST)
 - Requires admin permission
 - returns the products that were purchased with a specific order
-- Body:
+Body:
 ```javascript
 {
     "getArchived": false, //Whether or not to read the products from an archived purchase
