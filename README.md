@@ -43,10 +43,14 @@ Index of all routes
 ## [Auth (/auth/*)](#endpoints)
 ---
 ### /logout (GET)
-Deletes the session that the user sent the request from, logging them out
+- Requires account
+- Deletes the session that the user sent the request from, logging them out
 ### /logoutOfAll (GET)
-Deletes all sessions that the user sent the request from, logging them out of all devices
-
+- Requires account
+- Deletes all sessions that the user sent the request from, logging them out of all devices
+### /getUser (GET)
+- Requires account
+- Returns the user's information aswell as any extra permissions
 ### /google/login (POST)
 Logs the user in with google
 Body:
