@@ -28,37 +28,39 @@ module.exports.verifySessionWithTokens = async(userID, sessionID, requiredRole) 
     return module.exports.verifySession({cookies: {auth: `${userID}:${sessionID}`}}, {}, requiredRole, exitIfInvalid=false)
 }
 
+//verifies the user's session and makes sure they have the given permission
+//this function is the backbone behind the entire security of the website
 module.exports.verifySession = async(req, res, requiredRole, exitIfInvalid=true) => {
     let sessionID
     let userID
     let authCookie = req.cookies.auth
 
-    if(authCookie) {
-        userID = authCookie.split(":")[0]
+    if(authCookie) { //look for a session
+        userID = authCookie.split(":")[0] //split the session token into the userID and sessionID
         sessionID = authCookie.split(":")[1]
-    } else {
-        if(exitIfInvalid) {
+    } else { //if no session
+        if(exitIfInvalid) { //exit the function
             res.status(400)
             res.send({"response": "No Session Found"})
         }
         return false
     }
     
-    let session = await Sessions.findOne({where: {sessionID: module.exports.hash(sessionID), userID: userID}})
+    let session = await Sessions.findOne({where: {sessionID: module.exports.hash(sessionID), userID: userID}}) //look for the session in the sessions DB
     
-    if(session == null) {
-        if(exitIfInvalid) {
+    if(session == null) { //if the session isnt in the db
+        if(exitIfInvalid) { //exit the function 
             res.status(302)
             res.send({"response": "No Valid Session Found", "redirect": `${configjson["domain"]["frontend-url"]}/login`})
         }
         return false
     }
     
-    let user = await Users.findOne({where: {ID: userID}})
+    let user = await Users.findOne({where: {ID: userID}}) //look for the user the userID is attached to (It should have one)
 
-    if(session["expDate"] < new Date().getTime()) {
-        await Sessions.destroy({where: {sessionID: module.exports.hash(sessionID), userID: userID}})
-        if(exitIfInvalid) {
+    if(session["expDate"] < new Date().getTime()) { //if the session has expired
+        await Sessions.destroy({where: {sessionID: module.exports.hash(sessionID), userID: userID}}) //destroy the session
+        if(exitIfInvalid) { //return 302 and exit the function
             res.status(302)
             res.send({"response": "Session Expired", "redirect": `${configjson["domain"]["frontend-url"]}/login`})
         }
@@ -73,7 +75,7 @@ module.exports.verifySession = async(req, res, requiredRole, exitIfInvalid=true)
         }
         return false
     }
-
+	//If none of the guard clauses triggered, the user and the action are valid
     return true
 }
 
