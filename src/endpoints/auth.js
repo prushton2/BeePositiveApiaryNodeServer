@@ -1,5 +1,5 @@
 /*
-This file is built to handle universal authentication commands (basically logging out)
+This file is built to handle universal authentication commands (basically just logging out)
 The app routes to different files based on how the user is logging in.
 */
 
@@ -65,7 +65,7 @@ authRouter.get("/getUser", async(req, res) => {
     let user = await Users.findOne({where: {ID: userID}})
     let allExtraMenuItems = {
         "user": [],
-        "admin": [`<a href="${config["domain"]["frontend-url"]}/admin">Admin</a>`]
+        "admin": [[`${config["domain"]["frontend-url"]}/admin`, "Admin"]]
     }
     
     res.status(200)

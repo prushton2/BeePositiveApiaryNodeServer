@@ -20,7 +20,7 @@ This is the node.js server for [prushton2/beepositiveapiary](https://github.com/
 
 ## Sendgrid setup
 
-The backend uses sendgrid to send an order confirmation email when a user places an order.
+The backend uses sendgrid to send an order confirmation email when a user places an order. Set up an active email in sendgrid before doing this step.
 
 * Add the following to ```config.json["sendgrid"]```:
   * put the sender email address into ```["email"]```
@@ -43,12 +43,17 @@ Index of all routes
 ## [Auth (/auth/*)](#endpoints)
 ---
 ### /logout (GET)
-Deletes the session that the user sent the request from, logging them out
+- Requires account
+- Deletes the session that the user sent the request from, logging them out
 ### /logoutOfAll (GET)
-Deletes all sessions that the user sent the request from, logging them out of all devices
-
+- Requires account
+- Deletes all sessions that the user sent the request from, logging them out of all devices
+### /getUser (GET)
+- Requires account
+- Returns the user's information aswell as any extra permissions
 ### /google/login (POST)
 Logs the user in with google
+
 Body:
 ```javascript
 {
@@ -63,7 +68,8 @@ Body:
 ### /update (PATCH)
 - Requires admin permissions
 - Updates the product tables and the users table on the backend
-Body: 
+
+Body:
 ```javascript
 {
     "table": "",//the table to modify. Either Products, ProductRelations, or Users 
@@ -75,6 +81,7 @@ Body:
 ### /newEntry (POST)
 - Requires admin permissions
 - Adds a new entry to one of the tables allowed in the [update endpoint](#update-patch)
+
 Body:
 ```javascript
 {
@@ -86,6 +93,7 @@ Body:
 ### /deleteEntry (DELETE)
 - Requires admin permissions
 - Deletes an entry from one of the allowed tables in the [update endpoint](#update-patch)
+
 Body:
 ```javascript
 {
@@ -93,11 +101,23 @@ Body:
     "primaryKeys": {}//primary keys identifying the row to delete ex: {key: value, key: value}
 }
 ```
+### /getJson (POST)
+- Requires admin permissions
+- Allows retrieval of the Products, ProductRelations, and Users tables as JSON objects
+
+Body:
+```javascript
+{
+	"table": "", //name of table to retrieve
+}
+```
+
 
 ### /hash (POST)
 - Requires admin permission
 - Hashes a given string using the same hash method used throughout the database
-Body: 
+
+Body:
 ```javascript
 {
     "text": "" //text to hash
@@ -109,6 +129,7 @@ Body:
 ### /completionEmail (POST)
 - Requires admin permission
 - Sends an email confirming the completion of an order to the listed email address in the order, aswell as a bcc to the sender if the setting is set in ```config.json["sendgrid"]["bccToSender"]```
+
 Body:
 ```javascript
 {
@@ -121,6 +142,7 @@ Body:
 ### /add (POST)
 - No required account
 - Places an order in the database
+
 Body:
 ```javascript
 {
@@ -144,7 +166,8 @@ Body:
 ### /getByKey (POST)
 - No required permission
 - This is used to allow users to view their order after it is placed without an account
-Body: 
+
+Body:
 ```javascript
 {
     "orderID": 0, //ID of order to view
@@ -153,7 +176,8 @@ Body:
 ```
 ### /get (POST)
 - Requires admin permissions
-- Returns orders
+- Returns all orders in the database
+
 Body:
 ```javascript
 {
@@ -164,6 +188,7 @@ Body:
 ### /archive (PATCH)
 - Requires admin permission
 - Archives an order, preventing it from being viewable through the [/getByKey endpoint](#getbykey-post)
+
 Body:
 ```javascript
 {
@@ -174,6 +199,7 @@ Body:
 ### /complete (PATCH)
 - Requires admin permission
 - Changes the complete status of an order (doesnt send completion email)
+
 Body:
 ```javascript
 {
@@ -187,6 +213,7 @@ Body:
 ### /get (POST)
 - Requires admin permission
 - returns the products that were purchased with a specific order
+
 Body:
 ```javascript
 {

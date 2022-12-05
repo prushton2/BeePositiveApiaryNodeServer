@@ -30,6 +30,9 @@ Orders.init({
   },
   viewKey: {
     type: DataTypes.STRING
+  },
+  owner: {
+    type: DataTypes.STRING
   }
 }, {
   sequelize,

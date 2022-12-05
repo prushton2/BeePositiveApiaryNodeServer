@@ -4,7 +4,6 @@ const fs = require("fs")
 const util = require('util');
 const readFile = (fileName) => util.promisify(fs.readFile)(fileName, 'utf8');
 
-
 class Products extends Model {}
 
 Products.init({
@@ -22,7 +21,7 @@ Products.init({
         type: DataTypes.STRING,
     },
     stock: {
-      type: DataTypes.INTEGER
+      type: DataTypes.DOUBLE
     }
 }, {
     sequelize,
@@ -36,8 +35,8 @@ module.exports = Products;
 module.exports.setDefaults = async() => {
     const file = await readFile("./tables/Products.json")
     const productList = JSON.parse(file)
-    for(i=0; i<Object.keys(productList).length; i++) { 
+    for(i=0; i<productList["data"].length; i++) { 
         //create product if it doesn't exist, or update if it does
-        output = await Products.upsert( productList[i] );
+        output = await Products.upsert( productList["data"][i] );
     }
 }

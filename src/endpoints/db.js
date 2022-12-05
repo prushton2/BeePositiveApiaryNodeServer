@@ -115,6 +115,34 @@ dbRouter.delete("/deleteEntry", async(req, res) => {
     res.send({"response": "Entry deleted"})
 })
 
+dbRouter.post("/getJson", async(req, res) => {
+	if(!await enc.verifySession(req, res, "admin")) {
+		return
+	}
+
+	let json;
+
+	switch(req.body["table"]) {
+        case "Products":
+            json = await Products.findAll();
+            break;
+        case "ProductRelations":
+            json = await ProductRelations.findAll();
+            break;
+        case "Users":
+			json = await Users.findAll();
+            break;
+        default:
+            res.status(400);
+            res.send({"response": "Invalid table"});
+            break;
+    }
+
+	
+    res.status(200);
+    res.send({"response": json});
+})
+
 dbRouter.post("/hash", async(req, res) => {
     if(!await enc.verifySession(req, res, "admin")) {
         return

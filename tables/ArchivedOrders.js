@@ -22,6 +22,12 @@ ArchivedOrders.init({
   date: {
     type: DataTypes.INTEGER
   },
+  viewKey: {
+    type: DataTypes.STRING
+  },
+  owner: {
+    type: DataTypes.STRING
+  },
   reasonArchived: {
     type: DataTypes.STRING
   }
