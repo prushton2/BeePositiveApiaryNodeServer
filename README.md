@@ -101,6 +101,17 @@ Body:
     "primaryKeys": {}//primary keys identifying the row to delete ex: {key: value, key: value}
 }
 ```
+### /getJson (POST)
+- Requires admin permissions
+- Allows retrieval of the Products, ProductRelations, and Users tables as JSON objects
+
+Body:
+```javascript
+{
+	"table": "", //name of table to retrieve
+}
+```
+
 
 ### /hash (POST)
 - Requires admin permission
