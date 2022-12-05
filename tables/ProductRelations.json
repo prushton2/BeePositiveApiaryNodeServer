@@ -1,5 +1,5 @@
 {
-	"data": [
+    "data": [
         {
             "id": 100,
             "subProductID": 0,
@@ -68,6 +68,55 @@
             "subProductID": 303,
             "price": 5.99,
             "imageURL": "https://cdn.beepositiveapiary.com/relations/201/303.png",
+            "increment": 1
+        },
+        {
+            "id": 102,
+            "subProductID": 0,
+            "price": 2.99,
+            "imageURL": "https://cdn.beepositiveapiary.com/products/100/02.png",
+            "increment": 1
+        },
+        {
+            "id": 103,
+            "subProductID": 0,
+            "price": 2.99,
+            "imageURL": "https://cdn.beepositiveapiary.com/products/100/03.png",
+            "increment": 1
+        },
+        {
+            "id": 104,
+            "subProductID": 0,
+            "price": 2.99,
+            "imageURL": "https://cdn.beepositiveapiary.com/products/100/04.png",
+            "increment": 1
+        },
+        {
+            "id": 105,
+            "subProductID": 0,
+            "price": 2.99,
+            "imageURL": "https://cdn.beepositiveapiary.com/products/100/05.png",
+            "increment": 1
+        },
+        {
+            "id": 106,
+            "subProductID": 0,
+            "price": 2.99,
+            "imageURL": "https://cdn.beepositiveapiary.com/products/100/06.png",
+            "increment": 1
+        },
+        {
+            "id": 107,
+            "subProductID": 0,
+            "price": 2.99,
+            "imageURL": "https://cdn.beepositiveapiary.com/products/100/07.png",
+            "increment": 1
+        },
+        {
+            "id": 108,
+            "subProductID": 0,
+            "price": 2.99,
+            "imageURL": "https://cdn.beepositiveapiary.com/products/100/08.png",
             "increment": 1
         }
     ]
