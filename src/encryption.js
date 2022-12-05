@@ -1,4 +1,5 @@
-//handles credential checks and hashing
+//handles credential checks and hashing stuff
+
 const crypto = require("crypto")
 const config = require("./config.js")
 const configjson = require("../config/config.json")
@@ -9,7 +10,7 @@ const Sessions = require("../tables/Sessions.js")
 const Users = require("../tables/Users.js")
 
 
-module.exports.hash = (str) => {
+module.exports.hash = (str) => { //10 time hashing because why not
     currenthash = crypto.createHmac('sha256', str).update("Normal Salt").digest("hex")
     
     for(i=0; i<10; i++) {
@@ -19,46 +20,44 @@ module.exports.hash = (str) => {
     return currenthash
 }
 
-module.exports.verifypassword = async(pswd) => {
-  contents = await config.read()  
-  return contents["auth"]["passwords"].indexOf(module.exports.hash(pswd)) >= 0
-}
-
+//shorthand version of verifySession (why is this here i dont remember using it ever)
 module.exports.verifySessionWithTokens = async(userID, sessionID, requiredRole) => {
-    return module.exports.verifySession({cookies: {auth: `${userID}:${sessionID}`}}, {}, requiredRole, exitIfInvalid=false)
+    return await module.exports.verifySession({cookies: {auth: `${userID}:${sessionID}`}}, {}, requiredRole, exitIfInvalid=false)
 }
 
+//verifies the user's session and makes sure they have the given permission
+//this function is the backbone behind the entire security of the website
 module.exports.verifySession = async(req, res, requiredRole, exitIfInvalid=true) => {
     let sessionID
     let userID
     let authCookie = req.cookies.auth
 
-    if(authCookie) {
-        userID = authCookie.split(":")[0]
+    if(authCookie) { //look for a session to read
+        userID = authCookie.split(":")[0] //split the session token into the userID and sessionID
         sessionID = authCookie.split(":")[1]
-    } else {
-        if(exitIfInvalid) {
+    } else { //if no session
+        if(exitIfInvalid) { //exit the function
             res.status(400)
             res.send({"response": "No Session Found"})
         }
         return false
     }
     
-    let session = await Sessions.findOne({where: {sessionID: module.exports.hash(sessionID), userID: userID}})
+    let session = await Sessions.findOne({where: {sessionID: module.exports.hash(sessionID), userID: userID}}) //look for the session in the sessions DB
     
-    if(session == null) {
-        if(exitIfInvalid) {
+    if(session == null) { //if the session isnt in the db
+        if(exitIfInvalid) { //exit the function 
             res.status(302)
             res.send({"response": "No Valid Session Found", "redirect": `${configjson["domain"]["frontend-url"]}/login`})
         }
         return false
     }
     
-    let user = await Users.findOne({where: {ID: userID}})
+    let user = await Users.findOne({where: {ID: userID}}) //look for the user the userID is attached to (It should have one)
 
-    if(session["expDate"] < new Date().getTime()) {
-        await Sessions.destroy({where: {sessionID: module.exports.hash(sessionID), userID: userID}})
-        if(exitIfInvalid) {
+    if(session["expDate"] < new Date().getTime()) { //if the session has expired
+        await Sessions.destroy({where: {sessionID: module.exports.hash(sessionID), userID: userID}}) //destroy the session
+        if(exitIfInvalid) { //return 302 and exit the function
             res.status(302)
             res.send({"response": "Session Expired", "redirect": `${configjson["domain"]["frontend-url"]}/login`})
         }
@@ -74,9 +73,11 @@ module.exports.verifySession = async(req, res, requiredRole, exitIfInvalid=true)
         return false
     }
 
+	//If none of the guard clauses triggered, the user and the action are valid
     return true
 }
 
+//useless since i completely stopped putting anything important inside the url that would require conversion but im afraid to delete it
 module.exports.convertUrlEscapeCharacters = (string) => {
   charmap = 
   [[" ","%20"],
@@ -116,6 +117,7 @@ module.exports.convertUrlEscapeCharacters = (string) => {
   return string
 }
 
+//creates a random hash string
 module.exports.createHash = function(len=32) {
   let result           = '';
   let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';

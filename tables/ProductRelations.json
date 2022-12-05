@@ -1,77 +1,74 @@
 {
-    "0": {
-        "id": 100,
-        "subProductID": 0,
-        "price": 2.99,
-        "increment": 1,
-        "imageURL": "https://cdn.beepositiveapiary.com/products/100/00.png"
-    },
-    "1": {
-        "id": 101,
-        "subProductID": 0,
-        "price": 3.99,
-        "increment": 1,
-        "imageURL": "https://cdn.beepositiveapiary.com/products/100/01.png"
-    },
-
-    "2": {
-        "id": 200,
-        "subProductID": 300,
-        "price": 2.99,
-        "increment": 1,
-        "imageURL": "https://cdn.beepositiveapiary.com/relations/200/300.png"
-    },
-    "3": {
-        "id": 200,
-        "subProductID": 301,
-        "price": 3.99,
-        "increment": 1,
-        "imageURL": "https://cdn.beepositiveapiary.com/relations/200/301.png"
-    },
-    "4": {
-        "id": 200,
-        "subProductID": 302,
-        "price": 4.99,
-        "increment": 1,
-        "imageURL": "https://cdn.beepositiveapiary.com/relations/200/302.png"
-    },
-    "5": {
-        "id": 200,
-        "subProductID": 303,
-        "price": 5.99,
-        "increment": 1,
-        "imageURL": "https://cdn.beepositiveapiary.com/relations/200/303.png"
-    },
-
-    "6": {
-        "id": 201,
-        "subProductID": 300,
-        "price": 2.99,
-        "increment": 1,
-        "imageURL": "https://cdn.beepositiveapiary.com/relations/201/300.png"
-    },
-    "7": {
-        "id": 201,
-        "subProductID": 301,
-        "price": 3.99,
-        "increment": 1,
-        "imageURL": "https://cdn.beepositiveapiary.com/relations/201/301.png"
-    },
-    "8": {
-        "id": 201,
-        "subProductID": 302,
-        "price": 4.99,
-        "increment": 1,
-        "imageURL": "https://cdn.beepositiveapiary.com/relations/201/302.png"
-    },
-    "9": {
-        "id": 201,
-        "subProductID": 303,
-        "price": 5.99,
-        "increment": 1,
-        "imageURL": "https://cdn.beepositiveapiary.com/relations/201/303.png"
-    }
-
-
-
+	"data": [
+        {
+            "id": 100,
+            "subProductID": 0,
+            "price": 2.99,
+            "imageURL": "https://cdn.beepositiveapiary.com/products/100/00.png",
+            "increment": 1
+        },
+        {
+            "id": 101,
+            "subProductID": 0,
+            "price": 3.99,
+            "imageURL": "https://cdn.beepositiveapiary.com/products/100/01.png",
+            "increment": 1
+        },
+        {
+            "id": 200,
+            "subProductID": 300,
+            "price": 2.99,
+            "imageURL": "https://cdn.beepositiveapiary.com/relations/200/300.png",
+            "increment": 1
+        },
+        {
+            "id": 200,
+            "subProductID": 301,
+            "price": 3.99,
+            "imageURL": "https://cdn.beepositiveapiary.com/relations/200/301.png",
+            "increment": 1
+        },
+        {
+            "id": 200,
+            "subProductID": 302,
+            "price": 4.99,
+            "imageURL": "https://cdn.beepositiveapiary.com/relations/200/302.png",
+            "increment": 1
+        },
+        {
+            "id": 200,
+            "subProductID": 303,
+            "price": 5.99,
+            "imageURL": "https://cdn.beepositiveapiary.com/relations/200/303.png",
+            "increment": 1
+        },
+        {
+            "id": 201,
+            "subProductID": 300,
+            "price": 2.99,
+            "imageURL": "https://cdn.beepositiveapiary.com/relations/201/300.png",
+            "increment": 1
+        },
+        {
+            "id": 201,
+            "subProductID": 301,
+            "price": 3.99,
+            "imageURL": "https://cdn.beepositiveapiary.com/relations/201/301.png",
+            "increment": 1
+        },
+        {
+            "id": 201,
+            "subProductID": 302,
+            "price": 4.99,
+            "imageURL": "https://cdn.beepositiveapiary.com/relations/201/302.png",
+            "increment": 1
+        },
+        {
+            "id": 201,
+            "subProductID": 303,
+            "price": 5.99,
+            "imageURL": "https://cdn.beepositiveapiary.com/relations/201/303.png",
+            "increment": 1
+        }
+    ]
 }

@@ -37,8 +37,8 @@ module.exports = ProductRelations;
 module.exports.setDefaults = async() => {
     const file = await readFile("./tables/ProductRelations.json")
     const productList = JSON.parse(file)
-    for(i=0; i<Object.keys(productList).length; i++) { 
+    for(i=0; i<productList["data"].length; i++) { 
         //create product if it doesn't exist, or update if it does
-        output = await ProductRelations.upsert( productList[i] );
+        output = await ProductRelations.upsert( productList["data"][i] );
     }
 }
