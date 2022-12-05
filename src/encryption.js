@@ -1,4 +1,5 @@
-//handles credential checks and hashing
+//handles credential checks and hashing stuff
+
 const crypto = require("crypto")
 const config = require("./config.js")
 const configjson = require("../config/config.json")
@@ -9,7 +10,7 @@ const Sessions = require("../tables/Sessions.js")
 const Users = require("../tables/Users.js")
 
 
-module.exports.hash = (str) => {
+module.exports.hash = (str) => { //10 time hashing because why not
     currenthash = crypto.createHmac('sha256', str).update("Normal Salt").digest("hex")
     
     for(i=0; i<10; i++) {
@@ -19,13 +20,9 @@ module.exports.hash = (str) => {
     return currenthash
 }
 
-module.exports.verifypassword = async(pswd) => {
-  contents = await config.read()  
-  return contents["auth"]["passwords"].indexOf(module.exports.hash(pswd)) >= 0
-}
-
+//shorthand version of verifySession (why is this here i dont remember using it ever)
 module.exports.verifySessionWithTokens = async(userID, sessionID, requiredRole) => {
-    return module.exports.verifySession({cookies: {auth: `${userID}:${sessionID}`}}, {}, requiredRole, exitIfInvalid=false)
+    return await module.exports.verifySession({cookies: {auth: `${userID}:${sessionID}`}}, {}, requiredRole, exitIfInvalid=false)
 }
 
 //verifies the user's session and makes sure they have the given permission
@@ -35,7 +32,7 @@ module.exports.verifySession = async(req, res, requiredRole, exitIfInvalid=true)
     let userID
     let authCookie = req.cookies.auth
 
-    if(authCookie) { //look for a session
+    if(authCookie) { //look for a session to read
         userID = authCookie.split(":")[0] //split the session token into the userID and sessionID
         sessionID = authCookie.split(":")[1]
     } else { //if no session
@@ -75,10 +72,12 @@ module.exports.verifySession = async(req, res, requiredRole, exitIfInvalid=true)
         }
         return false
     }
+
 	//If none of the guard clauses triggered, the user and the action are valid
     return true
 }
 
+//useless since i completely stopped putting anything important inside the url that would require conversion but im afraid to delete it
 module.exports.convertUrlEscapeCharacters = (string) => {
   charmap = 
   [[" ","%20"],
@@ -118,6 +117,7 @@ module.exports.convertUrlEscapeCharacters = (string) => {
   return string
 }
 
+//creates a random hash string
 module.exports.createHash = function(len=32) {
   let result           = '';
   let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';

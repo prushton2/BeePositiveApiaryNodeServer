@@ -1,64 +1,67 @@
 {
-    "0": {
-        "id"           :0,
-        "name"         :"",
-        "description"  :"",
-        "stock"        :-1
-    },
-    "1": {
-        "id"           :100,
-        "name"         :"Cuticle Salve",
-        "description"  :"Cuticle Salve",
-        "imageURL"     :"https://cdn.beepositiveapiary.com/products/100/00.png",
-        "stock"        :64
-    },
-    "2": {
-        "id"           :101,
-        "name"         :"Spa in a Jar",
-        "description"  :"Spa",
-        "imageURL"     :"https://cdn.beepositiveapiary.com/products/100/01.png",
-        "stock"        :64
-    },
-    "3": {
-        "id"           :200,
-        "name"         :"Plain Honey",
-        "description"  :"Plain honey",
-        "imageURL"     :"https://cdn.beepositiveapiary.com/products/200/00.png",
-        "stock"        :64
-    },
-    "4": {
-        "id"           :201,
-        "name"         :"Cranberry Honey",
-        "description"  :"Cranberry flavored honey",
-        "imageURL"     :"https://cdn.beepositiveapiary.com/products/200/01.png",
-        "stock"        :64
-    },
-    "5": {
-        "id"           :300,
-        "name"         :"8oz Jar",
-        "description"  :"",
-        "imageURL"     :"https://cdn.beepositiveapiary.com/products/300/00.png",
-        "stock"        :64
-    },
-    "6": {
-        "id"           :301,
-        "name"         :"10oz Jar",
-        "description"  :"",
-        "imageURL"     :"https://cdn.beepositiveapiary.com/products/300/01.png",
-        "stock"        :64
-    },
-    "7": {
-        "id"           :302,
-        "name"         :"1lb Jar",
-        "description"  :"",
-        "imageURL"     :"https://cdn.beepositiveapiary.com/products/300/02.png",
-        "stock"        :64
-    },
-    "8": {
-        "id"           :303,
-        "name"         :"2lb Jar",
-        "description"  :"",        
-        "imageURL"     :"https://cdn.beepositiveapiary.com/products/300/03.png",
-        "stock"        :64
-    }
+	"data": [
+        {
+            "id": 0,
+            "name": "",
+            "description": "",
+            "imageURL": null,
+            "stock": -1
+        },
+        {
+            "id": 100,
+            "name": "Cuticle Salve",
+            "description": "Cuticle Salve",
+            "imageURL": "https://cdn.beepositiveapiary.com/products/100/00.png",
+            "stock": 64
+        },
+        {
+            "id": 101,
+            "name": "Spa in a Jar",
+            "description": "Spa",
+            "imageURL": "https://cdn.beepositiveapiary.com/products/100/01.png",
+            "stock": 64
+        },
+        {
+            "id": 200,
+            "name": "Plain Honey",
+            "description": "Plain honey",
+            "imageURL": "https://cdn.beepositiveapiary.com/products/200/00.png",
+            "stock": 64
+        },
+        {
+            "id": 201,
+            "name": "Cranberry Honey",
+            "description": "Cranberry flavored honey",
+            "imageURL": "https://cdn.beepositiveapiary.com/products/200/01.png",
+            "stock": 64
+        },
+        {
+            "id": 300,
+            "name": "8oz Jar",
+            "description": "",
+            "imageURL": "https://cdn.beepositiveapiary.com/products/300/00.png",
+            "stock": 64
+        },
+        {
+            "id": 301,
+            "name": "10oz Jar",
+            "description": "",
+            "imageURL": "https://cdn.beepositiveapiary.com/products/300/01.png",
+            "stock": 64
+        },
+        {
+            "id": 302,
+            "name": "1lb Jar",
+            "description": "",
+            "imageURL": "https://cdn.beepositiveapiary.com/products/300/02.png",
+            "stock": 64
+        },
+        {
+            "id": 303,
+            "name": "2lb Jar",
+            "description": "",
+            "imageURL": "https://cdn.beepositiveapiary.com/products/300/03.png",
+            "stock": 64
+        }
+    ]
 }

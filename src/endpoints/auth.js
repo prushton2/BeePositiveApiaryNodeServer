@@ -1,5 +1,5 @@
 /*
-This file is built to handle universal authentication commands (basically logging out)
+This file is built to handle universal authentication commands (basically just logging out)
 The app routes to different files based on how the user is logging in.
 */
 
