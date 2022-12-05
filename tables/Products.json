@@ -1,9 +1,10 @@
 {
-	"data": [
+    "data": [
         {
             "id": 0,
             "name": "",
             "description": "",
+            "location": null,
             "imageURL": null,
             "stock": -1
         },
@@ -11,6 +12,7 @@
             "id": 100,
             "name": "Cuticle Salve",
             "description": "Cuticle Salve",
+            "location": "items",
             "imageURL": "https://cdn.beepositiveapiary.com/products/100/00.png",
             "stock": 64
         },
@@ -18,13 +20,71 @@
             "id": 101,
             "name": "Spa in a Jar",
             "description": "Spa",
+            "location": "items",
             "imageURL": "https://cdn.beepositiveapiary.com/products/100/01.png",
+            "stock": 64
+        },
+        {
+            "id": 102,
+            "name": "Whipped Sugar Scrub",
+            "description": "",
+            "location": "items",
+            "imageURL": "https://cdn.beepositiveapiary.com/products/100/02.png",
+            "stock": 64
+        },
+        {
+            "id": 103,
+            "name": "Body Butter",
+            "description": "",
+            "location": "items",
+            "imageURL": "https://cdn.beepositiveapiary.com/products/100/03.png",
+            "stock": 64
+        },
+        {
+            "id": 104,
+            "name": "Cuticle Creme",
+            "description": "",
+            "location": "items",
+            "imageURL": "https://cdn.beepositiveapiary.com/products/100/04.png",
+            "stock": 64
+        },
+        {
+            "id": 105,
+            "name": "Sugar Scrub",
+            "description": "",
+            "location": "items",
+            "imageURL": "https://cdn.beepositiveapiary.com/products/100/05.png",
+            "stock": 64
+        },
+        {
+            "id": 106,
+            "name": "Lip Balm",
+            "description": "",
+            "location": "items",
+            "imageURL": "https://cdn.beepositiveapiary.com/products/100/06.png",
+            "stock": 64
+        },
+        {
+            "id": 107,
+            "name": "Cuticle & Nail Oil",
+            "description": "",
+            "location": "items",
+            "imageURL": "https://cdn.beepositiveapiary.com/products/100/07.png",
+            "stock": 64
+        },
+        {
+            "id": 108,
+            "name": "Sunshine Lotion",
+            "description": "",
+            "location": "items",
+            "imageURL": "https://cdn.beepositiveapiary.com/products/100/08.png",
             "stock": 64
         },
         {
             "id": 200,
             "name": "Plain Honey",
             "description": "Plain honey",
+            "location": "honey",
             "imageURL": "https://cdn.beepositiveapiary.com/products/200/00.png",
             "stock": 64
         },
@@ -32,6 +92,7 @@
             "id": 201,
             "name": "Cranberry Honey",
             "description": "Cranberry flavored honey",
+            "location": "honey",
             "imageURL": "https://cdn.beepositiveapiary.com/products/200/01.png",
             "stock": 64
         },
@@ -39,6 +100,7 @@
             "id": 300,
             "name": "8oz Jar",
             "description": "",
+            "location": null,
             "imageURL": "https://cdn.beepositiveapiary.com/products/300/00.png",
             "stock": 64
         },
@@ -46,6 +108,7 @@
             "id": 301,
             "name": "10oz Jar",
             "description": "",
+            "location": null,
             "imageURL": "https://cdn.beepositiveapiary.com/products/300/01.png",
             "stock": 64
         },
@@ -53,6 +116,7 @@
             "id": 302,
             "name": "1lb Jar",
             "description": "",
+            "location": null,
             "imageURL": "https://cdn.beepositiveapiary.com/products/300/02.png",
             "stock": 64
         },
@@ -60,6 +124,7 @@
             "id": 303,
             "name": "2lb Jar",
             "description": "",
+            "location": null,
             "imageURL": "https://cdn.beepositiveapiary.com/products/300/03.png",
             "stock": 64
         }

@@ -17,6 +17,9 @@ Products.init({
     description: {
         type: DataTypes.STRING,
     },
+	location: {
+		type: DataTypes.STRING,
+	},
     imageURL: {
         type: DataTypes.STRING,
     },
