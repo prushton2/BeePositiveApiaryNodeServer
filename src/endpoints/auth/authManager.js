@@ -5,9 +5,8 @@ const expiryTime = 604800_000
 const deleteExpiryTime = 60_000
 
 //basic dependencies
-const enc = require("../../encryption.js")
-const Sessions = require("../../../tables/Sessions.js")
-const Users = require("../../../tables/Users.js")
+const enc = require("../../verification.js")
+const database = require("../../database.js");
 
 //create user if it doesn't exist
 module.exports.createUserIfNotExists = async(authID, authType, name, pfpUrl, email) =>{

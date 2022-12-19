@@ -5,13 +5,12 @@ The app routes to different files based on how the user is logging in.
 
 //used modules
 const express = require("express")
-const enc = require("../encryption.js")
+const ver = require("../verification.js")
 const authManager = require("./auth/authManager.js")
 const config = require("../../config/config.json")
 
-//used tables
-const Users = require("../../tables/Users.js")
-const Sessions = require("../../tables/Sessions.js")
+const database = require("../database.js");
+
 
 //this router
 const authRouter = express.Router()
@@ -29,7 +28,7 @@ authRouter.use("/google", googleRoute)
 //-----------AUTH ENDPOINTS-----------
 //logout user and delete session
 authRouter.get("/logout", async(req, res) => {
-    if(!await enc.verifySession(req, res, "user")) {
+    if(!await ver.verifySession(req, res, "user")) {
         return
     }
     let sessionID = req.cookies.auth.split(":")[1]
@@ -43,7 +42,7 @@ authRouter.get("/logout", async(req, res) => {
 })
 
 authRouter.get("/logoutOfAll", async(req, res) => {
-    if(!await enc.verifySession(req, res, "user")) {
+    if(!await ver.verifySession(req, res, "user")) {
         return
     }
 
@@ -55,7 +54,7 @@ authRouter.get("/logoutOfAll", async(req, res) => {
 
 //for the logged in user to get their user info
 authRouter.get("/getUser", async(req, res) => {
-    if(!await enc.verifySession(req, res, "user")) {
+    if(!await ver.verifySession(req, res, "user")) {
         return
     }
     
@@ -76,7 +75,7 @@ authRouter.get("/getUser", async(req, res) => {
 
 //getting all users, for admin use
 authRouter.post("/getUsers", async(req, res) => {
-    if(!await enc.verifySession(req, res, "admin")) {
+    if(!await ver.verifySession(req, res, "admin")) {
         return
     }
     let users = await Users.findAll()
@@ -86,7 +85,7 @@ authRouter.post("/getUsers", async(req, res) => {
 
 
 authRouter.post("/deleteAccount", async(req, res) => {
-    if(!await enc.verifySession(req, res, "user")) {
+    if(!await ver.verifySession(req, res, "user")) {
         return
     }
     let userID = req.cookies.auth.split(":")[0]

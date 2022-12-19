@@ -36,7 +36,6 @@ Index of all routes
 ## [Database](#database-db)
 ## [Email](#email-email)
 ## [Orders](#orders-orders)
-## [Purchases](#purchases-purchases)
 
 ---
 
@@ -205,19 +204,5 @@ Body:
 {
     "orderID": 0, //id of order to edit
     "isComplete": true //new completion status
-}
-```
----
-## [Purchases (/purchases/*)](#endpoints)
----
-### /get (POST)
-- Requires admin permission
-- returns the products that were purchased with a specific order
-
-Body:
-```javascript
-{
-    "getArchived": false, //Whether or not to read the products from an archived purchase
-    "orderID": 0 //id of order to get purchases from
 }
 ```

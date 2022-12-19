@@ -1,7 +1,7 @@
 //this handles all google auth management
 const express = require("express")
 const config = require("../../../config/config.json")
-const enc = require("../../encryption.js")
+const enc = require("../../verification.js")
 const authManager = require("./authManager.js")
 
 //google auth stuff

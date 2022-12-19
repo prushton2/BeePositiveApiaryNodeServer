@@ -1,11 +1,11 @@
 const config             = require('./config.js');
-const enc                = require('./encryption.js');
-const archive            = require('./archive.js');
-const sendgrid           = require('./sendgrid.js');
-const inputValidator     = require('./inputValidator.js');
+// const ver                = require('./verification.js');
+// const archive            = require('./archive.js');
+// const sendgrid           = require('./sendgrid.js');
+// const inputValidator     = require('./inputValidator.js');
 const cookieParser       = require('cookie-parser');
 
-const fs                 = require('fs');
+// const fs                 = require('fs');
 const cron               = require('node-cron');
 const cors               = require("cors");
 const express            = require("express");
@@ -13,11 +13,10 @@ const bodyParser         = require('body-parser');
 const app                = express();
 const port               = 3000
 
-const ordersRoute = require('./endpoints/orders.js');
-const purchasesRoute = require('./endpoints/purchases.js');
-const dbRoute = require('./endpoints/db.js');
-const emailRoute = require('./endpoints/email.js');
-const authRoute = require('./endpoints/auth.js');
+// const authRoute = require('./endpoints/auth.js');
+// const dbRoute = require('./endpoints/db.js');
+// const emailRoute = require('./endpoints/email.js');
+// const ordersRoute = require('./endpoints/orders.js');
 
 app.use(cookieParser());
 
@@ -39,12 +38,12 @@ process.on('uncaughtException', (err) => {
 
 //Archive every tuesday at 11pm
 cron.schedule("0 13 * * 2", () => {
-    archive.archiveDB()
+    // archive.archiveDB()
 });
 
 onStart = async() => {
     if(false) { //set to true to load the latest save on start
-        await archive.loadLatestSave();
+        // await archive.loadLatestSave();
     }
 
     console.log("Database is ready")
@@ -58,11 +57,10 @@ onStart = async() => {
 onStart()
 
 //Routing for endpoints
-app.use("/orders", ordersRoute);
-app.use("/purchases", purchasesRoute);
-app.use("/db", dbRoute);
-app.use("/email", emailRoute);
-app.use("/auth", authRoute);
+// app.use("/auth", authRoute);
+// app.use("/db", dbRoute);
+// app.use("/email", emailRoute);
+// app.use("/orders", ordersRoute);
 
 app.all("*", async(req, res) => {
     res.status(404)
