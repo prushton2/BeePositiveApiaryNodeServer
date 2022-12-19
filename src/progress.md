@@ -1,6 +1,8 @@
 # Progress on migrating the database to JSON
 
 ## In Progress
+* database.js
+    * rewrite to allow this to not happen in the future, use as a proxy to the database
 
 ## Known
 * Archive.js
@@ -18,8 +20,6 @@
     * all of the endpoints
 * purchases
     * to be removed (stupid)
-* database.js
-    * rewrite to allow this to not happen in the future, use as a proxy to the database
 * encryption.js
     * rename it (I really want to) 
     * rewrite the verifySession function 
