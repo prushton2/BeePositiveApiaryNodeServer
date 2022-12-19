@@ -1,17 +1,9 @@
 const config             = require('./config.js');
-const sequelize          = require('./database.js');
 const enc                = require('./encryption.js');
 const archive            = require('./archive.js');
 const sendgrid           = require('./sendgrid.js');
 const inputValidator     = require('./inputValidator.js');
 const cookieParser       = require('cookie-parser');
-
-const Products           = require('../tables/Products.js');
-const ProductRelations   = require('../tables/ProductRelations.js');
-const ArchivedOrders     = require('../tables/ArchivedOrders.js');
-const ArchivedPurchases  = require('../tables/ArchivedPurchases.js');
-const Orders             = require('../tables/Orders.js');
-const Purchases          = require('../tables/Purchases.js');
 
 const fs                 = require('fs');
 const cron               = require('node-cron');
@@ -54,24 +46,9 @@ onStart = async() => {
     if(false) { //set to true to load the latest save on start
         await archive.loadLatestSave();
     }
-    
-    let addProducts = true
-    if(fs.existsSync("./bpa.sqlite")) {
-        addProducts = false
-    }
-
-    // await sequelize.sync()
-    await sequelize.sync({ force: false })
-
-
-    if(addProducts) {
-        await Products.setDefaults();
-        await ProductRelations.setDefaults();
-        console.log("Set up default table values")
-    }
 
     console.log("Database is ready")
-    delete addProducts
+
     app.listen(port,() => {
         console.log(`App listening on port ${port}`)
     })
