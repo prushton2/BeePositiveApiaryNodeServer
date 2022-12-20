@@ -5,14 +5,14 @@ const expiryTime = 604800_000
 const deleteExpiryTime = 60_000
 
 //basic dependencies
-const enc = require("../../verification.js")
+const ver = require("../../verification.js")
 const database = require("../../database.js");
 
 //create user if it doesn't exist
 module.exports.createUserIfNotExists = async(authID, authType, name, pfpUrl, email) => {
 
 
-    let user = database.Users.exists({"authID": authID, "authType": authType});
+    let user = database.Users.findOne({"authID": authID, "authType": authType});
 
     if(user == -1) {
         user = database.Users.create(
@@ -34,25 +34,23 @@ module.exports.createUserIfNotExists = async(authID, authType, name, pfpUrl, ema
 
 //deletes a session
 module.exports.deleteSession = async(sessionID, userID) =>{
-    let response = await Sessions.destroy({
-        where: {
-            sessionID: enc.hash(sessionID),
-            userID: userID
-        }
-    })
-    return response
+    let user = database.Users.get(userID);
+
+    user["table"]["sessions"].splice(user["table"]["sessions"].indexOf(sessionID), 1);
+
+    database.Users.set(userID, {"sessions": user["table"]["sessions"]})
+
 }
 
 //creates a new session
 module.exports.createSession = async(userID) => {
     let date = new Date()
-    let sid = enc.createHash(128)
+    let sid = ver.createHash(128)
 
-    await Sessions.create({
-        userID: userID,
-        sessionID: enc.hash(sid),
-        expDate: date.getTime() + expiryTime
-    })
+    let user = database.Users.get(userID);
+    user["table"]["sessions"].push(sid);
+    database.Users.set(userID, {"sessions": user["table"]["sessions"]});
+
     return {
         "userID": userID,
         "sessionID": sid,
@@ -60,20 +58,18 @@ module.exports.createSession = async(userID) => {
 }
 
 module.exports.deleteAllSessions = async(userID) => {
-    await Sessions.destroy({
-        where: {
-            userID: userID
-        }
-    })
+    database.Users.set(userID, {"sessions": []});
 }
 
 module.exports.deleteAccount = async(userID, sessionID) => {
-    if(!await enc.verifySessionWithTokens(userID, sessionID, "user")) {
-        console.log("Invalid Session")
-        return false
+    return false;
+/*         Need a new way to do this - will do when frontend is in a better state
+    if(!await ver.verifySessionWithTokens(userID, sessionID, "user")) {
+        console.log("Invalid Session");
+        return false;
     }
-    let date = new Date()
-    let session = await Sessions.findOne({where: {sessionID: enc.hash(sessionID), userID: userID}})
+    let date = new Date();
+    let session = await Sessions.findOne({where: {sessionID: ver.hash(sessionID), userID: userID}})
 
     //the session must be made less than a minute ago to prove the user can sign in to their account before deletion
     
@@ -85,5 +81,5 @@ module.exports.deleteAccount = async(userID, sessionID) => {
         console.log("Session Expired")
         return false
     }
-
+*/
 }

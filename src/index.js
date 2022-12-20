@@ -14,7 +14,7 @@ const bodyParser         = require('body-parser');
 const app                = express();
 const port               = 3000
 
-// const authRoute = require('./endpoints/auth.js');
+const authRoute = require('./endpoints/auth.js');
 // const dbRoute = require('./endpoints/db.js');
 // const emailRoute = require('./endpoints/email.js');
 // const ordersRoute = require('./endpoints/orders.js');
@@ -61,7 +61,7 @@ onStart = async() => {
 onStart()
 
 //Routing for endpoints
-// app.use("/auth", authRoute);
+app.use("/auth", authRoute);
 // app.use("/db", dbRoute);
 // app.use("/email", emailRoute);
 // app.use("/orders", ordersRoute);

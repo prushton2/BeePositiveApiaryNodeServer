@@ -1,7 +1,7 @@
 //this handles all google auth management
 const express = require("express")
 const config = require("../../../config/config.json")
-const enc = require("../../verification.js")
+const ver = require("../../verification.js")
 const authManager = require("./authManager.js")
 
 //google auth stuff
@@ -20,7 +20,7 @@ authGoogleRouter.post("/login", async(req, res) => {
     let decoded = Buffer.from(payload, "base64").toString("ascii")//decode payload
   
     //log out if already logged in
-    if(await enc.verifySession(req, res, "user", false)) {
+    if(await ver.verifySession(req, res, "user", false)) {
         let sid = req.cookies.auth.split(":")[1]
         let userID = req.cookies.auth.split(":")[0]
         await authManager.deleteSession(sid, userID)
@@ -29,12 +29,12 @@ authGoogleRouter.post("/login", async(req, res) => {
     let verified = await verify(jwt, JSON.parse(decoded)["sub"])//verify JWT
 
     if(!verified) {//if JWT is not verified
-        res.status(401)
-        res.send({"response": "Invalid JWT signature"})
-        return
+        res.status(401);
+        res.send({"response": "Invalid JWT signature"});
+        return;
     }
 
-    let userID = enc.hash(JSON.parse(decoded)["sub"])
+    let userID = ver.hash(JSON.parse(decoded)["sub"]);
 
     let userCreated = await authManager.createUserIfNotExists(
         userID,
@@ -42,33 +42,33 @@ authGoogleRouter.post("/login", async(req, res) => {
         JSON.parse(decoded)["name"],
         JSON.parse(decoded)["picture"],
         JSON.parse(decoded)["email"]
-    )
+    );
     
     
-    let sessionCreated = await authManager.createSession(userCreated.ID)
+    let sessionCreated = await authManager.createSession(userCreated.primaryKey);
 
     if(req.cookies.auth != null) { //delete the old session
         try {
-            let act = req.cookies.auth.split(":")[0]
-            let sid = req.cookies.auth.split(":")[1]
-            await auth.deleteSession(sid, act)
+            let act = req.cookies.auth.split(":")[0];
+            let sid = req.cookies.auth.split(":")[1];
+            await auth.deleteSession(sid, act);
         } catch {}
     }
 
-    res.status(200)
+    res.status(200);
 
 
 
-    res.cookie("auth", userCreated.ID + ":" + sessionCreated.sessionID, 
+    res.cookie("auth", userCreated.primaryKey + ":" + sessionCreated.sessionID, 
     {
-        maxAge: 1000 * 60 * 60 * 24 * 7, 
-        httpOnly: true, 
+        // maxAge: 1000 * 60 * 60 * 24 * 7,
+        httpOnly: true,  
         sameSite: "strict", 
         secure: config["environment"]["environment-type"] == "production" //if in production, set secure to true, else use false so it can be accessed from localhost
-    })
+    });
     res.send({
         "response": "Successfully logged in" 
-    })
+    });
 })
 
 //verifies the google JWT

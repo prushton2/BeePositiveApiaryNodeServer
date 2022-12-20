@@ -29,7 +29,6 @@ class table {
                     i = null;
                     break;
                 }
-                console.log("eq");
             }
             if(i == null) { continue; }
             return i;

@@ -61,14 +61,16 @@ authRouter.get("/getUser", async(req, res) => {
     let userID = req.cookies.auth.split(":")[0]
     let sessionID = req.cookies.auth.split(":")[1]
 
-    let user = await Users.findOne({where: {ID: userID}})
+    let user = database.Users.get(userID);
+    user["table"]["ID"] = user["primaryKey"];
+    
     let allExtraMenuItems = {
-        "user": [],
+        "user": {},
         "admin": [[`${config["domain"]["frontend-url"]}/admin`, "Admin"]]
     }
     
     res.status(200)
-    res.send({"response": user, "extraMenuItems": allExtraMenuItems[user.permissions]})
+    res.send({"response": user["table"], "extraMenuItems": allExtraMenuItems[user.permissions]})
     
 })
 
