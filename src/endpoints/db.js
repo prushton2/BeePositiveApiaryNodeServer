@@ -143,13 +143,13 @@ dbRouter.post("/getJson", async(req, res) => {
 	
     res.status(200);
     res.send({"response": json});
-})
+})*/
 
 dbRouter.post("/hash", async(req, res) => {
-    if(!await enc.verifySession(req, res, "admin")) {
+    if(!await ver.verifySession(req, res, "admin")) {
         return
     }
 
     res.status(200)
-    res.send({"response": enc.hash(req.body["text"])})
-})*/
+    res.send({"response": ver.hash(req.body["text"])})
+})
