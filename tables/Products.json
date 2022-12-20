@@ -4,7 +4,7 @@
         "description": "",
         "location": null,
         "imageURL": null,
-        "stock": 64,
+        "stock": -1,
         "prices": {
             "0": 2.99
         }

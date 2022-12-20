@@ -1,11 +1,12 @@
+const database           = require('./database.js');
 const config             = require('./config.js');
-// const ver                = require('./verification.js');
+const ver                = require('./verification.js');
 // const archive            = require('./archive.js');
 // const sendgrid           = require('./sendgrid.js');
 // const inputValidator     = require('./inputValidator.js');
-const cookieParser       = require('cookie-parser');
 
 // const fs                 = require('fs');
+const cookieParser       = require('cookie-parser');
 const cron               = require('node-cron');
 const cors               = require("cors");
 const express            = require("express");
@@ -46,11 +47,14 @@ onStart = async() => {
         // await archive.loadLatestSave();
     }
 
+
     console.log("Database is ready")
 
     app.listen(port,() => {
         console.log(`App listening on port ${port}`)
     })
+    
+
     
 }
 
