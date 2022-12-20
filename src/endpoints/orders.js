@@ -2,18 +2,9 @@ const ver = require("../verification.js");
 const inputValidator = require("../inputValidator.js");
 const sendgrid = require("../sendgrid.js");
 
-// const TBDOrders = require("../../tables/Orders.js");
-// const TBDPurchases = require("../../tables/Purchases.js");
-
-// const TBDArchivedOrders = require("../../tables/ArchivedOrders.js");
-// const TBDArchivedPurchases = require("../../tables/ArchivedPurchases.js");
-
-// const TBDProducts = require("../../tables/Products.js")
-
 const database = require("../database.js");
 
 const express = require("express");
-// const bodyParser = require("body-parser");
 
 let ordersRouter = express.Router()
 
@@ -111,6 +102,12 @@ ordersRouter.get("/getByKey", async(req, res) => {
     if(order == undefined) {
         order = database.ArchivedOrders.get(req.query.orderId.toString())["table"];
     }
+
+    if(order == undefined) {
+        res.status(400)
+        res.send({"response": "Invalid Order or View Key"})
+        return
+    }
     
     if(req.query.viewKey == "loggedInUser") {
         if(!await ver.verifySession(req, res, "user")) { return; } //return if not logged in
@@ -130,11 +127,6 @@ ordersRouter.get("/getByKey", async(req, res) => {
         }
     }
     
-    if(order == null) {
-        res.status(400)
-        res.send({"response": "Invalid Order or View Key"})
-        return
-    }
     
     let response = {
         "order": {
