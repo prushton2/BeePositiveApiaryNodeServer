@@ -5,8 +5,6 @@
 ## Known
 * Archive.js
     * Need to change file extensions
-* db.js
-    * You already know nothing from here is staying
 * email.js
     * The orders and purchases
 * orders.js
@@ -17,6 +15,9 @@
     * change how it gets the order info
 
 ## Completed
+* db.js
+    * One endpoint stayed
+
 * authManager.js
     * Every endpoint
     * Change sessions to use JWTs instead of custom sessions
