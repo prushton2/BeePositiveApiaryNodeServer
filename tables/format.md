@@ -8,8 +8,10 @@
     "location":    "string, items or honey",
     "imageURL":    "string, url to image",
     "stock":       64,
-    "prices": {
-        "subProductID": 2.99
+    "relations": {
+        "subProductID": {
+            "price": 2.99
+        }
     }
 }
 ```
@@ -37,9 +39,9 @@
     "address":      "string, full address",
     "email":        "string",
     "phoneNumber":  "string",
-    "isComplete":   "string, is the order complete (Doesnt mean delivered)",
+    "isComplete":   "boolean, is the order complete (Doesnt mean delivered)",
     "date":         "string, unix timestamp order is made",
-    "emailSent":    "string, has the email saying the order is done been sent yet",
+    "emailSent":    "boolean, has the email saying the order is done been sent yet",
     "viewKey":      "string, hashed string allowing non logged in user to view their order",
     "owner":        "string, owner id of the order",
 
