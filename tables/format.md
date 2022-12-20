@@ -43,7 +43,7 @@
     "viewKey":      "string, hashed string allowing non logged in user to view their order",
     "owner":        "string, owner id of the order",
 
-    "purchases" [
+    "purchases": [
         {
             "productID": "string",
             "subProductID": "string",

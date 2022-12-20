@@ -1,20 +1,22 @@
 # Progress on migrating the database to JSON
 
 ## In Progress
+* orders.js
+    * all of the endpoints
+
+## Known
+* Archive.js
+    * Need to change file extensions
+
+* purchases
+    * to be removed (stupid)
+
+## Completed
 * sendgrid.js
     * change how it gets the order info
 * email.js
     * The orders and purchases
 
-## Known
-* Archive.js
-    * Need to change file extensions
-* orders.js
-    * all of the endpoints
-* purchases
-    * to be removed (stupid)
-
-## Completed
 * db.js
     * One endpoint stayed
 

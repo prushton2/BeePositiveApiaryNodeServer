@@ -1,9 +1,8 @@
 const express = require("express");
 
-const Orders = require("../../tables/Orders.js");
-const Purchases = require("../../tables/Purchases.js");
+const database = require("../database.js");
 
-const enc = require("../encryption.js");
+const ver = require("../verification.js");
 const sendgrid = require("../sendgrid.js");
 
 let sendgridRouter = express.Router();
@@ -11,11 +10,11 @@ module.exports = sendgridRouter;
 
 sendgridRouter.post("/completionEmail", async(req, res) => {
     //verify password
-    if(!await enc.verifySession(req, res, "admin")) {
+    if(!await ver.verifySession(req, res, "admin")) {
         return
     }
       //get order from db
-      let order = await Orders.findOne({where: {id: req.body["orderID"]}})
+      let order = database.Orders.get(req.body["orderID"])["table"];
       //check if order is complete
       if(!order["isComplete"]) {
           res.status(400)
@@ -24,11 +23,10 @@ sendgridRouter.post("/completionEmail", async(req, res) => {
       }
   
       //get shoppingList
-      let shoppingList = await Purchases.findAll({where: {orderID: req.body["orderID"]}})
+      let shoppingList = order["purchases"];
   
       //update emailSent
-      order["emailSent"] = true
-      await order.save()
+      database.Orders.set(req.body["orderID"], {"emailSent": true})
   
       //send email
       let emailSent = await sendgrid.sendOrderCompletionEmail(order, shoppingList)
