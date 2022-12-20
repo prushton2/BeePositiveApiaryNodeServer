@@ -36,6 +36,25 @@ class table {
         return -1;
     }
 
+    findAll(clause) {
+        this.load();
+        let responses = [];
+        for(let i in this.table) {
+            let element = this.table[i];
+        
+            for(let j in clause) {
+                
+                if(element[j] != clause[j]) {
+                    i = null;
+                    break;
+                }
+            }
+            if(i == null) { continue; }
+            responses.push(element);
+        }
+        return responses;
+    }
+
     create(primaryKey, properties) {
         this.load();
         this.table[primaryKey] = properties;

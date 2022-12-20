@@ -173,18 +173,7 @@ Body:
     "viewKey": "" //viewkey of the order, given in the response of the add endpoint
 }
 ```
-### /get (POST)
-- Requires admin permissions
-- Returns all orders in the database
-
-Body:
-```javascript
-{
-    "getArchived": false //Get the archived orders instead of active orders
-}
-```
-
-### /archive (PATCH)
+### /action/archive (PATCH)
 - Requires admin permission
 - Archives an order, preventing it from being viewable through the [/getByKey endpoint](#getbykey-post)
 
@@ -195,7 +184,7 @@ Body:
 }
 ```
 
-### /complete (PATCH)
+### /action/complete (PATCH)
 - Requires admin permission
 - Changes the complete status of an order (doesnt send completion email)
 
@@ -203,6 +192,13 @@ Body:
 ```javascript
 {
     "orderID": 0, //id of order to edit
-    "isComplete": true //new completion status
+    "value": true //new completion status
 }
 ```
+### /get/all (GET)
+- Requires admin permissions
+- Returns all orders in the database
+
+### /get/placed (GET)
+- Requires user permissions
+- Returns all orders in the database that the logged in user placed

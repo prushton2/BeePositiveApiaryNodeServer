@@ -145,92 +145,45 @@ ordersRouter.get("/getByKey", async(req, res) => {
     res.send({"response": response})
 })
 
-// ordersRouter.get("/getPlacedOrders", async(req, res) => {
-//     if(!await enc.verifySession(req, res, "user")) {
-//         return
-//     }
-
-//     let userID = req.cookies.auth.split(":")[0]
-
-//     let allOrders = {
-//         "active": (await TBDOrders.findAll({where: {"owner": userID}})).map(purchase => {return {  "id": purchase["id"],
-//                                                                                                 "date": purchase["date"],
-//                                                                                                 "isComplete": purchase["isComplete"]}}),
-//         "completed": (await TBDArchivedOrders.findAll({where: {"owner": userID}})).map(purchase => {return { "id": purchase["id"],
-//                                                                                                         "date": purchase["date"],
-//                                                                                                         "isComplete": purchase["isComplete"]}})
-//     }
-
-//     res.status(200)
-//     res.send({"response": allOrders})
-// })
-
-// ordersRouter.post("/get", async(req, res) => {
-
-//     if(!await enc.verifySession(req, res, "admin")) {
-//         return
-//     }
-
-//     let allOrders;
-//     if(req.body["getArchived"]) {
-//         allOrders = await TBDArchivedOrders.findAll()
-//     } else {
-//         allOrders = await TBDOrders.findAll()
-//     }
-
-//     res.status(200)
-//     res.send({"archived":!!req.body["getArchived"], "response": allOrders})
-//     return  
-// })
-
-
-// ordersRouter.patch("/complete", async(req, res) => {
-  
-//     if(!await enc.verifySession(req, res, "admin")) {
-//         return
-//     }
-
-//     let order = await TBDOrders.findOne({where: {id: req.body["orderID"]}})
-//     if(order != null) {
-//         order.isComplete = req.body["isComplete"]  
-//         await order.save()
-//     } else {
-//         res.status(400)
-//         res.send({"response": "Invalid Order"})
-//         return
-//     }
-
-//     res.status(200)
-//     res.send({"response": "Updated completion status"})
-// })
-
-
-// ordersRouter.post("/archive", async(req, res) => {
-
-//     if(!await enc.verifySession(req, res, "admin")) {
-//         return
-//     }
-
-//     let order = await TBDOrders.findOne({where: {id: req.body["orderID"]}})
+ordersRouter.get("/get/*", async(req, res) => {
     
-//     try {
-//         order = order["dataValues"]
-//         order["id"] = req.body["orderID"] //Persist the order ID so the purchases table refers to the right Orders instance
-//     } catch {
-//         res.status(400)
-//         res.send({"response": "Invalid Order"})
-//     }  
-    
-//     purchases = await TBDPurchases.findAll({where: {orderID: req.body["orderID"]}})  
-//     order["reasonArchived"] = "Archived By Administrator"
-//     TBDArchivedOrders.create(order)
-//     TBDOrders.destroy({where: {id: req.body["orderID"]}})
-    
-//     purchases.forEach(element => {
-//         TBDArchivedPurchases.create(element["dataValues"])
-//         TBDPurchases.destroy({where: {id: element["dataValues"]["id"]}})
-//     });
-    
-//     res.status(200)
-//     res.send({"response":"Order Archived"})
-// })
+    let response
+    if(req.originalUrl.split("/")[3] == "placed") {
+        if(!await ver.verifySession(req, res, "user")) { return; }
+        response = {
+            "active": database.Orders.findAll({"owner": req.cookies.auth.split(":")[0]}),
+            "complete": database.ArchivedOrders.findAll({"owner": req.cookies.auth.split(":")[0]})
+        }
+    } else if (req.originalUrl.split("/")[3] == "all") {
+        if(!await ver.verifySession(req, res, "admin")) { return; }
+        database.Orders.load();
+        database.ArchivedOrders.load();
+        response = {
+            "active": database.Orders.table,
+            "archived": database.ArchivedOrders.table
+        };
+    }
+    res.status(200);
+    res.send({"response": response});
+})
+
+ordersRouter.patch("/action/*", async(req, res) => {
+    if(!await ver.verifySession(req, res, "admin")) { return; }
+
+    switch(req.originalUrl.split("/")[3]) {
+        case "complete":
+            database.Orders.set(req.body["orderID"], {"isComplete": !!req.body["value"]});
+            break;
+        case "archive":
+            let order = database.Orders.get(req.body["orderID"]);
+            database.Orders.delete(req.body["orderID"]);
+            database.ArchivedOrders.create(order["primaryKey"], order["table"]);
+            break;
+        default:
+            res.status(404);
+            res.send({"response": "Endpoint does not exist"});
+            break;
+    }
+    res.status(200);
+    res.send({"response": "Action completed"});
+})

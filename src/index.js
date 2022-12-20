@@ -67,6 +67,6 @@ app.use("/email", emailRoute);
 app.use("/orders", ordersRoute);
 
 app.all("*", async(req, res) => {
-    res.status(404)
-    res.send({"response": "Endpoint does not exist"})
+    res.status(404);
+    res.send({"response": "Endpoint does not exist"});
 })
