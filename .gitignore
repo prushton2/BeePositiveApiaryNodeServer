@@ -4,3 +4,5 @@ bpa.sqlite
 /backups/*
 !/backups/placeholder.txt
 .env
+/tables/*
+!/tables/format.md
