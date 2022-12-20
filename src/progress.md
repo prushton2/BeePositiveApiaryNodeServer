@@ -8,10 +8,10 @@
 * Archive.js
     * Need to change file extensions
 
-* purchases
-    * to be removed (stupid)
 
 ## Completed
+* purchases
+    * to be removed (stupid)
 * sendgrid.js
     * change how it gets the order info
 * email.js

@@ -61,7 +61,14 @@ class table {
             element[i] = newData[i];
         }
         this.save();
-    }    
+    }
+
+    getLastID() {
+        this.load();
+        let i;
+        for(i in this.table) {}
+        return i;
+    }
 }
 
 module.exports.ArchivedOrders = new table("ArchivedOrders");
