@@ -104,50 +104,54 @@ ordersRouter.post('/add', async(req, res) => {
     "orderID": newID.toString()})
 })
 
-// ordersRouter.get("/getByKey", async(req, res) => {
+ordersRouter.get("/getByKey", async(req, res) => {
     
-//     let whereClause
-//     if(req.query.viewKey == "loggedInUser") {
-//         if(!await enc.verifySession(req, res, "user")) { return } //return if not logged in
-//         whereClause = {where: {id: req.query.orderId, owner: req.cookies.auth.split(":")[0]}} //set the where clause
-//     } else {
-//         whereClause = {where: {id: req.query.orderId, viewKey: enc.hash(req.query.viewKey)}} //set the where clause
-//     }
+    let order = database.Orders.get(req.query.orderId.toString())["table"];
+    //if not found in active table, check archived table
+    if(order == undefined) {
+        order = database.ArchivedOrders.get(req.query.orderId.toString())["table"];
+    }
+    
+    if(req.query.viewKey == "loggedInUser") {
+        if(!await ver.verifySession(req, res, "user")) { return; } //return if not logged in
+        
+        if(order["owner"] != req.cookies.auth.split(":")[0]) {
+            res.status(401);
+            res.send({"response": "Invalid Owner"});
+            return;
+        }
+        
+    } else {
 
-//     let order = await TBDOrders.findOne(whereClause)
-//     let purchases;
-//     //if not found in active table, check archived table
-//     if(order == null) {
-//         order = await TBDArchivedOrders.findOne(whereClause)
-//         purchases = await TBDArchivedPurchases.findAll({where: {orderID: req.query.orderId}})
-//     } else {
-//         purchases = await TBDPurchases.findAll({where: {orderID: req.query.orderId}})
-//     }
+        if(order["viewKey"] != ver.hash(req.query.viewKey)) {
+            res.status(401);
+            res.send({"response": "Invalid Key"});
+            return;
+        }
+    }
     
-//     if(order == null) {
-//         res.status(400)
-//         res.send({"response": "Invalid Order or View Key"})
-//         return
-//     }
+    if(order == null) {
+        res.status(400)
+        res.send({"response": "Invalid Order or View Key"})
+        return
+    }
     
-//     let response = {
-//         "order": {
-//             "id": order["id"],
-//             "name": order["name"],
-//             "email": order["email"],
-//             "phoneNumber": order["phoneNumber"],
-//             "address": order["address"],
-//             "isComplete": order["isComplete"],
-//             "date": order["date"],
-//         },
-//         "purchases":purchases.map(purchase => { return {"productID": purchase["productID"], 
-//                                                         "subProductID": purchase["subProductID"], 
-//                                                         "amount": purchase["amount"] } })
-//     }
+    let response = {
+        "order": {
+            "id": order["id"],
+            "name": order["name"],
+            "email": order["email"],
+            "phoneNumber": order["phoneNumber"],
+            "address": order["address"],
+            "isComplete": order["isComplete"],
+            "date": order["date"],
+            "purchases": order["purchases"]
+        }
+    }
 
-//     res.status(200)
-//     res.send({"response": response})
-// })
+    res.status(200)
+    res.send({"response": response})
+})
 
 // ordersRouter.get("/getPlacedOrders", async(req, res) => {
 //     if(!await enc.verifySession(req, res, "user")) {
