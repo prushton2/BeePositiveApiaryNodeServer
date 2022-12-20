@@ -23,7 +23,8 @@ module.exports.createUserIfNotExists = async(authID, authType, name, pfpUrl, ema
                 "name": name,
                 "pfpURL": pfpUrl,
                 "email": email,
-                "permissions": "user"
+                "permissions": "user",
+                "sessions": []
             }
         );
     } else {
