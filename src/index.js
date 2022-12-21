@@ -1,11 +1,11 @@
 const database           = require('./database.js');
 const config             = require('./config.js');
 const ver                = require('./verification.js');
-// const archive            = require('./archive.js');
-// const sendgrid           = require('./sendgrid.js');
-// const inputValidator     = require('./inputValidator.js');
+const archive            = require('./archive.js');
+const sendgrid           = require('./sendgrid.js');
+const inputValidator     = require('./inputValidator.js');
 
-// const fs                 = require('fs');
+const fs                 = require('fs');
 const cookieParser       = require('cookie-parser');
 const cron               = require('node-cron');
 const cors               = require("cors");
@@ -39,15 +39,13 @@ process.on('uncaughtException', (err) => {
 
 //Archive every tuesday at 11pm
 cron.schedule("0 13 * * 2", () => {
-    // archive.archiveDB()
+    archive.archiveDB()
 });
 
 onStart = async() => {
-    if(false) { //set to true to load the latest save on start
-        // await archive.loadLatestSave();
+    if(true) { //set to true to load the latest save on start
+        await archive.loadLatestSave();
     }
-
-
     console.log("Database is ready")
 
     app.listen(port,() => {
