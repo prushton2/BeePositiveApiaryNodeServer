@@ -12,7 +12,7 @@ const cors               = require("cors");
 const express            = require("express");
 const bodyParser         = require('body-parser');
 const app                = express();
-const port               = 3000
+const port               = 3001;
 
 const authRoute = require('./endpoints/auth.js');
 const dbRoute = require('./endpoints/db.js');
