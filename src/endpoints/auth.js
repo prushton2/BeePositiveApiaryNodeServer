@@ -63,7 +63,8 @@ authRouter.get("/getUser", async(req, res) => {
 
     let user = database.Users.get(userID);
     user["table"]["ID"] = user["primaryKey"];
-    
+    delete user["table"]["sessions"];
+
     let allExtraMenuItems = {
         "user": {},
         "admin": [[`${config["domain"]["frontend-url"]}/admin`, "Admin"]]
