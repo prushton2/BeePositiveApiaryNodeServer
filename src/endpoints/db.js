@@ -13,9 +13,15 @@ module.exports = dbRouter;
 
 dbRouter.get("/getProducts", async(req, res) => {
     database.Products.load();
+    let table = database.Products.table;
+
+    if(req.query.location != null) {
+        table = database.Products.findAll({"location": req.query.location});
+    }
+
     res.status(200);
     res.send({"response": {
-        "products": database.Products.table
+        "products": table
     }});
 })
 

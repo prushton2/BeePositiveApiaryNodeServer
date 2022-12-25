@@ -62,7 +62,8 @@ Body:
 ---
 ## [Database (/db/*)](#endpoints)
 ---
-### /getProducts (GET)
+### /getProducts?location= (GET)
+- Specify products to return by the location column value (optional)
 - Returns the products and all related info
 ### /update (PATCH)
 - Requires admin permissions
