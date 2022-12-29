@@ -39,18 +39,20 @@ class table {
     findAll(clause) {
         this.load();
         let responses = [];
-        for(let i in this.table) {
-            let element = this.table[i];
-        
-            for(let j in clause) {
+
+        for(let i in this.table) { //iterate over each element
+            let element = this.table[i]; //load it
+            element["id"] = i; //add the id to the entry
+
+            for(let j in clause) { //for each clause case
                 
-                if(element[j] != clause[j]) {
-                    i = null;
-                    break;
+                if(element[j] != clause[j]) { //if it doesnt match
+                    i = null; //set to null as a flag to skip the .push
+                    break; //break out of this for loop
                 }
             }
-            if(i == null) { continue; }
-            responses.push(element);
+            if(i == null) { continue; } //if the flag is set, skip to the next element
+            responses.push(element); //if the flag isnt set, append the element to the responses list
         }
         return responses;
     }
