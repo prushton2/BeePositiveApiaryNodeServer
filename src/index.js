@@ -28,7 +28,7 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 
 app.use( cors({
-    origin:true,
+    origin:"*",
     credentials: true
 }));
 
@@ -43,8 +43,9 @@ cron.schedule("0 13 * * 2", () => {
 });
 
 onStart = async() => {
-    if(true) { //set to true to load the latest save on start
+    if(false) { //set to true to load the latest save on start
         await archive.loadLatestSave();
+        console.log("Loaded latest archive");
     }
     console.log("Database is ready")
 

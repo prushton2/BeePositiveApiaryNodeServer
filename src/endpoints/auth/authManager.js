@@ -9,22 +9,18 @@ const ver = require("../../verification.js")
 const database = require("../../database.js");
 
 //create user if it doesn't exist
-module.exports.createUserIfNotExists = async(authID, authType, name, pfpUrl, email) => {
+module.exports.createUserIfNotExists = async(sub, object) => {
 
 
-    let user = database.Users.findOne({"authID": authID, "authType": authType});
+    let user = database.Users.table[sub];
 
-    if(user == -1) {
+    if(user == undefined) {
         user = database.Users.create(
-            ver.createHash(),
+            sub,
             {
-                "authID": authID,
-                "authType": authType,
-                "name": name,
-                "pfpURL": pfpUrl,
-                "email": email,
+                "name": object.name,
+                "email": object.email,
                 "permissions": "user",
-                "sessions": []
             }
         );
     } else {
