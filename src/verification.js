@@ -5,7 +5,6 @@ const crypto = require("crypto");
 const config = require("../config/config.json");
 
 const auth = require("./endpoints/auth.js");
-const authManager = require("./endpoints/auth/authManager.js")
 const database = require("./database.js");
 
 //google auth
@@ -57,7 +56,7 @@ module.exports.verifySession = async(req, res, requiredRole, exitIfInvalid=true)
     database.Users.load();
     
     if(database.Users.table[decoded.sub] == undefined) {
-        await authManager.createUserIfNotExists(
+        await auth.createUserIfNotExists(
             decoded.sub,
             {
                 name: decoded.name,
