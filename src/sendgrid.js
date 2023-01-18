@@ -37,9 +37,6 @@ async function createShoppingListString(shoppingList) {
         let product = database.Products.get(shoppingList[i]["ID"])["table"];
         let subproduct = database.Products.get(shoppingList[i]["subProductID"])["table"];
 
-        console.log(product["relations"]);
-        console.log(shoppingList[i]["subProductID"]);
-
         let cost = product["relations"][shoppingList[i]["subProductID"]]["price"] * shoppingList[i]["amount"]
         cost = cost.toFixed(2)
         totalcost += parseFloat(cost)
