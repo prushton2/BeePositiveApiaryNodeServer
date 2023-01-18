@@ -14,7 +14,6 @@ module.exports = ordersRouter;
 ordersRouter.post('/add', async(req, res) => {
 
     const date = new Date();
-    console.log(req.body);
     //validate any empty inputs
     for(key in req.body["Order"]) {
         if(!req.body["Order"][key]) {
