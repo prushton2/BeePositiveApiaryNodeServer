@@ -14,7 +14,7 @@ module.exports = ordersRouter;
 ordersRouter.post('/add', async(req, res) => {
 
     const date = new Date();
-  
+    console.log(req.body);
     //validate any empty inputs
     for(key in req.body["Order"]) {
         if(!req.body["Order"][key]) {
@@ -54,12 +54,12 @@ ordersRouter.post('/add', async(req, res) => {
         }
         purchase = req.body["Items"][purchase];
     
-        let product = database.Products.get(purchase["productID"])["table"];
+        let product = database.Products.get(purchase["ID"])["table"];
         let subProduct = database.Products.get(purchase["subProductID"])["table"];
 
         if(product["relations"][purchase["subProductID"]] == undefined) {
             res.status(400);
-            res.send({"response": `Product ${purchase["productID"]} does not contain a subproduct ${purchase["subProductID"]}`});
+            res.send({"response": `Product ${purchase["ID"]} does not contain a subproduct ${purchase["subProductID"]}`});
             return;
         }
 
@@ -68,12 +68,12 @@ ordersRouter.post('/add', async(req, res) => {
             (subProduct.stock != null && subProduct.stock - purchase["amount"] < 0)) {
             
             res.status(400);
-			res.send({"response": `Not enough stock for product ${purchase["productID"]} with ${purchase["subProductID"]}`});
+			res.send({"response": `Not enough stock for product ${purchase["ID"]} with ${purchase["subProductID"]}`});
 			return;
         }
 
         //remove the stock
-        if(product.stock != null) {    database.Products.set(purchase["productID"]   , {"stock": product.stock   - purchase["amount"]});  }
+        if(product.stock != null) {    database.Products.set(purchase["ID"]   , {"stock": product.stock   - purchase["amount"]});  }
 		if(subProduct.stock != null) { database.Products.set(purchase["subProductID"], {"stock": subProduct.stock - purchase["amount"]}); }
 
     }

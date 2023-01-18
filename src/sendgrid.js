@@ -34,7 +34,7 @@ async function createShoppingListString(shoppingList) {
 
     for(let i = 0; i < shoppingList.length; i++) {
 
-        let product = database.Products.get(shoppingList[i]["productID"])["table"];
+        let product = database.Products.get(shoppingList[i]["ID"])["table"];
         let subproduct = database.Products.get(shoppingList[i]["subProductID"])["table"];
 
         console.log(product["relations"]);
