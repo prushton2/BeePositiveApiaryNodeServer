@@ -1,41 +1,32 @@
 const fs = require("fs");
 
-archiveDir = "backups"
-mainDB = "bpa.sqlite"
-extension = ".sqlite"
+let archiveDir = "backups"
+let db = "tables"
 
 
 async function getFileToLoad(dir) {
-    return new Promise((resolve, reject) => {
-        fs.readdir(dir, (err, items) => {
-            try {
-                fileToLoad = items[items.length-2]
-                resolve(fileToLoad)
-            } catch {
-                reject(err)
-            }
-        });
-    })
+    return fs.readdirSync(dir)[fs.readdirSync(dir).length - 2];
 }
 
 module.exports.archiveDB = async() => {
-    const date = new Date()
-    time = date.getTime()
-    fileName = time + extension
-  
-    fs.copyFile(mainDB, `${archiveDir}/${fileName}`, (e) => { 
-        if(e) {
-            console.log(e)
-        } else {
-            console.log(`Archived ${mainDB} to ${fileName}`)  
-        }
+    const date = new Date();
+    let directoryName = date.getTime();
+    
+
+    let tables = fs.readdirSync(db);
+    
+    fs.mkdirSync(`${archiveDir}/${directoryName}`);
+    tables.forEach(element => {
+        fs.copyFileSync(`${db}/${element}`, `${archiveDir}/${directoryName}/${element}`);
     });
 }
 
 module.exports.loadLatestSave = async() => {
-    fileToLoad = await getFileToLoad(archiveDir)
-    fs.rm(mainDB, {recursive: false}, (e) => {
-        fs.copyFile(`${archiveDir}/${fileToLoad}`, `${mainDB}`, (e) => {});
-        console.log("Save Loaded")
-    })
+    let archiveToLoad = await getFileToLoad(archiveDir);
+    let tablesToLoad = fs.readdirSync(`${archiveDir}/${archiveToLoad}`);
+
+    tablesToLoad.forEach(element => {
+        fs.rmSync(`${db}/${element}`);
+        fs.copyFileSync(`${archiveDir}/${archiveToLoad}/${element}`, `${db}/${element}`);
+    });
 }

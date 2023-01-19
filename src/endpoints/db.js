@@ -1,23 +1,31 @@
 const express = require("express");
 
-const Products = require("../../tables/Products.js");
-const ProductRelations = require("../../tables/ProductRelations.js");
-const Users = require("../../tables/Users.js");
+// const Products = require("../../tables/Products.js");
+// const ProductRelations = require("../../tables/ProductRelations.js");
+// const Users = require("../../tables/Users.js");
 
-const enc = require("../encryption.js");
+const database = require("../database.js");
+const ver = require("../verification.js");
 
 const dbRouter = express.Router();
 
 module.exports = dbRouter;
 
 dbRouter.get("/getProducts", async(req, res) => {
-    res.status(200)
+    database.Products.load();
+    let table = database.Products.findAll({});
+
+    if(req.query.location != null) {
+        table = database.Products.findAll({"location": req.query.location});
+    }
+
+    res.status(200);
     res.send({"response": {
-        "products": await Products.findAll(),
-        "productRelations": await ProductRelations.findAll()
-    }})
+        "products": table
+    }});
 })
 
+/* NO CHANCES WITH THIS GARBAGE, this will be redone soon(tm)
 dbRouter.patch("/update", async(req, res) => {
     if(!await enc.verifySession(req, res, "admin")) {
         return
@@ -141,13 +149,13 @@ dbRouter.post("/getJson", async(req, res) => {
 	
     res.status(200);
     res.send({"response": json});
-})
+})*/
 
 dbRouter.post("/hash", async(req, res) => {
-    if(!await enc.verifySession(req, res, "admin")) {
+    if(!await ver.verifySession(req, res, "admin")) {
         return
     }
 
     res.status(200)
-    res.send({"response": enc.hash(req.body["text"])})
+    res.send({"response": ver.hash(req.body["text"])})
 })

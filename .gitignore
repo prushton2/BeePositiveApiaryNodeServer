@@ -1,6 +1,7 @@
-bpa.sqlite
 /node_modules
 /config
 /backups/*
 !/backups/placeholder.txt
 .env
+/tables/*
+!/tables/format.md

@@ -1,31 +1,23 @@
+const database           = require('./database.js');
 const config             = require('./config.js');
-const sequelize          = require('./database.js');
-const enc                = require('./encryption.js');
+const ver                = require('./verification.js');
 const archive            = require('./archive.js');
 const sendgrid           = require('./sendgrid.js');
 const inputValidator     = require('./inputValidator.js');
-const cookieParser       = require('cookie-parser');
-
-const Products           = require('../tables/Products.js');
-const ProductRelations   = require('../tables/ProductRelations.js');
-const ArchivedOrders     = require('../tables/ArchivedOrders.js');
-const ArchivedPurchases  = require('../tables/ArchivedPurchases.js');
-const Orders             = require('../tables/Orders.js');
-const Purchases          = require('../tables/Purchases.js');
 
 const fs                 = require('fs');
+const cookieParser       = require('cookie-parser');
 const cron               = require('node-cron');
 const cors               = require("cors");
 const express            = require("express");
 const bodyParser         = require('body-parser');
 const app                = express();
-const port               = 3000
+const port               = 3001;
 
-const ordersRoute = require('./endpoints/orders.js');
-const purchasesRoute = require('./endpoints/purchases.js');
+const authRoute = require('./endpoints/auth.js');
 const dbRoute = require('./endpoints/db.js');
 const emailRoute = require('./endpoints/email.js');
-const authRoute = require('./endpoints/auth.js');
+const ordersRoute = require('./endpoints/orders.js');
 
 app.use(cookieParser());
 
@@ -36,7 +28,7 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 
 app.use( cors({
-    origin:true,
+    origin:"*",
     credentials: true
 }));
 
@@ -53,41 +45,27 @@ cron.schedule("0 13 * * 2", () => {
 onStart = async() => {
     if(false) { //set to true to load the latest save on start
         await archive.loadLatestSave();
+        console.log("Loaded latest archive");
     }
-    
-    let addProducts = true
-    if(fs.existsSync("./bpa.sqlite")) {
-        addProducts = false
-    }
-
-    // await sequelize.sync()
-    await sequelize.sync({ force: false })
-
-
-    if(addProducts) {
-        await Products.setDefaults();
-        await ProductRelations.setDefaults();
-        console.log("Set up default table values")
-    }
-
     console.log("Database is ready")
-    delete addProducts
+
     app.listen(port,() => {
         console.log(`App listening on port ${port}`)
     })
+    
+
     
 }
 
 onStart()
 
 //Routing for endpoints
-app.use("/orders", ordersRoute);
-app.use("/purchases", purchasesRoute);
+app.use("/auth", authRoute);
 app.use("/db", dbRoute);
 app.use("/email", emailRoute);
-app.use("/auth", authRoute);
+app.use("/orders", ordersRoute);
 
 app.all("*", async(req, res) => {
-    res.status(404)
-    res.send({"response": "Endpoint does not exist"})
+    res.status(404);
+    res.send({"response": "Endpoint does not exist"});
 })

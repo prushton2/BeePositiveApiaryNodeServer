@@ -1,17 +1,10 @@
-const enc = require("../encryption.js");
+const ver = require("../verification.js");
 const inputValidator = require("../inputValidator.js");
 const sendgrid = require("../sendgrid.js");
 
-const Orders = require("../../tables/Orders.js");
-const Purchases = require("../../tables/Purchases.js");
-
-const ArchivedOrders = require("../../tables/ArchivedOrders.js");
-const ArchivedPurchases = require("../../tables/ArchivedPurchases.js");
-
-const Products = require("../../tables/Products.js")
+const database = require("../database.js");
 
 const express = require("express");
-// const bodyParser = require("body-parser");
 
 let ordersRouter = express.Router()
 
@@ -20,122 +13,119 @@ module.exports = ordersRouter;
 
 ordersRouter.post('/add', async(req, res) => {
 
-    const date = new Date()
-  
+    const date = new Date();
     //validate any empty inputs
     for(key in req.body["Order"]) {
         if(!req.body["Order"][key]) {
-        res.status(400)
-        res.send({"response": "Empty input given"})
-        return;
+            res.status(400);
+            res.send({"response": "Empty input given"});
+            return;
         }
     }
 
     //clean string
     //if the data is not clean, return a 400. The front end prevents users inputting bad strings, but we do it here to be safe.
-    let cleanedData = inputValidator.validateInput(req.body["Order"])
+    let cleanedData = inputValidator.validateInput(req.body["Order"]);
     if(cleanedData["wasCleaned"]) {
-        res.status(400)
+        res.status(400);
         res.send({"response": "Invalid body input, you used disallowed characters in a field",
-                "cleanedInput": cleanedData})
-        return
+                "cleanedInput": cleanedData});
+        return;
     }
-    let viewKey = enc.createHash()
+    let viewKey = ver.createHash()
     //set up extra parameters in order
-    req.body["Order"]["isComplete"] = false
-    req.body["Order"]["date"] = date.getTime()
-    req.body["Order"]["emailSent"] = false
-    req.body["Order"]["wantsEmails"] = req.body["wantsToReceiveEmails"]
-    req.body["Order"]["viewKey"] = enc.hash(viewKey)
-
+    req.body["Order"]["isComplete"] = false;
+    req.body["Order"]["date"] = date.getTime();
+    req.body["Order"]["emailSent"] = false;
+    req.body["Order"]["wantsEmails"] = req.body["wantsToReceiveEmails"];
+    req.body["Order"]["viewKey"] = ver.hash(viewKey);
     //Add a user to the order if there is one
-    req.body["Order"]["owner"] = ""
-
-    if(await enc.verifySession(req, res, "user", false)) {
-        req.body["Order"]["owner"] = req.cookies.auth.split(":")[0]
-    }
-
-
-    //Add Order to db
-    let output = await Orders.create(req.body["Order"])
-    let orderid = output["dataValues"]["id"] // Get order ID to be used in the Purchases database to create relations
-  
-    //Add purchases to db
-    for (purchase in req.body["Items"]) {
-        
-        if (req.body["Items"][purchase]["amount"] <= 0) { // prevent orders of 0 items from getting stored.
-            continue;
-        }
     
-		//verify there is enough stock of the items
-		
-		let product = await Products.findOne({where: {id: req.body["Items"][purchase]["productID"]}});
-		let subproduct = await Products.findOne({where: {id: req.body["Items"][purchase]["subProductID"]}});
-		
-		if( (product.stock != null && product.stock - req.body["Items"][purchase]["amount"] < 0) ||
-			(subproduct.stock != null && subproduct.stock - req.body["Items"][purchase]["amount"] < 0)) {
-			res.status(400);
-			res.send({
-				"response": `Not enough stock for product ${req.body.Items[purchase]["productID"]} with ${req.body.Items[purchase]["subProductID"]}`
-			});
+    req.body["Order"]["owner"] = "";
+    if(await ver.verifySession(req, res, "user", false)) {
+        req.body["Order"]["owner"] = req.cookies.auth.split(":")[0];
+    }
+    
+    //verify the purchases
+    for (let purchase in req.body["Items"]) {
+        if (req.body["Items"][purchase]["amount"] <= 0) { // prevent orders of 0 items from getting stored.
+            delete req.body["Items"][purchase];
+        }
+        purchase = req.body["Items"][purchase];
+    
+        let product = database.Products.get(purchase["ID"])["table"];
+        let subProduct = database.Products.get(purchase["subProductID"])["table"];
+
+        if(product["relations"][purchase["subProductID"]] == undefined) {
+            res.status(400);
+            res.send({"response": `Product ${purchase["ID"]} does not contain a subproduct ${purchase["subProductID"]}`});
+            return;
+        }
+
+
+        if( (product.stock    != null && product.stock    - purchase["amount"] < 0) ||
+            (subProduct.stock != null && subProduct.stock - purchase["amount"] < 0)) {
+            
+            res.status(400);
+			res.send({"response": `Not enough stock for product ${purchase["ID"]} with ${purchase["subProductID"]}`});
 			return;
-		}	
-		
-		//create the purchase
-        await Purchases.create({
-            orderID: orderid,
-            productID: req.body["Items"][purchase]["productID"],
-            subProductID: req.body["Items"][purchase]["subProductID"],
-            amount: req.body["Items"][purchase]["amount"]
-        })
+        }
 
-
-		//remove the stock
-		product.stock -= req.body["Items"][purchase]["amount"];
-		subproduct.stock -= req.body["Items"][purchase]["amount"]
-
-		product.save();
-		subproduct.save();
-
+        //remove the stock
+        if(product.stock != null) {    database.Products.set(purchase["ID"]   , {"stock": product.stock   - purchase["amount"]});  }
+		if(subProduct.stock != null) { database.Products.set(purchase["subProductID"], {"stock": subProduct.stock - purchase["amount"]}); }
 
     }
-    let emailSent = false
-    if(req.body["wantsToReceiveEmails"]) {
-        emailSent = await sendgrid.sendOrderConfirmation(req.body["Order"], req.body["Items"], orderid, viewKey)
-    }
 
+    //after the product checks, add it to the order
+    req.body["Order"]["purchases"] = req.body["Items"];
+    
+    //Add Order to db
+    let newID = parseInt(database.Orders.getLastID()) + 1;
+    database.Orders.create(newID.toString(), req.body["Order"])
+
+    //send email
+    let emailSent = await sendgrid.sendOrderConfirmation(req.body["Order"], req.body["Order"]["purchases"], newID, viewKey)
+    
     res.status(201)
     res.send({  "response": "Order Created", 
-                "Email": emailSent ? "Sent" : "Not Sent",
-                "viewKey": viewKey,
-                "orderID": orderid})
+    "Email": emailSent ? "Sent" : "Not Sent",
+    "viewKey": viewKey,
+    "orderID": newID.toString()})
 })
 
 ordersRouter.get("/getByKey", async(req, res) => {
-
-    let whereClause
-    if(req.query.viewKey == "loggedInUser") {
-        if(!await enc.verifySession(req, res, "user")) { return } //return if not logged in
-        whereClause = {where: {id: req.query.orderId, owner: req.cookies.auth.split(":")[0]}} //set the where clause
-    } else {
-        whereClause = {where: {id: req.query.orderId, viewKey: enc.hash(req.query.viewKey)}} //set the where clause
-    }
-
-    let order = await Orders.findOne(whereClause)
-    let purchases;
-    //if not found in active table, check archived table
-    if(order == null) {
-        order = await ArchivedOrders.findOne(whereClause)
-        purchases = await ArchivedPurchases.findAll({where: {orderID: req.query.orderId}})
-    } else {
-        purchases = await Purchases.findAll({where: {orderID: req.query.orderId}})
-    }
     
-    if(order == null) {
+    let order = database.Orders.get(req.query.orderId.toString())["table"];
+    //if not found in active table, check archived table
+    if(order == undefined) {
+        order = database.ArchivedOrders.get(req.query.orderId.toString())["table"];
+    }
+
+    if(order == undefined) {
         res.status(400)
         res.send({"response": "Invalid Order or View Key"})
         return
     }
+    
+    if(req.query.viewKey == "loggedInUser") {
+        if(!await ver.verifySession(req, res, "user")) { return; } //return if not logged in
+        
+        if(order["owner"] != req.cookies.auth.split(":")[0]) {
+            res.status(401);
+            res.send({"response": "Invalid Owner"});
+            return;
+        }
+        
+    } else {
+
+        if(order["viewKey"] != ver.hash(req.query.viewKey)) {
+            res.status(401);
+            res.send({"response": "Invalid Key"});
+            return;
+        }
+    }
+    
     
     let response = {
         "order": {
@@ -146,102 +136,53 @@ ordersRouter.get("/getByKey", async(req, res) => {
             "address": order["address"],
             "isComplete": order["isComplete"],
             "date": order["date"],
-        },
-        "purchases":purchases.map(purchase => { return {"productID": purchase["productID"], 
-                                                        "subProductID": purchase["subProductID"], 
-                                                        "amount": purchase["amount"] } })
+            "purchases": order["purchases"]
+        }
     }
 
     res.status(200)
     res.send({"response": response})
 })
 
-ordersRouter.get("/getPlacedOrders", async(req, res) => {
-    if(!await enc.verifySession(req, res, "user")) {
-        return
+ordersRouter.get("/get/*", async(req, res) => {
+    
+    let response
+    if(req.originalUrl.split("/")[3] == "placed") {
+        if(!await ver.verifySession(req, res, "user")) { return; }
+        response = {
+            "active": database.Orders.findAll({"owner": req.cookies.auth.split(":")[0]}),
+            "complete": database.ArchivedOrders.findAll({"owner": req.cookies.auth.split(":")[0]})
+        }
+    } else if (req.originalUrl.split("/")[3] == "all") {
+        if(!await ver.verifySession(req, res, "admin")) { return; }
+        database.Orders.load();
+        database.ArchivedOrders.load();
+        response = {
+            "active": database.Orders.table,
+            "archived": database.ArchivedOrders.table
+        };
     }
-
-    let userID = req.cookies.auth.split(":")[0]
-
-    let allOrders = {
-        "active": (await Orders.findAll({where: {"owner": userID}})).map(purchase => {return {  "id": purchase["id"],
-                                                                                                "date": purchase["date"],
-                                                                                                "isComplete": purchase["isComplete"]}}),
-        "completed": (await ArchivedOrders.findAll({where: {"owner": userID}})).map(purchase => {return { "id": purchase["id"],
-                                                                                                        "date": purchase["date"],
-                                                                                                        "isComplete": purchase["isComplete"]}})
-    }
-
-    res.status(200)
-    res.send({"response": allOrders})
+    res.status(200);
+    res.send({"response": response});
 })
 
-ordersRouter.post("/get", async(req, res) => {
+ordersRouter.patch("/action/*", async(req, res) => {
+    if(!await ver.verifySession(req, res, "admin")) { return; }
 
-    if(!await enc.verifySession(req, res, "admin")) {
-        return
+    switch(req.originalUrl.split("/")[3]) {
+        case "complete":
+            database.Orders.set(req.body["orderID"], {"isComplete": !!req.body["value"]});
+            break;
+        case "archive":
+            let order = database.Orders.get(req.body["orderID"]);
+            database.Orders.delete(req.body["orderID"]);
+            database.ArchivedOrders.create(order["primaryKey"], order["table"]);
+            break;
+        default:
+            res.status(404);
+            res.send({"response": "Endpoint does not exist"});
+            break;
     }
-
-    let allOrders;
-    if(req.body["getArchived"]) {
-        allOrders = await ArchivedOrders.findAll()
-    } else {
-        allOrders = await Orders.findAll()
-    }
-
-    res.status(200)
-    res.send({"archived":!!req.body["getArchived"], "response": allOrders})
-    return  
-})
-
-
-ordersRouter.patch("/complete", async(req, res) => {
-  
-    if(!await enc.verifySession(req, res, "admin")) {
-        return
-    }
-
-    let order = await Orders.findOne({where: {id: req.body["orderID"]}})
-    if(order != null) {
-        order.isComplete = req.body["isComplete"]  
-        await order.save()
-    } else {
-        res.status(400)
-        res.send({"response": "Invalid Order"})
-        return
-    }
-
-    res.status(200)
-    res.send({"response": "Updated completion status"})
-})
-
-
-ordersRouter.post("/archive", async(req, res) => {
-
-    if(!await enc.verifySession(req, res, "admin")) {
-        return
-    }
-
-    let order = await Orders.findOne({where: {id: req.body["orderID"]}})
-    
-    try {
-        order = order["dataValues"]
-        order["id"] = req.body["orderID"] //Persist the order ID so the purchases table refers to the right Orders instance
-    } catch {
-        res.status(400)
-        res.send({"response": "Invalid Order"})
-    }  
-    
-    purchases = await Purchases.findAll({where: {orderID: req.body["orderID"]}})  
-    order["reasonArchived"] = "Archived By Administrator"
-    ArchivedOrders.create(order)
-    Orders.destroy({where: {id: req.body["orderID"]}})
-    
-    purchases.forEach(element => {
-        ArchivedPurchases.create(element["dataValues"])
-        Purchases.destroy({where: {id: element["dataValues"]["id"]}})
-    });
-    
-    res.status(200)
-    res.send({"response":"Order Archived"})
+    res.status(200);
+    res.send({"response": "Action completed"});
 })
