@@ -28,7 +28,8 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 
 app.use( cors({
-    origin:"*",
+    origin: '*',
+    methods: ['GET','POST','DELETE','UPDATE','PUT','PATCH'],
     credentials: true
 }));
 

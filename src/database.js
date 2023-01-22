@@ -86,7 +86,7 @@ class table {
 
     getLastID() {
         this.load();
-        let i;
+        let i = "0";
         for(i in this.table) {}
         return i;
     }
