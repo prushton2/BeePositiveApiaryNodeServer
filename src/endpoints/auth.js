@@ -5,99 +5,89 @@ The app routes to different files based on how the user is logging in.
 
 //used modules
 const express = require("express")
-const enc = require("../encryption.js")
-const authManager = require("./auth/authManager.js")
+const ver = require("../verification.js")
 const config = require("../../config/config.json")
 
-//used tables
-const Users = require("../../tables/Users.js")
-const Sessions = require("../../tables/Sessions.js")
+const database = require("../database.js");
+
 
 //this router
 const authRouter = express.Router()
-
-//outgoing routes
-const googleRoute = require("./auth/google.js")
 
 module.exports = authRouter
 module.exports.roleHeirarchy = ["user", "admin"]
 
 
-//routers
-authRouter.use("/google", googleRoute)
-
 //-----------AUTH ENDPOINTS-----------
-//logout user and delete session
-authRouter.get("/logout", async(req, res) => {
-    if(!await enc.verifySession(req, res, "user")) {
-        return
-    }
-    let sessionID = req.cookies.auth.split(":")[1]
-    let userID = req.cookies.auth.split(":")[0]
-
-    await authManager.deleteSession(sessionID, userID)
-
-    res.cookie("auth", "", {maxAge: 10, httpOnly: true, sameSite: "strict", secure: config["environment"]["environment-type"] == "production"})
-    res.status(200)
-    res.send({"response": "Logged out"})
-})
-
-authRouter.get("/logoutOfAll", async(req, res) => {
-    if(!await enc.verifySession(req, res, "user")) {
-        return
-    }
-
-    await authManager.deleteAllSessions(req.cookies.auth.split(":")[0])
-
-    res.status(200)
-    res.send({"response": "Logged out of all sessions"})
-})
-
 //for the logged in user to get their user info
 authRouter.get("/getUser", async(req, res) => {
-    if(!await enc.verifySession(req, res, "user")) {
+    if(!await ver.verifySession(req, res, "user")) {
         return
     }
     
     let userID = req.cookies.auth.split(":")[0]
     let sessionID = req.cookies.auth.split(":")[1]
 
-    let user = await Users.findOne({where: {ID: userID}})
+    let user = database.Users.get(userID);
+    user["table"]["ID"] = user["primaryKey"];
+    delete user["table"]["sessions"];
+
     let allExtraMenuItems = {
-        "user": [],
+        "user": {},
         "admin": [[`${config["domain"]["frontend-url"]}/admin`, "Admin"]]
     }
     
     res.status(200)
-    res.send({"response": user, "extraMenuItems": allExtraMenuItems[user.permissions]})
+    res.send({"response": user["table"], "extraMenuItems": allExtraMenuItems[user.permissions]})
     
 })
 
 
 //getting all users, for admin use
 authRouter.post("/getUsers", async(req, res) => {
-    if(!await enc.verifySession(req, res, "admin")) {
+    if(!await ver.verifySession(req, res, "admin")) {
         return
     }
-    let users = await Users.findAll()
+    let users = await database.Users.findAll({});
     res.status(200)
     res.send({"response": users})
 })
 
 
 authRouter.post("/deleteAccount", async(req, res) => {
-    if(!await enc.verifySession(req, res, "user")) {
+    if(!await ver.verifySession(req, res, "user")) {
         return
     }
     let userID = req.cookies.auth.split(":")[0]
     let sessionID = req.cookies.auth.split(":")[1]
 
-    if(!await authManager.deleteAccount(userID, sessionID)) {
-        res.status(301)
-        res.send({"response": "Newer session ID required", "redirect": `${config}/login`})
-        return
-    }
+    // if(!await authManager.deleteAccount(userID, sessionID)) {
+    //     res.status(301)
+    //     res.send({"response": "Newer session ID required", "redirect": `${config}/login`})
+    //     return
+    // }
 
     res.status(200)
     res.send({"response": "Account deleted"})
 })
+
+//create user if it doesn't exist
+module.exports.createUserIfNotExists = async(sub, object) => {
+
+
+    let user = database.Users.table[sub];
+
+    if(user == undefined) {
+        user = database.Users.create(
+            sub,
+            {
+                "name": object.name,
+                "email": object.email,
+                "permissions": "user",
+            }
+        );
+    } else {
+        user = database.Users.get(user);
+    }
+    return user
+}

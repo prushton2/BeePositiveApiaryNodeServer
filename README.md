@@ -36,7 +36,6 @@ Index of all routes
 ## [Database](#database-db)
 ## [Email](#email-email)
 ## [Orders](#orders-orders)
-## [Purchases](#purchases-purchases)
 
 ---
 
@@ -63,7 +62,8 @@ Body:
 ---
 ## [Database (/db/*)](#endpoints)
 ---
-### /getProducts (GET)
+### /getProducts?location= (GET)
+- Specify products to return by the location column value (optional)
 - Returns the products and all related info
 ### /update (PATCH)
 - Requires admin permissions
@@ -174,18 +174,7 @@ Body:
     "viewKey": "" //viewkey of the order, given in the response of the add endpoint
 }
 ```
-### /get (POST)
-- Requires admin permissions
-- Returns all orders in the database
-
-Body:
-```javascript
-{
-    "getArchived": false //Get the archived orders instead of active orders
-}
-```
-
-### /archive (PATCH)
+### /action/archive (PATCH)
 - Requires admin permission
 - Archives an order, preventing it from being viewable through the [/getByKey endpoint](#getbykey-post)
 
@@ -196,7 +185,7 @@ Body:
 }
 ```
 
-### /complete (PATCH)
+### /action/complete (PATCH)
 - Requires admin permission
 - Changes the complete status of an order (doesnt send completion email)
 
@@ -204,20 +193,13 @@ Body:
 ```javascript
 {
     "orderID": 0, //id of order to edit
-    "isComplete": true //new completion status
+    "value": true //new completion status
 }
 ```
----
-## [Purchases (/purchases/*)](#endpoints)
----
-### /get (POST)
-- Requires admin permission
-- returns the products that were purchased with a specific order
+### /get/all (GET)
+- Requires admin permissions
+- Returns all orders in the database
 
-Body:
-```javascript
-{
-    "getArchived": false, //Whether or not to read the products from an archived purchase
-    "orderID": 0 //id of order to get purchases from
-}
-```
+### /get/placed (GET)
+- Requires user permissions
+- Returns all orders in the database that the logged in user placed

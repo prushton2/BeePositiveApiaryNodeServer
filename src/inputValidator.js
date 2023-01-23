@@ -43,7 +43,7 @@ module.exports.validateShoppingList = (shoppingList) => {
     for(key in shoppingList) {
         
         response["shoppingList"].push({
-            "productID": module.exports.cleanText(shoppingList[key]["productID"], numberRegex),
+            "ID": module.exports.cleanText(shoppingList[key]["ID"], numberRegex),
             "subProductID": module.exports.cleanText(shoppingList[key]["subProductID"], numberRegex),
             "amount": shoppingList[key]["amount"]
         })
