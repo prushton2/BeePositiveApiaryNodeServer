@@ -32,6 +32,8 @@ ordersRouter.post('/add', async(req, res) => {
                 "cleanedInput": cleanedData});
         return;
     }
+
+    //viewkey to view order after its placed
     let viewKey = ver.createHash()
     //set up extra parameters in order
     req.body["Order"]["isComplete"] = false;
@@ -47,16 +49,19 @@ ordersRouter.post('/add', async(req, res) => {
     }
     
     //verify the purchases
+    let verifiedPurchases = []
     for (let purchase in req.body["Items"]) {
-        if (req.body["Items"][purchase]["amount"] <= 0) { // prevent orders of 0 items from getting stored.
-            delete req.body["Items"][purchase];
-        }
+        
         purchase = req.body["Items"][purchase];
-    
-        let product = database.Products.get(purchase["ID"])["table"];
+
+        if (purchase["amount"] <= 0) { // prevent orders of 0 items from getting stored.
+            continue; //this is a continue because submitting products with a quantity of 0 is expected behaviour, so we dont error from it
+        }
+        
+        let product = database.Products.get(purchase["ID"])["table"]; //load product info
         let subProduct = database.Products.get(purchase["subProductID"])["table"];
 
-        if(product["relations"][purchase["subProductID"]] == undefined) {
+        if(product["relations"][purchase["subProductID"]] == undefined) { //if the relation is invalid
             res.status(400);
             res.send({"response": `Product ${purchase["ID"]} does not contain a subproduct ${purchase["subProductID"]}`});
             return;
@@ -64,7 +69,7 @@ ordersRouter.post('/add', async(req, res) => {
 
 
         if( (product.stock    != null && product.stock    - purchase["amount"] < 0) ||
-            (subProduct.stock != null && subProduct.stock - purchase["amount"] < 0)) {
+            (subProduct.stock != null && subProduct.stock - purchase["amount"] < 0)) { //if there is enough stock
             
             res.status(400);
 			res.send({"response": `Not enough stock for product ${purchase["ID"]} with ${purchase["subProductID"]}`});
@@ -74,13 +79,16 @@ ordersRouter.post('/add', async(req, res) => {
         //remove the stock
         if(product.stock != null) {    database.Products.set(purchase["ID"]   , {"stock": product.stock   - purchase["amount"]});  }
 		if(subProduct.stock != null) { database.Products.set(purchase["subProductID"], {"stock": subProduct.stock - purchase["amount"]}); }
+        
+        verifiedPurchases.push(purchase);
 
     }
 
     //after the product checks, add it to the order
-    req.body["Order"]["purchases"] = req.body["Items"];
+    req.body["Order"]["purchases"] = verifiedPurchases;
     
     //Add Order to db
+    //Redo this - wont work long term as it doesnt interact with the archived orders
     let newID = parseInt(database.Orders.getLastID()) + 1;
     database.Orders.create(newID.toString(), req.body["Order"])
 
