@@ -163,17 +163,10 @@ Body:
 }
 ```
 
-### /getByKey (POST)
+### /getByKey?orderID={order id}&viewKey={view key} (GET)
 - No required permission
 - This is used to allow users to view their order after it is placed without an account
 
-Body:
-```javascript
-{
-    "orderID": 0, //ID of order to view
-    "viewKey": "" //viewkey of the order, given in the response of the add endpoint
-}
-```
 ### /action/archive (PATCH)
 - Requires admin permission
 - Archives an order, preventing it from being viewable through the [/getByKey endpoint](#getbykey-post)
