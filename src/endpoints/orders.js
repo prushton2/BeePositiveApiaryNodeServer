@@ -1,10 +1,13 @@
 const ver = require("../verification.js");
 const inputValidator = require("../inputValidator.js");
 const sendgrid = require("../sendgrid.js");
+const jwtdecode = require("jwt-decode");
+
 
 const database = require("../database.js");
 
 const express = require("express");
+const { Database } = require("sqlite3");
 
 let ordersRouter = express.Router()
 
@@ -12,7 +15,7 @@ module.exports = ordersRouter;
 
 
 ordersRouter.post('/add', async(req, res) => {
-
+    database.Products.load();
     const date = new Date();
     //validate any empty inputs
     for(key in req.body["Order"]) {
@@ -45,7 +48,7 @@ ordersRouter.post('/add', async(req, res) => {
     
     req.body["Order"]["owner"] = "";
     if(await ver.verifySession(req, res, "user", false)) {
-        req.body["Order"]["owner"] = req.cookies.auth.split(":")[0];
+        req.body["Order"]["owner"] = jwtdecode(req.cookies.auth).sub;
     }
     
     //verify the purchases
@@ -80,6 +83,9 @@ ordersRouter.post('/add', async(req, res) => {
         if(product.stock != null) {    database.Products.set(purchase["ID"]   , {"stock": product.stock   - purchase["amount"]});  }
 		if(subProduct.stock != null) { database.Products.set(purchase["subProductID"], {"stock": subProduct.stock - purchase["amount"]}); }
         
+
+        purchase.price = database.Products.table[purchase.ID].relations[purchase.subProductID].price;
+
         verifiedPurchases.push(purchase);
 
     }
@@ -88,8 +94,8 @@ ordersRouter.post('/add', async(req, res) => {
     req.body["Order"]["purchases"] = verifiedPurchases;
     
     //Add Order to db
-    //Redo this - wont work long term as it doesnt interact with the archived orders
-    let newID = parseInt(database.Orders.getLastID()) + 1;
+    let newID = Math.max(parseInt(database.Orders.getLastID()), parseInt(database.ArchivedOrders.getLastID())) + 1;
+
     database.Orders.create(newID.toString(), req.body["Order"])
 
     //send email
@@ -104,15 +110,15 @@ ordersRouter.post('/add', async(req, res) => {
 
 ordersRouter.get("/getByKey", async(req, res) => {
     
-    let order = database.Orders.get(req.query.orderId.toString())["table"];
+    let order = database.Orders.get(req.query.orderID.toString())["table"];
     //if not found in active table, check archived table
     if(order == undefined) {
-        order = database.ArchivedOrders.get(req.query.orderId.toString())["table"];
+        order = database.ArchivedOrders.get(req.query.orderID.toString())["table"];
     }
 
     if(order == undefined) {
-        res.status(400)
-        res.send({"response": "Invalid Order or View Key"})
+        res.status(400);
+        res.send({"response": "Invalid Order or View Key"});
         return
     }
     
