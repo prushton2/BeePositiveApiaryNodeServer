@@ -1,6 +1,8 @@
 const ver = require("../verification.js");
 const inputValidator = require("../inputValidator.js");
 const sendgrid = require("../sendgrid.js");
+const jwtdecode = require("jwt-decode");
+
 
 const database = require("../database.js");
 
@@ -45,7 +47,7 @@ ordersRouter.post('/add', async(req, res) => {
     
     req.body["Order"]["owner"] = "";
     if(await ver.verifySession(req, res, "user", false)) {
-        req.body["Order"]["owner"] = req.cookies.auth.split(":")[0];
+        req.body["Order"]["owner"] = jwtdecode(req.cookies.auth).sub;
     }
     
     //verify the purchases
