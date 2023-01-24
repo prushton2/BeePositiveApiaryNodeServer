@@ -106,7 +106,7 @@ ordersRouter.post('/add', async(req, res) => {
 
 ordersRouter.get("/getByKey", async(req, res) => {
     
-    let order = database.Orders.get(req.query.orderId.toString())["table"];
+    let order = database.Orders.get(req.query.orderID.toString())["table"];
     //if not found in active table, check archived table
     if(order == undefined) {
         order = database.ArchivedOrders.get(req.query.orderID.toString())["table"];
