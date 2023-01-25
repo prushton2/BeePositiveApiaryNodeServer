@@ -162,11 +162,14 @@ ordersRouter.get("/get/*", async(req, res) => {
     
     let response
     if(req.originalUrl.split("/")[3] == "placed") {
-        if(!await ver.verifySession(req, res, "user")) { return; }
-        response = {
-            "active": database.Orders.findAll({"owner": req.cookies.auth.split(":")[0]}),
-            "complete": database.ArchivedOrders.findAll({"owner": req.cookies.auth.split(":")[0]})
-        }
+        res.status(501);
+        res.send({"response": "Not Implemented"});
+        return;
+        // if(!await ver.verifySession(req, res, "user")) { return; }
+        // response = {
+        //     "active": database.Orders.findAll({"owner": req.cookies.auth.split(":")[0]}),
+        //     "complete": database.ArchivedOrders.findAll({"owner": req.cookies.auth.split(":")[0]})
+        // }
     } else if (req.originalUrl.split("/")[3] == "all") {
         if(!await ver.verifySession(req, res, "admin")) { return; }
         database.Orders.load();
