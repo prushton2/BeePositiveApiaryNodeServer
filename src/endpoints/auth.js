@@ -7,6 +7,7 @@ The app routes to different files based on how the user is logging in.
 const express = require("express")
 const ver = require("../verification.js")
 const config = require("../../config/config.json")
+const jwtdecode = require("jwt-decode");
 
 const database = require("../database.js");
 
@@ -24,21 +25,14 @@ authRouter.get("/getUser", async(req, res) => {
     if(!await ver.verifySession(req, res, "user")) {
         return
     }
-    
-    let userID = req.cookies.auth.split(":")[0]
-    let sessionID = req.cookies.auth.split(":")[1]
+
+    let userID = jwtdecode(req.cookies.auth).sub;
 
     let user = database.Users.get(userID);
     user["table"]["ID"] = user["primaryKey"];
-    delete user["table"]["sessions"];
 
-    let allExtraMenuItems = {
-        "user": {},
-        "admin": [[`${config["domain"]["frontend-url"]}/admin`, "Admin"]]
-    }
-    
-    res.status(200)
-    res.send({"response": user["table"], "extraMenuItems": allExtraMenuItems[user.permissions]})
+    res.status(200);
+    res.send({"response": user["table"]});
     
 })
 
