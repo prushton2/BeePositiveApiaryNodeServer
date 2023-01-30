@@ -25,6 +25,19 @@ dbRouter.get("/getProducts", async(req, res) => {
     }});
 })
 
+
+dbRouter.patch("/setProduct", async(req, res) => {
+	if(!await ver.verifySession(req, res, "admin")) {
+        return
+    }
+	database.Products.load();
+	database.Products.set(req.body.id, req.body.newProduct);
+	database.Products.save();
+
+	res.status(200);
+	res.send({"response": "Updated product"});
+});
+
 /* NO CHANCES WITH THIS GARBAGE, this will be redone soon(tm)
 dbRouter.patch("/update", async(req, res) => {
     if(!await enc.verifySession(req, res, "admin")) {
