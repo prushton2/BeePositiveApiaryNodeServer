@@ -42,8 +42,6 @@ authRouter.post("/getUser", async(req, res) => {
         return
     }
 	
-	console.log("here");
-
     let userID = jwtdecode(req.body.auth).sub;
 
     let user = database.Users.get(userID);
