@@ -36,6 +36,22 @@ authRouter.get("/getUser", async(req, res) => {
     
 })
 
+authRouter.post("/getUser", async(req, res) => {
+	req.cookies.auth = req.body.auth;
+	if(!await ver.verifySession(req, res, "user")) {
+        return
+    }
+	
+	console.log("here");
+
+    let userID = jwtdecode(req.body.auth).sub;
+
+    let user = database.Users.get(userID);
+    user["table"]["ID"] = user["primaryKey"];
+
+    res.status(200);
+    res.send({"response": user["table"]});
+})
 
 //getting all users, for admin use
 authRouter.post("/getUsers", async(req, res) => {
