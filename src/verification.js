@@ -91,7 +91,7 @@ async function verifyJWT(jwt, originalID) {
         // const domain = payload['hd'];
         return userid == originalID
     } catch (error) {
-        console.log(`Nonfatal error verifying Google JWT: ${error}`)
+        // console.log(`Nonfatal error verifying Google JWT: ${error}`)
         return false
     }
 }
