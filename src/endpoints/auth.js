@@ -37,13 +37,11 @@ authRouter.get("/getUser", async(req, res) => {
 })
 
 authRouter.post("/getUser", async(req, res) => {
-	req.cookies.auth = req.body.auth;
-	if(!await ver.verifySession(req, res, "user")) {
-        return
-    }
+	let newReq = { cookies: { auth: req.body.auth } }
+	if (!await ver.verifySession(newReq, res, "user")) {
+		return
+	}
 	
-	console.log("here");
-
     let userID = jwtdecode(req.body.auth).sub;
 
     let user = database.Users.get(userID);
