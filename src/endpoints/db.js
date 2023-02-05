@@ -31,7 +31,7 @@ dbRouter.patch("/setProduct", async(req, res) => {
         return
     }
 	database.Products.load();
-	database.Products.set(req.body.id, req.body.newProduct);
+	database.Products.create(req.body.id, req.body.newProduct);
 	database.Products.save();
 
 	res.status(200);
