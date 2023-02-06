@@ -51,8 +51,21 @@ authRouter.post("/getUser", async(req, res) => {
     res.send({"response": user["table"]});
 })
 
+authRouter.post("/setUser", async(req, res) => {
+	if(!await ver.verifySession(req, res, "admin")) {
+		return;
+	}
+
+	database.Users.load();
+	database.Users.set(req.body.id, {"permissions": req.body.permissions});
+	database.Users.save();
+	
+	res.status(200);
+	res.send({"response": "Updated User"});
+})
+
 //getting all users, for admin use
-authRouter.post("/getUsers", async(req, res) => {
+authRouter.get("/getUsers", async(req, res) => {
     if(!await ver.verifySession(req, res, "admin")) {
         return
     }
