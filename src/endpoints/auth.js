@@ -57,7 +57,7 @@ authRouter.post("/setUser", async(req, res) => {
 	}
 
 	database.Users.load();
-	database.Users.set(req.body.id, {"permissions": req.body.permissions});
+	database.Users.set(req.body.id, req.body.userData);
 	database.Users.save();
 	
 	res.status(200);
