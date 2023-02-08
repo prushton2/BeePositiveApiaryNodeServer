@@ -101,6 +101,9 @@ ordersRouter.post('/add', async(req, res) => {
     //send email
     let emailSent = await sendgrid.sendOrderConfirmation(req.body["Order"], req.body["Order"]["purchases"], newID, viewKey)
     
+	//send email to admins
+	let adminEmailSent = await sendgrid.sendNewOrderEmailToAdmins(newID.toString());
+
     res.status(201)
     res.send({  "response": "Order Created", 
     "Email": emailSent ? "Sent" : "Not Sent",
