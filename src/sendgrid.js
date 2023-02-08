@@ -22,8 +22,8 @@ async function sendMail(msg) {
             }
         ]
     }
-    fulfilled = await sendgrid.send(msg).then(fulfilled => {return fulfilled})
 
+    let fulfilled = await sendgrid.send(msg).then(fulfilled => {return fulfilled})
     return fulfilled
 }
 
@@ -104,7 +104,7 @@ module.exports.sendOrderCompletionEmail = async(order, shoppingList) => {
                     {
                         "email": order["email"]
                     }
-                ],
+                ],	
                 "dynamic_template_data": {
                     "name": order["name"],
                     "receipt": shoppingListString,
@@ -123,3 +123,34 @@ module.exports.sendOrderCompletionEmail = async(order, shoppingList) => {
     return fulfilled
 }
 
+module.exports.sendNewOrderEmailToAdmins = async(ordernumber) => {
+	
+	let recipients = [];
+
+	database.Users.load();
+	let signedUpUsers = database.Users.findAll({"receiveEmailsOnOrder": true});
+	for(let i in signedUpUsers) {
+		recipients.push({
+			"email": signedUpUsers[i].email
+		})
+	}
+	const msg = {
+		"from": {
+			"email": config["sendgrid"]["fromEmail"],
+			"name": "Bee Positive Apiary"
+		},
+		"personalizations": [
+			{
+				"to": recipients,
+				"dynamic_template_data": {
+					"ordernumber": ordernumber
+				}
+			}
+		],
+		"template_id": config["sendgrid"]["orderAdminCompletionTemplateID"]
+	}
+
+	fulfilled = await sendMail(msg);
+	// fulfilled = true;
+	return fulfilled;
+}
