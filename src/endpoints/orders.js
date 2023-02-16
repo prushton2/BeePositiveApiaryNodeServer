@@ -201,7 +201,7 @@ ordersRouter.patch("/action/*", async(req, res) => {
             database.Orders.delete(req.body["orderID"]);
             database.ArchivedOrders.create(order["primaryKey"], order["table"]);
             break;
-		case "paid":
+		case "pay":
 			database.Orders.set(req.body["orderID"], {"paid": req.body["value"]})
 			break;
         default:
