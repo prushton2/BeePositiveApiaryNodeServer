@@ -44,6 +44,7 @@ ordersRouter.post('/add', async(req, res) => {
     req.body["Order"]["emailSent"] = false;
     req.body["Order"]["wantsEmails"] = req.body["wantsToReceiveEmails"];
     req.body["Order"]["viewKey"] = ver.hash(viewKey);
+    req.body["Order"]["paid"] = false;
     //Add a user to the order if there is one
     
     req.body["Order"]["owner"] = "";
@@ -153,7 +154,8 @@ ordersRouter.get("/getByKey", async(req, res) => {
             "address": order["address"],
             "isComplete": order["isComplete"],
             "date": order["date"],
-            "purchases": order["purchases"]
+            "purchases": order["purchases"],
+            "paid": order["paid"],
         }
     }
 
@@ -188,16 +190,21 @@ ordersRouter.get("/get/*", async(req, res) => {
 
 ordersRouter.patch("/action/*", async(req, res) => {
     if(!await ver.verifySession(req, res, "admin")) { return; }
+	
+	let order;
 
     switch(req.originalUrl.split("/")[3]) {
         case "complete":
             database.Orders.set(req.body["orderID"], {"isComplete": !!req.body["value"]});
             break;
         case "archive":
-            let order = database.Orders.get(req.body["orderID"]);
+            order = database.Orders.get(req.body["orderID"]);
             database.Orders.delete(req.body["orderID"]);
             database.ArchivedOrders.create(order["primaryKey"], order["table"]);
             break;
+		case "pay":
+			database.Orders.set(req.body["orderID"], {"paid": req.body["value"]})
+			break;
         default:
             res.status(404);
             res.send({"response": "Endpoint does not exist"});
