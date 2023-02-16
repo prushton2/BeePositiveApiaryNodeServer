@@ -134,6 +134,9 @@ module.exports.sendNewOrderEmailToAdmins = async(ordernumber) => {
 			"email": signedUpUsers[i].email
 		})
 	}
+
+	if(recipients.length == 0) { return; }
+	
 	const msg = {
 		"from": {
 			"email": config["sendgrid"]["fromEmail"],
