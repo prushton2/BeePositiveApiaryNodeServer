@@ -66,16 +66,39 @@ module.exports.verifySession = async(req, res, requiredRole, exitIfInvalid=true)
     }
 
 	//make sure the user has the required permissions
-    if( auth.roleHeirarchy.indexOf(requiredRole) > auth.roleHeirarchy.indexOf( database.Users.table[decoded.sub].permissions )) { 
-        if(exitIfInvalid) {
-            res.status(403);
+	if(!verifyPermissions(database.Users.table[decoded.sub].permissions, requiredRole)) {
+		if(exitIfInvalid) {
+			res.status(403);
             res.send({"response": "Insufficient Permissions"});
         }
         return false;
     }
-    
+
     return true;
 
+}
+
+function verifyPermissions(userPermissions, requiredPermission) {	
+	for (let i in userPermissions) { //iterate over each of the user's permissions
+		let heldPerm = userPermissions[i].toString(); //get the perm
+
+		if(heldPerm === requiredPermission) { //if the held permission is the required permission, continue
+			return true;
+		}
+
+		if(heldPerm.endsWith("*")) { //if we have to deal with a *
+			// Deal with permissions.* allowing permissions.orders.create
+			if(heldPerm.substr(0, heldPerm.length-1) === requiredPermission.substr(0, heldPerm.length-1)) {
+				return true;
+			}
+			// Deal with permissions.* allowing permissions.orders
+			if(heldPerm.split(".").pop() === requiredPermission.split(".")) {
+				return true;
+			}
+		}
+	}
+	//if none match, exit
+	return false;
 }
 
 async function verifyJWT(jwt, originalID) {
