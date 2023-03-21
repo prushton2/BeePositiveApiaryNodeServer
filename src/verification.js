@@ -33,7 +33,7 @@ module.exports.verifySessionWithTokens = async(userID, sessionID, requiredRole) 
 module.exports.verifySession = async(req, res, requiredRole, exitIfInvalid=true) => {
     let jwt = req.cookies.auth;
     let decoded;
-    try {
+    try { //try to turn the cookie into a JWT
         decoded = JSON.parse(Buffer.from(jwt.split(".")[1], "base64").toString("ascii"));
     } catch {
         if(exitIfInvalid) {
@@ -45,7 +45,7 @@ module.exports.verifySession = async(req, res, requiredRole, exitIfInvalid=true)
 
     let isValidJWT = await verifyJWT(jwt, decoded.sub);
 
-    if(!isValidJWT) {
+    if(!isValidJWT) { //check the validity of the JWT
         if(exitIfInvalid) {
             res.status(400);
             res.send({"response": "No Valid Session Found"});
@@ -55,7 +55,7 @@ module.exports.verifySession = async(req, res, requiredRole, exitIfInvalid=true)
 
     database.Users.load();
     
-    if(database.Users.table[decoded.sub] == undefined) {
+    if(database.Users.table[decoded.sub] == undefined) { //create user if not exists
         await auth.createUserIfNotExists(
             decoded.sub,
             {
@@ -65,7 +65,8 @@ module.exports.verifySession = async(req, res, requiredRole, exitIfInvalid=true)
         );
     }
 
-    if( auth.roleHeirarchy.indexOf(requiredRole) > auth.roleHeirarchy.indexOf( database.Users.table[decoded.sub].permissions )) {
+	//make sure the user has the required permissions
+    if( auth.roleHeirarchy.indexOf(requiredRole) > auth.roleHeirarchy.indexOf( database.Users.table[decoded.sub].permissions )) { 
         if(exitIfInvalid) {
             res.status(403);
             res.send({"response": "Insufficient Permissions"});

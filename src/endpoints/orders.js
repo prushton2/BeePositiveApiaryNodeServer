@@ -3,11 +3,9 @@ const inputValidator = require("../inputValidator.js");
 const sendgrid = require("../sendgrid.js");
 const jwtdecode = require("jwt-decode");
 
-
 const database = require("../database.js");
 
 const express = require("express");
-const { Database } = require("sqlite3");
 
 let ordersRouter = express.Router()
 
@@ -176,7 +174,7 @@ ordersRouter.get("/get/*", async(req, res) => {
         //     "complete": database.ArchivedOrders.findAll({"owner": req.cookies.auth.split(":")[0]})
         // }
     } else if (req.originalUrl.split("/")[3] == "all") {
-        if(!await ver.verifySession(req, res, "admin")) { return; }
+        if(!await ver.verifySession(req, res, "permissions.orders.get")) { return; }
         database.Orders.load();
         database.ArchivedOrders.load();
         response = {
@@ -189,22 +187,27 @@ ordersRouter.get("/get/*", async(req, res) => {
 })
 
 ordersRouter.patch("/action/*", async(req, res) => {
-    if(!await ver.verifySession(req, res, "admin")) { return; }
 	
 	let order;
-
+	
     switch(req.originalUrl.split("/")[3]) {
-        case "complete":
+		case "archive":
+			if(!await ver.verifySession(req, res, "permissions.orders.archive")) { return; }
+			order = database.Orders.get(req.body["orderID"]);
+			database.Orders.delete(req.body["orderID"]);
+			database.ArchivedOrders.create(order["primaryKey"], order["table"]);
+			break;
+
+		case "complete":
+			if(!await ver.verifySession(req, res, "permissions.orders.complete")) { return; }
             database.Orders.set(req.body["orderID"], {"isComplete": !!req.body["value"]});
             break;
-        case "archive":
-            order = database.Orders.get(req.body["orderID"]);
-            database.Orders.delete(req.body["orderID"]);
-            database.ArchivedOrders.create(order["primaryKey"], order["table"]);
-            break;
+
 		case "pay":
-			database.Orders.set(req.body["orderID"], {"paid": req.body["value"]})
+			if(!await ver.verifySession(req, res, "permissions.orders.pay")) { return; }
+			database.Orders.set(req.body["orderID"], {"paid": !!req.body["value"]})
 			break;
+
         default:
             res.status(404);
             res.send({"response": "Endpoint does not exist"});

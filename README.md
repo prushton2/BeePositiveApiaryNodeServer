@@ -41,93 +41,48 @@ Index of all routes
 
 ## [Auth (/auth/*)](#endpoints)
 ---
-### /logout (GET)
-- Requires account
-- Deletes the session that the user sent the request from, logging them out
-### /logoutOfAll (GET)
-- Requires account
-- Deletes all sessions that the user sent the request from, logging them out of all devices
 ### /getUser (GET)
 - Requires account
 - Returns the user's information aswell as any extra permissions
-### /google/login (POST)
-Logs the user in with google
+### /setUser (POST)
+- Requires ```permissions.auth.setUser```
+- Sets user parameters
 
 Body:
 ```javascript
 {
-    "JWT": //the JWT that google returns when the user logs in
+	"id": "" //user id
+	"userData": {} //JSON object of the new userdata to set
 }
 ```
+
+### /getUsers (GET)
+- Requires ```permissions.auth.getUser```
+- Gets all users
+
 ---
 ## [Database (/db/*)](#endpoints)
 ---
 ### /getProducts?location= (GET)
-- Specify products to return by the location column value (optional)
+- No Permission
+- Specify products to return by the location query parameter value (optional)
 - Returns the products and all related info
-### /update (PATCH)
-- Requires admin permissions
+### /setProduct (PATCH)
+- Requires ```permissions.products.set```
 - Updates the product tables and the users table on the backend
 
 Body:
 ```javascript
 {
-    "table": "",//the table to modify. Either Products, ProductRelations, or Users 
-    "primaryKeys": {}, //Primary keys for the row to update ex: {key: value, key: value}
-    "column": "",//column to update
-    "value": ""//new value for the entry
-}
-```
-### /newEntry (POST)
-- Requires admin permissions
-- Adds a new entry to one of the tables allowed in the [update endpoint](#update-patch)
-
-Body:
-```javascript
-{
-    "table": "",//table to add new entry
-    "values": {} //JSON object of new values to add to table ex: {key: value, key: value}
-}
-```
-
-### /deleteEntry (DELETE)
-- Requires admin permissions
-- Deletes an entry from one of the allowed tables in the [update endpoint](#update-patch)
-
-Body:
-```javascript
-{
-    "table": "", //name of table to delete row from
-    "primaryKeys": {}//primary keys identifying the row to delete ex: {key: value, key: value}
-}
-```
-### /getJson (POST)
-- Requires admin permissions
-- Allows retrieval of the Products, ProductRelations, and Users tables as JSON objects
-
-Body:
-```javascript
-{
-	"table": "", //name of table to retrieve
-}
-```
-
-
-### /hash (POST)
-- Requires admin permission
-- Hashes a given string using the same hash method used throughout the database
-
-Body:
-```javascript
-{
-    "text": "" //text to hash
+    "id": "", //id of the product to create or update
+    "newProduct": {}, //JSON object containing all the parameters to set
 }
 ```
 ---
 ## [Email (/email/*)](#endpoints)
 ---
 ### /completionEmail (POST)
-- Requires admin permission
+- Requires ```permissions.orders.sendEmail```
 - Sends an email confirming the completion of an order to the listed email address in the order, aswell as a bcc to the sender if the setting is set in ```config.json["sendgrid"]["bccToSender"]```
 
 Body:
@@ -141,6 +96,7 @@ Body:
 ---
 ### /add (POST)
 - No required account
+- Returns the order ID and secret to view the order
 - Places an order in the database
 
 Body:
@@ -165,11 +121,16 @@ Body:
 
 ### /getByKey?orderID={order id}&viewKey={view key} (GET)
 - No required permission
+- Returns order information
 - This is used to allow users to view their order after it is placed without an account
 
+### /get/all (GET)
+- Requires ```permissions.orders.get```
+- Returns all placed orders, active and archived
+
 ### /action/archive (PATCH)
-- Requires admin permission
-- Archives an order, preventing it from being viewable through the [/getByKey endpoint](#getbykey-post)
+- Requires ```permissions.orders.archive```
+- Archives an order
 
 Body:
 ```javascript
@@ -179,7 +140,7 @@ Body:
 ```
 
 ### /action/complete (PATCH)
-- Requires admin permission
+- Requires ```permissions.orders.complete``` permission
 - Changes the complete status of an order (doesnt send completion email)
 
 Body:
@@ -189,10 +150,15 @@ Body:
     "value": true //new completion status
 }
 ```
-### /get/all (GET)
-- Requires admin permissions
-- Returns all orders in the database
 
-### /get/placed (GET)
-- Requires user permissions
-- Returns all orders in the database that the logged in user placed
+### /action/pay (PATCH)
+- Requires ```permissions.orders.pay``` permission
+- Changes the complete status of an order (doesnt send completion email)
+
+Body:
+```javascript
+{
+    "orderID": 0, //id of order to edit
+    "value": true //new completion status
+}
+```

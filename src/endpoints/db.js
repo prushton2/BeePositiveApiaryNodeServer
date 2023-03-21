@@ -27,7 +27,7 @@ dbRouter.get("/getProducts", async(req, res) => {
 
 
 dbRouter.patch("/setProduct", async(req, res) => {
-	if(!await ver.verifySession(req, res, "admin")) {
+	if(!await ver.verifySession(req, res, "permissions.products.set")) {
         return
     }
 	database.Products.load();
@@ -163,12 +163,3 @@ dbRouter.post("/getJson", async(req, res) => {
     res.status(200);
     res.send({"response": json});
 })*/
-
-dbRouter.post("/hash", async(req, res) => {
-    if(!await ver.verifySession(req, res, "admin")) {
-        return
-    }
-
-    res.status(200)
-    res.send({"response": ver.hash(req.body["text"])})
-})
