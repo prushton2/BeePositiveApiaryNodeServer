@@ -22,7 +22,7 @@ module.exports.roleHeirarchy = ["user", "admin"]
 //-----------AUTH ENDPOINTS-----------
 //for the logged in user to get their user info
 authRouter.get("/getUser", async(req, res) => {
-    if(!await ver.verifySession(req, res, "permissions.auth.viewSelf")) {
+    if(!await ver.verifySession(req, res, "permissions.users.viewSelf")) {
         return
     }
 
@@ -38,7 +38,7 @@ authRouter.get("/getUser", async(req, res) => {
 
 authRouter.post("/getUser", async(req, res) => {
 	let newReq = { cookies: { auth: req.body.auth } }
-	if (!await ver.verifySession(newReq, res, "permissions.auth.viewSelf")) {
+	if (!await ver.verifySession(newReq, res, "permissions.users.viewSelf")) {
 		return
 	}
 	
@@ -52,7 +52,7 @@ authRouter.post("/getUser", async(req, res) => {
 })
 
 authRouter.post("/setUser", async(req, res) => {
-	if(!await ver.verifySession(req, res, "permissions.auth.setUser")) {
+	if(!await ver.verifySession(req, res, "permissions.users.setUser")) {
 		return;
 	}
 
@@ -66,7 +66,7 @@ authRouter.post("/setUser", async(req, res) => {
 
 //getting all users, for admin use
 authRouter.get("/getUsers", async(req, res) => {
-    if(!await ver.verifySession(req, res, "permissions.auth.getUser")) {
+    if(!await ver.verifySession(req, res, "permissions.users.get")) {
         return
     }
     let users = await database.Users.findAll({});
@@ -104,7 +104,7 @@ module.exports.createUserIfNotExists = async(sub, object) => {
             {
                 "name": object.name,
                 "email": object.email,
-                "permissions": "user",
+                "permissions": ["permissions.users.viewSelf"],
             }
         );
     } else {
