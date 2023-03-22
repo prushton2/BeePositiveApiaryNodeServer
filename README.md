@@ -45,7 +45,7 @@ Index of all routes
 - Requires account
 - Returns the user's information aswell as any extra permissions
 ### /setUser (POST)
-- Requires ```permissions.auth.setUser```
+- Requires ```permissions.users.setUser```
 - Sets user parameters
 
 Body:
@@ -57,7 +57,7 @@ Body:
 ```
 
 ### /getUsers (GET)
-- Requires ```permissions.auth.getUser```
+- Requires ```permissions.users.getUser```
 - Gets all users
 
 ---
