@@ -161,6 +161,7 @@ ordersRouter.get("/getByKey", async(req, res) => {
             "date": order["date"],
             "purchases": order["purchases"],
             "paid": order["paid"],
+            "tax": order["tax"],
         }
     }
 
