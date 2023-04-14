@@ -44,6 +44,8 @@ ordersRouter.post('/add', async(req, res) => {
     req.body["Order"]["emailSent"] = false;
     req.body["Order"]["wantsEmails"] = req.body["wantsToReceiveEmails"];
     req.body["Order"]["viewKey"] = ver.hash(viewKey);
+    req.body["Order"]["paid"] = false;
+    req.body["Order"]["tax"] = process.env.TAX;
     //Add a user to the order if there is one
     
     req.body["Order"]["owner"] = "";
@@ -83,9 +85,13 @@ ordersRouter.post('/add', async(req, res) => {
         if(product.stock != null) {    database.Products.set(purchase["ID"]   , {"stock": product.stock   - purchase["amount"]});  }
 		if(subProduct.stock != null) { database.Products.set(purchase["subProductID"], {"stock": subProduct.stock - purchase["amount"]}); }
         
-
+        //set the price
         purchase.price = database.Products.table[purchase.ID].relations[purchase.subProductID].price;
+        purchase.productName = database.Products.table[purchase.ID].name;
+        purchase.subProductName = database.Products.table[purchase.subProductID].name;
+        
 
+        //push it to the array
         verifiedPurchases.push(purchase);
 
     }
@@ -153,7 +159,9 @@ ordersRouter.get("/getByKey", async(req, res) => {
             "address": order["address"],
             "isComplete": order["isComplete"],
             "date": order["date"],
-            "purchases": order["purchases"]
+            "purchases": order["purchases"],
+            "paid": order["paid"],
+            "tax": order["tax"],
         }
     }
 
@@ -188,16 +196,21 @@ ordersRouter.get("/get/*", async(req, res) => {
 
 ordersRouter.patch("/action/*", async(req, res) => {
     if(!await ver.verifySession(req, res, "admin")) { return; }
+	
+	let order;
 
     switch(req.originalUrl.split("/")[3]) {
         case "complete":
             database.Orders.set(req.body["orderID"], {"isComplete": !!req.body["value"]});
             break;
         case "archive":
-            let order = database.Orders.get(req.body["orderID"]);
+            order = database.Orders.get(req.body["orderID"]);
             database.Orders.delete(req.body["orderID"]);
             database.ArchivedOrders.create(order["primaryKey"], order["table"]);
             break;
+		case "pay":
+			database.Orders.set(req.body["orderID"], {"paid": req.body["value"]})
+			break;
         default:
             res.status(404);
             res.send({"response": "Endpoint does not exist"});

@@ -75,7 +75,7 @@ module.exports.sendOrderConfirmation = async(order, shoppingList, orderID, viewK
                     "cost": `$${totalcost.toFixed(2)}`,
                     "tax": `${100*config["pricing"]["tax"]}%`,
                     "date": date.toDateString().split(" GMT")[0],
-                    "link": `${config["domain"]["frontend-url"]}/checkout/OrderConfirmed.html?orderId=${orderID}&viewKey=${viewKey}`
+                    "link": `${config["domain"]["frontend-url"]}/viewOrder?orderID=${orderID}&viewKey=${viewKey}`
                 }
             }
         ],
@@ -134,6 +134,9 @@ module.exports.sendNewOrderEmailToAdmins = async(ordernumber) => {
 			"email": signedUpUsers[i].email
 		})
 	}
+
+	if(recipients.length == 0) { return; }
+	
 	const msg = {
 		"from": {
 			"email": config["sendgrid"]["fromEmail"],
