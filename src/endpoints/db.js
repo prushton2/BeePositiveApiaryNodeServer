@@ -38,6 +38,18 @@ dbRouter.patch("/setProduct", async(req, res) => {
 	res.send({"response": "Updated product"});
 });
 
+dbRouter.patch("/delete", async(req, res) => {
+	if(!await ver.verifySession(req, res, "admin")) {
+        return
+    }
+	database.Products.load();
+	database.Products.delete(req.body.id);
+	database.Products.save();
+
+	res.status(200);    
+	res.send({"response": "Deleted product"});
+});
+
 /* NO CHANCES WITH THIS GARBAGE, this will be redone soon(tm)
 dbRouter.patch("/update", async(req, res) => {
     if(!await enc.verifySession(req, res, "admin")) {
