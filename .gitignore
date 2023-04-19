@@ -5,3 +5,8 @@
 .env
 /tables/*
 !/tables/format.md
+
+.replit
+.replit.nix
+.replit.backup
+.breakpoints
