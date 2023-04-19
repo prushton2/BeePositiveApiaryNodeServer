@@ -34,7 +34,7 @@ dbRouter.patch("/setProduct", async(req, res) => {
 	res.send({"response": "Updated product"});
 });
 
-dbRouter.patch("/delete", async(req, res) => {
+dbRouter.post("/deleteProduct", async(req, res) => {
 	if(!await ver.verifySession(req, res, "admin")) {
         return
     }
