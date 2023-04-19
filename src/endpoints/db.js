@@ -1,9 +1,5 @@
 const express = require("express");
 
-// const Products = require("../../tables/Products.js");
-// const ProductRelations = require("../../tables/ProductRelations.js");
-// const Users = require("../../tables/Users.js");
-
 const database = require("../database.js");
 const ver = require("../verification.js");
 
