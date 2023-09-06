@@ -45,6 +45,7 @@ ordersRouter.post('/add', async(req, res) => {
     req.body["Order"]["wantsEmails"] = req.body["wantsToReceiveEmails"];
     req.body["Order"]["viewKey"] = ver.hash(viewKey);
     req.body["Order"]["paid"] = false;
+    req.body["Order"]["tax"] = process.env.TAX;
     //Add a user to the order if there is one
     
     req.body["Order"]["owner"] = "";
@@ -84,9 +85,13 @@ ordersRouter.post('/add', async(req, res) => {
         if(product.stock != null) {    database.Products.set(purchase["ID"]   , {"stock": product.stock   - purchase["amount"]});  }
 		if(subProduct.stock != null) { database.Products.set(purchase["subProductID"], {"stock": subProduct.stock - purchase["amount"]}); }
         
-
+        //set the price
         purchase.price = database.Products.table[purchase.ID].relations[purchase.subProductID].price;
+        purchase.productName = database.Products.table[purchase.ID].name;
+        purchase.subProductName = database.Products.table[purchase.subProductID].name;
+        
 
+        //push it to the array
         verifiedPurchases.push(purchase);
 
     }
@@ -156,6 +161,7 @@ ordersRouter.get("/getByKey", async(req, res) => {
             "date": order["date"],
             "purchases": order["purchases"],
             "paid": order["paid"],
+            "tax": order["tax"],
         }
     }
 
