@@ -27,10 +27,13 @@ app.use(bodyParser.urlencoded({
 
 app.use(bodyParser.json());
 
+
 app.use( cors({
-    origin: true,
-    methods: ['GET','POST','DELETE','UPDATE','PUT','PATCH'],
-    credentials: true
+    origin: ["https://www.beepositiveapiary.com", "https://admin.beepositiveapiary.com"],
+    credentials: true,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    preflightContinue: false,
+    optionsSuccessStatus: 204
 }));
 
 
